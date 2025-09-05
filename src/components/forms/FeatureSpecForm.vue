@@ -2,184 +2,63 @@
   <div class="feature-spec-form">
     <form @submit.prevent="handleSubmit">
       <!-- Overview Section -->
-      <div class="form-section">
-        <h2>Overview</h2>
+      <OverviewSection
+        :data="{
+          featureName: formData.featureName,
+          author: formData.author,
+          date: formData.date,
+          status: formData.status,
+          featureSummary: formData.featureSummary,
+        }"
+        :errors="errors"
+        :is-editing="isEditing"
+        @update="updateFormField"
+      />
 
-        <div class="form-group">
-          <label for="featureName">Feature Name *</label>
-          <input
-            id="featureName"
-            v-model="formData.featureName"
-            type="text"
-            required
-            placeholder="Enter feature name"
-            class="form-input"
-            :class="{ error: errors.featureName }"
-          />
-          <div v-if="errors.featureName" class="error-message">
-            {{ errors.featureName }}
-          </div>
-        </div>
+      <!-- User Requirements Section -->
+      <UserRequirementsSection
+        :data="{
+          userGoals: formData.userGoals,
+          useCases: formData.useCases,
+        }"
+        @update="updateFormField"
+      />
 
-        <div class="form-row">
-          <div v-if="isEditing" class="form-group">
-            <label for="author">Author *</label>
-            <input
-              id="author"
-              v-model="formData.author"
-              type="text"
-              required
-              placeholder="Author name"
-              class="form-input"
-              :class="{ error: errors.author }"
-            />
-            <div v-if="errors.author" class="error-message">
-              {{ errors.author }}
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="date">Date *</label>
-            <input
-              id="date"
-              v-model="formData.date"
-              type="date"
-              required
-              class="form-input"
-              :class="{ error: errors.date }"
-            />
-            <div v-if="errors.date" class="error-message">
-              {{ errors.date }}
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="status">Status *</label>
-            <select
-              id="status"
-              v-model="formData.status"
-              required
-              class="form-select"
-              :class="{ error: errors.status }"
-            >
-              <option value="Draft">Draft</option>
-              <option value="In Review">In Review</option>
-              <option value="Approved">Approved</option>
-              <option value="Locked">Locked</option>
-            </select>
-            <div v-if="errors.status" class="error-message">
-              {{ errors.status }}
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="featureSummary">Feature Summary *</label>
-          <textarea
-            id="featureSummary"
-            v-model="formData.featureSummary"
-            required
-            placeholder="2-3 sentences describing what this feature does and its primary value"
-            rows="3"
-            class="form-textarea"
-            :class="{ error: errors.featureSummary }"
-          ></textarea>
-          <div v-if="errors.featureSummary" class="error-message">
-            {{ errors.featureSummary }}
-          </div>
-        </div>
-      </div>
+      <!-- Behavioral Requirements Section -->
+      <BehavioralRequirementsSection
+        :data="{
+          coreInteractions: formData.coreInteractions,
+          loadingStates: formData.loadingStates,
+          emptyStates: formData.emptyStates,
+          errorStates: formData.errorStates,
+          businessRules: formData.businessRules,
+        }"
+        @update="updateFormField"
+      />
 
       <!-- Success Criteria Section -->
-      <div class="form-section">
-        <h2>Success Criteria</h2>
-        <div class="form-group">
-          <label>Success Criteria</label>
-          <div
-            v-for="(criteria, index) in formData.successCriteria"
-            :key="criteria.id"
-            class="criteria-item"
-          >
-            <div class="form-row">
-              <div class="form-group">
-                <select
-                  :value="criteria.type"
-                  @change="
-                    updateSuccessCriteria(index, 'type', ($event.target as HTMLSelectElement).value)
-                  "
-                  class="form-select"
-                >
-                  <option value="Primary">Primary</option>
-                  <option value="Key">Key</option>
-                </select>
-              </div>
-              <div class="form-group flex-1">
-                <input
-                  :value="criteria.description"
-                  @input="
-                    updateSuccessCriteria(
-                      index,
-                      'description',
-                      ($event.target as HTMLInputElement).value,
-                    )
-                  "
-                  type="text"
-                  placeholder="Describe the success criteria"
-                  class="form-input"
-                />
-              </div>
-              <button type="button" @click="removeSuccessCriteria(index)" class="btn-remove">
-                Remove
-              </button>
-            </div>
-          </div>
-          <button type="button" @click="addSuccessCriteria" class="btn-add">
-            + Add Success Criteria
-          </button>
-        </div>
-      </div>
+      <SuccessCriteriaSection
+        :data="{
+          successCriteria: formData.successCriteria,
+        }"
+        @update="updateFormField"
+      />
 
       <!-- Reviewers Section -->
-      <div class="form-section">
-        <h2>Reviewers</h2>
-        <div class="form-group">
-          <label>Reviewers</label>
-          <div
-            v-for="(reviewer, index) in formData.reviewers"
-            :key="reviewer.id"
-            class="reviewer-item"
-          >
-            <div class="form-row">
-              <div class="form-group">
-                <input
-                  :value="reviewer.name"
-                  @input="updateReviewer(index, 'name', ($event.target as HTMLInputElement).value)"
-                  type="text"
-                  placeholder="Reviewer name"
-                  class="form-input"
-                />
-              </div>
-              <div class="form-group">
-                <select
-                  :value="reviewer.role"
-                  @change="
-                    updateReviewer(index, 'role', ($event.target as HTMLSelectElement).value)
-                  "
-                  class="form-select"
-                >
-                  <option value="Product">Product</option>
-                  <option value="Design">Design</option>
-                  <option value="Engineering">Engineering</option>
-                </select>
-              </div>
-              <button type="button" @click="removeReviewer(index)" class="btn-remove">
-                Remove
-              </button>
-            </div>
-          </div>
-          <button type="button" @click="addReviewer" class="btn-add">+ Add Reviewer</button>
-        </div>
-      </div>
+      <ReviewersSection
+        :data="{
+          reviewers: formData.reviewers,
+        }"
+        @update="updateFormField"
+      />
+
+      <!-- Approval Section -->
+      <ApprovalSection
+        :data="{
+          approvals: formData.approvals,
+        }"
+        @update="updateFormField"
+      />
 
       <!-- Form Actions -->
       <div class="form-actions">
@@ -195,7 +74,13 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useAuth } from '../../composables/useAuth'
-import type { FeatureSpecFormData, SuccessCriteria, Reviewer } from '../../types/feature'
+import type { FeatureSpecFormData } from '../../types/feature'
+import OverviewSection from './sections/OverviewSection.vue'
+import UserRequirementsSection from './sections/UserRequirementsSection.vue'
+import BehavioralRequirementsSection from './sections/BehavioralRequirementsSection.vue'
+import SuccessCriteriaSection from './sections/SuccessCriteriaSection.vue'
+import ReviewersSection from './sections/ReviewersSection.vue'
+import ApprovalSection from './sections/ApprovalSection.vue'
 
 interface Props {
   initialData?: Partial<FeatureSpecFormData>
@@ -347,56 +232,22 @@ const handleCancel = () => {
   emit('cancel')
 }
 
-// Success Criteria management
-const addSuccessCriteria = () => {
-  const newCriteria: SuccessCriteria = {
-    id: crypto.randomUUID(),
-    type: 'Primary',
-    description: '',
-  }
-  formData.successCriteria.push(newCriteria)
-}
-
-const removeSuccessCriteria = (index: number) => {
-  formData.successCriteria.splice(index, 1)
-}
-
-const updateSuccessCriteria = (index: number, field: keyof SuccessCriteria, value: string) => {
-  if (field === 'type' && (value === 'Primary' || value === 'Key')) {
-    formData.successCriteria[index][field] = value as 'Primary' | 'Key'
-  } else if (field === 'description') {
-    formData.successCriteria[index][field] = value
-  }
-}
-
-// Reviewer management
-const addReviewer = () => {
-  const newReviewer: Reviewer = {
-    id: crypto.randomUUID(),
-    name: '',
-    role: 'Product',
-    status: 'pending',
-  }
-  formData.reviewers.push(newReviewer)
-}
-
-const removeReviewer = (index: number) => {
-  formData.reviewers.splice(index, 1)
-}
-
-const updateReviewer = (index: number, field: keyof Reviewer, value: string) => {
-  if (field === 'name') {
-    formData.reviewers[index][field] = value
-  } else if (
-    field === 'role' &&
-    (value === 'Product' || value === 'Design' || value === 'Engineering')
-  ) {
-    formData.reviewers[index][field] = value as 'Product' | 'Design' | 'Engineering'
-  } else if (
-    field === 'status' &&
-    (value === 'pending' || value === 'approved' || value === 'rejected')
-  ) {
-    formData.reviewers[index][field] = value as 'pending' | 'approved' | 'rejected'
+// Generic form field update handler
+const updateFormField = (field: string, value: any) => {
+  // Handle nested field updates (e.g., 'approvals.design.visualDesign')
+  if (field.includes('.')) {
+    const keys = field.split('.')
+    let current = formData as any
+    for (let i = 0; i < keys.length - 1; i++) {
+      if (!current[keys[i]]) {
+        current[keys[i]] = {}
+      }
+      current = current[keys[i]]
+    }
+    current[keys[keys.length - 1]] = value
+  } else {
+    // Handle direct field updates
+    ;(formData as any)[field] = value
   }
 }
 </script>
@@ -407,124 +258,6 @@ const updateReviewer = (index: number, field: keyof Reviewer, value: string) => 
   margin: 0 auto;
   padding: var(--spacing-8);
   font-family: var(--font-family-sans);
-}
-
-.form-section {
-  margin-bottom: var(--spacing-8);
-  padding: var(--spacing-6);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-background);
-}
-
-.form-section h2 {
-  margin: 0 0 var(--spacing-6) 0;
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-gray-700);
-}
-
-.form-group {
-  margin-bottom: var(--spacing-4);
-}
-
-.form-row {
-  display: flex;
-  gap: var(--spacing-4);
-  align-items: end;
-}
-
-.form-row .form-group {
-  flex: 1;
-  margin-bottom: 0;
-}
-
-.flex-1 {
-  flex: 1;
-}
-
-label {
-  display: block;
-  margin-bottom: var(--spacing-2);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-gray-700);
-}
-
-.form-input,
-.form-select,
-.form-textarea {
-  width: 100%;
-  padding: var(--spacing-3);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  transition:
-    border-color var(--transition-fast),
-    box-shadow var(--transition-fast);
-}
-
-.form-input:focus,
-.form-select:focus,
-.form-textarea:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: var(--shadow-focus);
-}
-
-.form-input.error,
-.form-select.error,
-.form-textarea.error {
-  border-color: var(--color-error);
-  box-shadow: var(--shadow-focus-error);
-}
-
-.form-textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-.error-message {
-  margin-top: var(--spacing-1);
-  font-size: var(--font-size-xs);
-  color: var(--color-error);
-}
-
-.criteria-item,
-.reviewer-item {
-  margin-bottom: var(--spacing-4);
-  padding: var(--spacing-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-background-card);
-}
-
-.btn-add,
-.btn-remove {
-  padding: var(--spacing-2) var(--spacing-4);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.btn-add {
-  background: var(--color-secondary);
-  color: var(--color-gray-700);
-}
-
-.btn-add:hover {
-  background: var(--color-secondary-hover);
-}
-
-.btn-remove {
-  background: var(--color-red-50);
-  color: var(--color-error);
-  border-color: var(--color-red-100);
-}
-
-.btn-remove:hover {
-  background: var(--color-red-100);
 }
 
 .form-actions {
