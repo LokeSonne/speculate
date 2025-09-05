@@ -389,36 +389,34 @@ const updateReviewer = (index: number, field: keyof Reviewer, value: string) => 
 
 <style scoped>
 .feature-spec-form {
-  max-width: 800px;
+  max-width: var(--max-width-lg);
   margin: 0 auto;
-  padding: 2rem;
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
-    'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  padding: var(--spacing-8);
+  font-family: var(--font-family-sans);
 }
 
 .form-section {
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  background: #f9fafb;
+  margin-bottom: var(--spacing-8);
+  padding: var(--spacing-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-background);
 }
 
 .form-section h2 {
-  margin: 0 0 1.5rem 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #374151;
+  margin: 0 0 var(--spacing-6) 0;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-700);
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-4);
 }
 
 .form-row {
   display: flex;
-  gap: 1rem;
+  gap: var(--spacing-4);
   align-items: end;
 }
 
@@ -433,37 +431,37 @@ const updateReviewer = (index: number, field: keyof Reviewer, value: string) => 
 
 label {
   display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #374151;
+  margin-bottom: var(--spacing-2);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-700);
 }
 
 .form-input,
 .form-select,
 .form-textarea {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
+  padding: var(--spacing-3);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
   transition:
-    border-color 0.15s ease-in-out,
-    box-shadow 0.15s ease-in-out;
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .form-input:focus,
 .form-select:focus,
 .form-textarea:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
 }
 
 .form-input.error,
 .form-select.error,
 .form-textarea.error {
-  border-color: #dc2626;
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+  border-color: var(--color-error);
+  box-shadow: var(--shadow-focus-error);
 }
 
 .form-textarea {
@@ -472,90 +470,90 @@ label {
 }
 
 .error-message {
-  margin-top: 0.25rem;
-  font-size: 0.75rem;
-  color: #dc2626;
+  margin-top: var(--spacing-1);
+  font-size: var(--font-size-xs);
+  color: var(--color-error);
 }
 
 .criteria-item,
 .reviewer-item {
-  margin-bottom: 1rem;
-  padding: 1rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.375rem;
-  background: white;
+  margin-bottom: var(--spacing-4);
+  padding: var(--spacing-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-background-card);
 }
 
 .btn-add,
 .btn-remove {
-  padding: 0.5rem 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
+  padding: var(--spacing-2) var(--spacing-4);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
   cursor: pointer;
-  transition: all 0.15s ease-in-out;
+  transition: all var(--transition-fast);
 }
 
 .btn-add {
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--color-secondary);
+  color: var(--color-gray-700);
 }
 
 .btn-add:hover {
-  background: #e5e7eb;
+  background: var(--color-secondary-hover);
 }
 
 .btn-remove {
-  background: #fef2f2;
-  color: #dc2626;
-  border-color: #fecaca;
+  background: var(--color-red-50);
+  color: var(--color-error);
+  border-color: var(--color-red-100);
 }
 
 .btn-remove:hover {
-  background: #fee2e2;
+  background: var(--color-red-100);
 }
 
 .form-actions {
   display: flex;
-  gap: 1rem;
+  gap: var(--spacing-4);
   justify-content: flex-end;
-  margin-top: 2rem;
-  padding-top: 2rem;
-  border-top: 1px solid #e5e7eb;
+  margin-top: var(--spacing-8);
+  padding-top: var(--spacing-8);
+  border-top: 1px solid var(--color-border);
 }
 
 .btn-primary,
 .btn-secondary {
-  padding: 0.75rem 1.5rem;
+  padding: var(--spacing-3) var(--spacing-6);
   border: none;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: all 0.15s ease-in-out;
+  transition: all var(--transition-fast);
 }
 
 .btn-primary {
-  background: #3b82f6;
+  background: var(--color-primary);
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #2563eb;
+  background: var(--color-primary-hover);
 }
 
 .btn-primary:disabled {
-  background: #9ca3af;
+  background: var(--color-gray-400);
   cursor: not-allowed;
 }
 
 .btn-secondary {
-  background: #f3f4f6;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  background: var(--color-secondary);
+  color: var(--color-gray-700);
+  border: 1px solid var(--color-border-light);
 }
 
 .btn-secondary:hover {
-  background: #e5e7eb;
+  background: var(--color-secondary-hover);
 }
 </style>

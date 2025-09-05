@@ -77,115 +77,113 @@ const handleFormCancel = () => {
 <style scoped>
 .app {
   min-height: 100vh;
-  background: #f9fafb;
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
-    'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  background: var(--color-background);
+  font-family: var(--font-family-sans);
 }
 
 .app-header {
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 2rem;
+  background: var(--color-background-card);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--spacing-8);
   text-align: center;
 }
 
 .app-header h1 {
-  margin: 0 0 0.5rem 0;
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #111827;
+  margin: 0 0 var(--spacing-2) 0;
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
 }
 
 .app-header p {
   margin: 0;
-  color: #6b7280;
-  font-size: 1.125rem;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-lg);
 }
 
 .app-main {
-  max-width: 1200px;
+  max-width: var(--max-width-xl);
   margin: 0 auto;
-  padding: 2rem;
+  padding: var(--spacing-8);
 }
 
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-8);
 }
 
 .dashboard-header h2 {
   margin: 0;
-  font-size: 1.875rem;
-  font-weight: 600;
-  color: #111827;
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
 }
 
 .empty-state {
   text-align: center;
-  padding: 4rem 2rem;
-  background: white;
-  border-radius: 0.5rem;
-  border: 1px solid #e5e7eb;
+  padding: var(--spacing-16) var(--spacing-8);
+  background: var(--color-background-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
 }
 
 .empty-state h3 {
-  margin: 0 0 1rem 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #374151;
+  margin: 0 0 var(--spacing-4) 0;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-700);
 }
 
 .empty-state p {
-  margin: 0 0 2rem 0;
-  color: #6b7280;
-  font-size: 1.125rem;
+  margin: 0 0 var(--spacing-8) 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-lg);
 }
 
 .specs-list h3 {
-  margin: 0 0 1.5rem 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #374151;
+  margin: 0 0 var(--spacing-6) 0;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-700);
 }
 
 .specs-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+  gap: var(--spacing-6);
 }
 
 .spec-card {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  transition: box-shadow 0.15s ease-in-out;
+  background: var(--color-background-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-6);
+  transition: box-shadow var(--transition-fast);
 }
 
 .spec-card:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 .spec-card h4 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #111827;
+  margin: 0 0 var(--spacing-2) 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
 }
 
 .spec-author {
-  margin: 0 0 1rem 0;
-  color: #6b7280;
-  font-size: 0.875rem;
+  margin: 0 0 var(--spacing-4) 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
 }
 
 .spec-summary {
-  margin: 0 0 1rem 0;
-  color: #374151;
-  line-height: 1.5;
+  margin: 0 0 var(--spacing-4) 0;
+  color: var(--color-gray-700);
+  line-height: var(--line-height-normal);
 }
 
 .spec-meta {
@@ -195,42 +193,42 @@ const handleFormCancel = () => {
 }
 
 .spec-status {
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
   text-transform: uppercase;
 }
 
 .status-draft {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--color-yellow-100);
+  color: var(--color-amber-600);
 }
 
 .status-in-review {
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--color-blue-100);
+  color: var(--color-blue-600);
 }
 
 .status-approved {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--color-green-100);
+  color: var(--color-green-600);
 }
 
 .status-locked {
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--color-gray-100);
+  color: var(--color-gray-700);
 }
 
 .spec-date {
-  color: #6b7280;
-  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
 }
 
 .form-container {
-  background: white;
-  border-radius: 0.5rem;
-  border: 1px solid #e5e7eb;
+  background: var(--color-background-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
   overflow: hidden;
 }
 
@@ -238,45 +236,45 @@ const handleFormCancel = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 2rem;
-  border-bottom: 1px solid #e5e7eb;
-  background: #f9fafb;
+  padding: var(--spacing-6) var(--spacing-8);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-background);
 }
 
 .form-header h2 {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #111827;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
 }
 
 .btn-primary,
 .btn-secondary {
-  padding: 0.75rem 1.5rem;
+  padding: var(--spacing-3) var(--spacing-6);
   border: none;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: all 0.15s ease-in-out;
+  transition: all var(--transition-fast);
 }
 
 .btn-primary {
-  background: #3b82f6;
+  background: var(--color-primary);
   color: white;
 }
 
 .btn-primary:hover {
-  background: #2563eb;
+  background: var(--color-primary-hover);
 }
 
 .btn-secondary {
-  background: #f3f4f6;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  background: var(--color-secondary);
+  color: var(--color-gray-700);
+  border: 1px solid var(--color-border-light);
 }
 
 .btn-secondary:hover {
-  background: #e5e7eb;
+  background: var(--color-secondary-hover);
 }
 </style>
