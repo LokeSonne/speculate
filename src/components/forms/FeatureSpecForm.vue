@@ -22,14 +22,14 @@
         </div>
 
         <div class="form-row">
-          <div class="form-group">
+          <div v-if="isEditing" class="form-group">
             <label for="author">Author *</label>
             <input
               id="author"
               v-model="formData.author"
               type="text"
               required
-              placeholder="Your name"
+              placeholder="Author name"
               class="form-input"
               :class="{ error: errors.author }"
             />
@@ -194,6 +194,7 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
+import { useAuth } from '../../composables/useAuth'
 import type { FeatureSpecFormData, SuccessCriteria, Reviewer } from '../../types/feature'
 
 interface Props {
@@ -212,11 +213,24 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<Emits>()
+const { user } = useAuth()
+
+// Get user's display name (full name or email)
+const getUserDisplayName = () => {
+  if (!user.value) return ''
+
+  // Try to get full name from user metadata first
+  const fullName = user.value.user_metadata?.full_name
+  if (fullName) return fullName
+
+  // Fall back to email
+  return user.value.email || ''
+}
 
 // Form data using Vue reactivity
 const formData = reactive<FeatureSpecFormData>({
   featureName: props.initialData.featureName || '',
-  author: props.initialData.author || '',
+  author: props.initialData.author || getUserDisplayName(),
   date: props.initialData.date || new Date().toISOString().split('T')[0],
   status: props.initialData.status || 'Draft',
   featureSummary: props.initialData.featureSummary || '',

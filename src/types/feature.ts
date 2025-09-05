@@ -1,7 +1,7 @@
 export interface FrontendFeatureSpec {
   id: string
   featureName: string
-  
+
   // Overview Section
   author: string
   date: Date
@@ -9,40 +9,40 @@ export interface FrontendFeatureSpec {
   reviewers: Reviewer[]
   featureSummary: string
   successCriteria: SuccessCriteria[]
-  
+
   // User Requirements
   targetUsers: TargetUser[]
   userGoals: UserGoal[]
   useCases: UseCase[]
-  
+
   // Behavioral Requirements
   coreInteractions: CoreInteraction[]
   loadingStates: LoadingState[]
   emptyStates: EmptyState[]
   errorStates: ErrorState[]
   formBehavior?: FormBehavior
-  
+
   // Visual Design Requirements
   layoutStructure: LayoutStructure
   visualHierarchy: VisualHierarchy
   componentSpecs: ComponentSpec[]
   typographyContent: TypographyContent
   accessibilityRequirements: AccessibilityRequirements
-  
+
   // Responsive Behavior
   responsiveBehavior: ResponsiveBehavior
-  
+
   // Animation & Motion
   animationRequirements: AnimationRequirement[]
-  
+
   // Edge Cases & Constraints
   edgeCases: EdgeCase[]
   technicalConstraints: TechnicalConstraint[]
   businessRules: BusinessRule[]
-  
+
   // Approval & Sign-off
   approvals: Approval[]
-  
+
   // Metadata
   createdAt: Date
   updatedAt: Date
@@ -287,6 +287,49 @@ export interface Approval {
   approvedAt?: Date
 }
 
+export interface ChangeRequest {
+  id: string
+  featureSpecId: string
+  userId: string
+  userEmail?: string
+  userName?: string
+  title: string
+  description: string
+  type: 'suggestion' | 'issue' | 'question' | 'improvement'
+  status: 'open' | 'accepted' | 'rejected' | 'resolved'
+  section?: string
+  sectionId?: string
+  suggestedChange?: string
+  createdAt: Date
+  updatedAt: Date
+  comments?: ChangeRequestComment[]
+}
+
+export interface ChangeRequestComment {
+  id: string
+  changeRequestId: string
+  userId: string
+  userEmail?: string
+  userName?: string
+  content: string
+  createdAt: Date
+}
+
+export interface CreateChangeRequestData {
+  featureSpecId: string
+  title: string
+  description: string
+  type: 'suggestion' | 'issue' | 'question' | 'improvement'
+  section?: string
+  sectionId?: string
+  suggestedChange?: string
+}
+
+export interface CreateChangeRequestCommentData {
+  changeRequestId: string
+  content: string
+}
+
 // Form field types for TanStack Forms
 export interface FeatureSpecFormData {
   featureName: string
@@ -337,12 +380,12 @@ export const createDefaultFeatureSpec = (): FrontendFeatureSpec => ({
   layoutStructure: {
     desktop: { breakpoint: '>1200px', description: '' },
     tablet: { breakpoint: '768-1199px', description: '' },
-    mobile: { breakpoint: '<768px', description: '' }
+    mobile: { breakpoint: '<768px', description: '' },
   },
   visualHierarchy: {
     primaryElements: [],
     secondaryElements: [],
-    tertiaryElements: []
+    tertiaryElements: [],
   },
   componentSpecs: [],
   typographyContent: {
@@ -351,28 +394,28 @@ export const createDefaultFeatureSpec = (): FrontendFeatureSpec => ({
     labels: [],
     errorMessages: [],
     successMessages: [],
-    emptyStateText: []
+    emptyStateText: [],
   },
   accessibilityRequirements: {
     keyboardNavigation: {
       tabOrder: [],
       shortcuts: [],
-      focusManagement: []
+      focusManagement: [],
     },
     screenReaderSupport: {
       labels: [],
       announcements: [],
-      structure: []
+      structure: [],
     },
     visualAccessibility: {
       colorRequirements: [],
       focusIndicators: [],
-      textScaling: []
-    }
+      textScaling: [],
+    },
   },
   responsiveBehavior: {
     breakpointTransitions: [],
-    touchInteractions: []
+    touchInteractions: [],
   },
   animationRequirements: [],
   edgeCases: [],
@@ -381,5 +424,5 @@ export const createDefaultFeatureSpec = (): FrontendFeatureSpec => ({
   approvals: [],
   createdAt: new Date(),
   updatedAt: new Date(),
-  version: '1.0.0'
+  version: '1.0.0',
 })

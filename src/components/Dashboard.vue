@@ -39,6 +39,7 @@
             <span class="spec-date">{{ new Date(spec.date).toLocaleDateString() }}</span>
           </div>
           <div class="spec-actions">
+            <button @click="handleViewSpec(spec)" class="btn-primary btn-sm">View</button>
             <button @click="handleEditSpec(spec)" class="btn-secondary btn-sm">Edit</button>
             <button @click="handleDeleteSpec(spec.id)" class="btn-remove btn-sm">Delete</button>
           </div>
@@ -56,6 +57,7 @@ import type { FrontendFeatureSpec } from '../types/feature'
 interface Emits {
   (e: 'create-spec'): void
   (e: 'edit-spec', spec: FrontendFeatureSpec): void
+  (e: 'view-spec', spec: FrontendFeatureSpec): void
 }
 
 const emit = defineEmits<Emits>()
@@ -69,6 +71,10 @@ onMounted(() => {
 
 const handleCreateSpec = () => {
   emit('create-spec')
+}
+
+const handleViewSpec = (spec: FrontendFeatureSpec) => {
+  emit('view-spec', spec)
 }
 
 const handleEditSpec = (spec: FrontendFeatureSpec) => {

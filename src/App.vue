@@ -1,6 +1,9 @@
 <template>
   <AuthGuard>
     <div class="app">
+      <!-- Mock Authentication Status (Development Only) -->
+      <MockAuthStatus />
+
       <header class="app-header">
         <h1>Frontend Feature Specs</h1>
         <p>Create and manage frontend feature specifications</p>
@@ -11,7 +14,18 @@
       </header>
 
       <main class="app-main">
-        <Dashboard v-if="!showForm" @create-spec="handleCreateSpec" @edit-spec="handleEditSpec" />
+        <Dashboard
+          v-if="!showForm && !viewingSpec"
+          @create-spec="handleCreateSpec"
+          @edit-spec="handleEditSpec"
+          @view-spec="handleViewSpec"
+        />
+
+        <FeatureSpecView
+          v-else-if="viewingSpec"
+          :spec="viewingSpec"
+          @back="handleBackToDashboard"
+        />
 
         <FeatureSpecFormContainer
           v-else
@@ -30,13 +44,16 @@ import { useAuth } from './composables/useAuth'
 import { useFeatureSpecs } from './composables/useFeatureSpecsSupabase'
 import AuthGuard from './components/AuthGuard.vue'
 import Dashboard from './components/Dashboard.vue'
+import FeatureSpecView from './components/EditableFeatureSpecView.vue'
 import FeatureSpecFormContainer from './components/FeatureSpecFormContainer.vue'
+import MockAuthStatus from './components/MockAuthStatus.vue'
 import type { FrontendFeatureSpec, FeatureSpecFormData } from './types/feature'
 
 const { user, signOut } = useAuth()
 const { createFeatureSpec, updateFeatureSpec } = useFeatureSpecs()
 
 const showForm = ref(false)
+const viewingSpec = ref<FrontendFeatureSpec | null>(null)
 const editingSpec = ref<FrontendFeatureSpec | null>(null)
 
 const handleCreateSpec = () => {
@@ -47,6 +64,16 @@ const handleCreateSpec = () => {
 const handleEditSpec = (spec: FrontendFeatureSpec) => {
   editingSpec.value = spec
   showForm.value = true
+}
+
+const handleViewSpec = (spec: FrontendFeatureSpec) => {
+  viewingSpec.value = spec
+  showForm.value = false
+}
+
+const handleBackToDashboard = () => {
+  viewingSpec.value = null
+  showForm.value = false
 }
 
 const handleFormSubmit = async (data: FeatureSpecFormData) => {
