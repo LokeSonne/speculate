@@ -20,6 +20,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.57.2",
     "@tanstack/vue-form": "^1.19.3",
     "@tanstack/vue-query": "^5.87.1",
     "reka-ui": "^2.5.0",
