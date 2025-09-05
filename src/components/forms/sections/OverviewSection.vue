@@ -17,6 +17,14 @@
       <div v-if="errors.featureName" class="error-message">
         {{ errors.featureName }}
       </div>
+      <FieldChangeHistory
+        v-if="featureSpecId"
+        :changes="getFieldChanges('featureName')"
+        :is-owner="isOwner"
+        :loading="loading"
+        @accept="acceptChange"
+        @reject="rejectChange"
+      />
     </div>
 
     <div class="form-row">
@@ -35,6 +43,14 @@
         <div v-if="errors.author" class="error-message">
           {{ errors.author }}
         </div>
+        <FieldChangeHistory
+          v-if="featureSpecId"
+          :changes="getFieldChanges('author')"
+          :is-owner="isOwner"
+          :loading="loading"
+          @accept="acceptChange"
+          @reject="rejectChange"
+        />
       </div>
 
       <div class="form-group">
@@ -51,6 +67,14 @@
         <div v-if="errors.date" class="error-message">
           {{ errors.date }}
         </div>
+        <FieldChangeHistory
+          v-if="featureSpecId"
+          :changes="getFieldChanges('date')"
+          :is-owner="isOwner"
+          :loading="loading"
+          @accept="acceptChange"
+          @reject="rejectChange"
+        />
       </div>
 
       <div class="form-group">
@@ -71,6 +95,14 @@
         <div v-if="errors.status" class="error-message">
           {{ errors.status }}
         </div>
+        <FieldChangeHistory
+          v-if="featureSpecId"
+          :changes="getFieldChanges('status')"
+          :is-owner="isOwner"
+          :loading="loading"
+          @accept="acceptChange"
+          @reject="rejectChange"
+        />
       </div>
     </div>
 
@@ -89,11 +121,24 @@
       <div v-if="errors.featureSummary" class="error-message">
         {{ errors.featureSummary }}
       </div>
+      <FieldChangeHistory
+        v-if="featureSpecId"
+        :changes="getFieldChanges('featureSummary')"
+        :is-owner="isOwner"
+        :loading="loading"
+        @accept="acceptChange"
+        @reject="rejectChange"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted } from 'vue'
+import { useFieldChanges } from '../../../composables/useFieldChanges'
+import FieldChangeHistory from '../../FieldChangeHistory.vue'
+import type { FieldChangeStatus } from '../../../types/feature'
+
 interface Props {
   data: {
     featureName: string
@@ -104,17 +149,72 @@ interface Props {
   }
   errors: Record<string, string>
   isEditing: boolean
+  featureSpecId?: string
 }
 
 interface Emits {
   (e: 'update', field: string, value: string): void
+  (e: 'field-change', fieldPath: string, oldValue: any, newValue: any): void
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+
+// Field changes functionality
+const {
+  fieldChanges,
+  loading,
+  getFieldChanges,
+  updateFieldChangeStatus,
+  isOwner,
+  fetchFieldChanges,
+} = props.featureSpecId
+  ? useFieldChanges(props.featureSpecId)
+  : {
+      fieldChanges: computed(() => []),
+      loading: computed(() => false),
+      getFieldChanges: () => computed(() => []),
+      updateFieldChangeStatus: async () => {},
+      isOwner: computed(() => false),
+      fetchFieldChanges: async () => {},
+    }
+
+// Load field changes when component mounts
+onMounted(() => {
+  if (props.featureSpecId) {
+    console.log('🚀 OverviewSection mounted with featureSpecId:', props.featureSpecId)
+    fetchFieldChanges()
+  } else {
+    console.log('⚠️ OverviewSection mounted without featureSpecId')
+  }
+})
 
 const updateField = (field: string, value: string) => {
   emit('update', field, value)
+
+  // Track field changes for collaborative editing
+  if (props.featureSpecId && props.isEditing) {
+    const oldValue = props.data[field as keyof typeof props.data]
+    if (oldValue !== value) {
+      emit('field-change', field, oldValue, value)
+    }
+  }
+}
+
+const acceptChange = async (changeId: string) => {
+  try {
+    await updateFieldChangeStatus(changeId, 'accepted')
+  } catch (error) {
+    console.error('Failed to accept change:', error)
+  }
+}
+
+const rejectChange = async (changeId: string) => {
+  try {
+    await updateFieldChangeStatus(changeId, 'rejected')
+  } catch (error) {
+    console.error('Failed to reject change:', error)
+  }
 }
 </script>
 

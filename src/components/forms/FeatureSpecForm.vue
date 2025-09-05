@@ -12,7 +12,9 @@
         }"
         :errors="errors"
         :is-editing="isEditing"
+        :feature-spec-id="editingSpec?.id"
         @update="updateFormField"
+        @field-change="handleFieldChange"
       />
 
       <!-- User Requirements Section -->
@@ -70,6 +72,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useAuth } from '../../composables/useAuth'
+import { useFieldChanges } from '../../composables/useFieldChanges'
 import type { FeatureSpecFormData } from '../../types/feature'
 import OverviewSection from './sections/OverviewSection.vue'
 import UserRequirementsSection from './sections/UserRequirementsSection.vue'
@@ -95,6 +98,14 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 const { user } = useAuth()
+
+// Field changes functionality
+const { createFieldChange } =
+  props.isEditing && props.initialData.id
+    ? useFieldChanges(props.initialData.id)
+    : {
+        createFieldChange: async () => {},
+      }
 
 // Get user's display name (full name or email)
 const getUserDisplayName = () => {
@@ -244,6 +255,24 @@ const updateFormField = (field: string, value: any) => {
   } else {
     // Handle direct field updates
     ;(formData as any)[field] = value
+  }
+}
+
+// Handle field changes for collaborative editing
+const handleFieldChange = async (fieldPath: string, oldValue: any, newValue: any) => {
+  if (!props.isEditing || !props.initialData.id) return
+
+  try {
+    await createFieldChange({
+      featureSpecId: props.initialData.id,
+      fieldPath,
+      fieldType: typeof newValue === 'string' ? 'string' : 'object',
+      oldValue,
+      newValue,
+      changeDescription: `Changed ${fieldPath} from "${oldValue}" to "${newValue}"`,
+    })
+  } catch (error) {
+    console.error('Failed to create field change:', error)
   }
 }
 </script>

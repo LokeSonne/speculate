@@ -333,6 +333,37 @@ export interface CreateChangeRequestCommentData {
   content: string
 }
 
+// Field-level change tracking types
+export type FieldChangeStatus = 'pending' | 'accepted' | 'rejected'
+
+export interface FieldChange {
+  id: string
+  featureSpecId: string
+  fieldPath: string // e.g., 'featureName', 'userGoals.0.description', 'coreInteractions.1.actionName'
+  fieldType: 'string' | 'array' | 'object'
+  oldValue: any
+  newValue: any
+  changeDescription?: string
+  authorId: string
+  authorEmail: string
+  status: FieldChangeStatus
+  createdAt: string
+  updatedAt: string
+  acceptedAt?: string
+  acceptedBy?: string
+  rejectedAt?: string
+  rejectedBy?: string
+}
+
+export interface CreateFieldChangeData {
+  featureSpecId: string
+  fieldPath: string
+  fieldType: 'string' | 'array' | 'object'
+  oldValue: any
+  newValue: any
+  changeDescription?: string
+}
+
 // Form field types for TanStack Forms
 export interface FeatureSpecFormData {
   featureName: string
