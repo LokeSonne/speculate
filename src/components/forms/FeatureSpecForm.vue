@@ -392,6 +392,9 @@ const updateReviewer = (index: number, field: keyof Reviewer, value: string) => 
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+    'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 }
 
 .form-section {
