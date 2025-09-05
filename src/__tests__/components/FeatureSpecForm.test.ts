@@ -130,4 +130,15 @@ describe('FeatureSpecForm', () => {
     await wrapper.find('.btn-remove').trigger('click')
     expect(wrapper.findAll('.criteria-item')).toHaveLength(0)
   })
+
+  it('should show error styling for invalid fields', async () => {
+    const wrapper = mount(FeatureSpecForm)
+
+    // Try to submit without filling required fields
+    await wrapper.find('form').trigger('submit.prevent')
+
+    // Check if error class is applied to inputs
+    const featureNameInput = wrapper.find('input[id="featureName"]')
+    expect(featureNameInput.classes()).toContain('error')
+  })
 })

@@ -14,6 +14,7 @@
             required
             placeholder="Enter feature name"
             class="form-input"
+            :class="{ error: errors.featureName }"
           />
           <div v-if="errors.featureName" class="error-message">
             {{ errors.featureName }}
@@ -30,6 +31,7 @@
               required
               placeholder="Your name"
               class="form-input"
+              :class="{ error: errors.author }"
             />
             <div v-if="errors.author" class="error-message">
               {{ errors.author }}
@@ -38,7 +40,14 @@
 
           <div class="form-group">
             <label for="date">Date *</label>
-            <input id="date" v-model="formData.date" type="date" required class="form-input" />
+            <input
+              id="date"
+              v-model="formData.date"
+              type="date"
+              required
+              class="form-input"
+              :class="{ error: errors.date }"
+            />
             <div v-if="errors.date" class="error-message">
               {{ errors.date }}
             </div>
@@ -46,7 +55,13 @@
 
           <div class="form-group">
             <label for="status">Status *</label>
-            <select id="status" v-model="formData.status" required class="form-select">
+            <select
+              id="status"
+              v-model="formData.status"
+              required
+              class="form-select"
+              :class="{ error: errors.status }"
+            >
               <option value="Draft">Draft</option>
               <option value="In Review">In Review</option>
               <option value="Approved">Approved</option>
@@ -67,6 +82,7 @@
             placeholder="2-3 sentences describing what this feature does and its primary value"
             rows="3"
             class="form-textarea"
+            :class="{ error: errors.featureSummary }"
           ></textarea>
           <div v-if="errors.featureSummary" class="error-message">
             {{ errors.featureSummary }}
@@ -86,14 +102,27 @@
           >
             <div class="form-row">
               <div class="form-group">
-                <select v-model="criteria.type" class="form-select">
+                <select
+                  :value="criteria.type"
+                  @change="
+                    updateSuccessCriteria(index, 'type', ($event.target as HTMLSelectElement).value)
+                  "
+                  class="form-select"
+                >
                   <option value="Primary">Primary</option>
                   <option value="Key">Key</option>
                 </select>
               </div>
               <div class="form-group flex-1">
                 <input
-                  v-model="criteria.description"
+                  :value="criteria.description"
+                  @input="
+                    updateSuccessCriteria(
+                      index,
+                      'description',
+                      ($event.target as HTMLInputElement).value,
+                    )
+                  "
                   type="text"
                   placeholder="Describe the success criteria"
                   class="form-input"
@@ -123,14 +152,21 @@
             <div class="form-row">
               <div class="form-group">
                 <input
-                  v-model="reviewer.name"
+                  :value="reviewer.name"
+                  @input="updateReviewer(index, 'name', ($event.target as HTMLInputElement).value)"
                   type="text"
                   placeholder="Reviewer name"
                   class="form-input"
                 />
               </div>
               <div class="form-group">
-                <select v-model="reviewer.role" class="form-select">
+                <select
+                  :value="reviewer.role"
+                  @change="
+                    updateReviewer(index, 'role', ($event.target as HTMLSelectElement).value)
+                  "
+                  class="form-select"
+                >
                   <option value="Product">Product</option>
                   <option value="Design">Design</option>
                   <option value="Engineering">Engineering</option>
@@ -157,8 +193,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
-import type { FeatureSpecFormData, SuccessCriteria, Reviewer } from '../types/feature'
+import { ref, reactive } from 'vue'
+import type { FeatureSpecFormData, SuccessCriteria, Reviewer } from '../../types/feature'
 
 interface Props {
   initialData?: Partial<FeatureSpecFormData>
@@ -177,7 +213,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 
-// Form data
+// Form data using Vue reactivity
 const formData = reactive<FeatureSpecFormData>({
   featureName: props.initialData.featureName || '',
   author: props.initialData.author || '',
@@ -311,6 +347,14 @@ const removeSuccessCriteria = (index: number) => {
   formData.successCriteria.splice(index, 1)
 }
 
+const updateSuccessCriteria = (index: number, field: keyof SuccessCriteria, value: string) => {
+  if (field === 'type' && (value === 'Primary' || value === 'Key')) {
+    formData.successCriteria[index][field] = value as 'Primary' | 'Key'
+  } else if (field === 'description') {
+    formData.successCriteria[index][field] = value
+  }
+}
+
 // Reviewer management
 const addReviewer = () => {
   const newReviewer: Reviewer = {
@@ -324,6 +368,22 @@ const addReviewer = () => {
 
 const removeReviewer = (index: number) => {
   formData.reviewers.splice(index, 1)
+}
+
+const updateReviewer = (index: number, field: keyof Reviewer, value: string) => {
+  if (field === 'name') {
+    formData.reviewers[index][field] = value
+  } else if (
+    field === 'role' &&
+    (value === 'Product' || value === 'Design' || value === 'Engineering')
+  ) {
+    formData.reviewers[index][field] = value as 'Product' | 'Design' | 'Engineering'
+  } else if (
+    field === 'status' &&
+    (value === 'pending' || value === 'approved' || value === 'rejected')
+  ) {
+    formData.reviewers[index][field] = value as 'pending' | 'approved' | 'rejected'
+  }
 }
 </script>
 
@@ -394,6 +454,13 @@ label {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-input.error,
+.form-select.error,
+.form-textarea.error {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
 
 .form-textarea {
