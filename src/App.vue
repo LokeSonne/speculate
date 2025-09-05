@@ -5,11 +5,15 @@
       <MockAuthStatus />
 
       <header class="app-header">
-        <h1>Frontend Feature Specs</h1>
-        <p>Create and manage frontend feature specifications</p>
-        <div class="user-info">
-          <span>Welcome, {{ user?.email }}</span>
-          <button @click="handleSignOut" class="btn-secondary btn-sm">Sign Out</button>
+        <div class="header-content">
+          <div class="header-text">
+            <h1>Frontend Feature Specs</h1>
+            <p>Create and manage frontend feature specifications</p>
+          </div>
+          <div class="user-info">
+            <span class="user-email">Welcome, {{ user?.email }}</span>
+            <button @click="handleSignOut" class="btn btn-secondary btn-sm">Sign Out</button>
+          </div>
         </div>
       </header>
 
@@ -106,44 +110,83 @@ const handleSignOut = async () => {
 
 .app-header {
   background: var(--color-background-card);
-  border-bottom: 1px solid var(--color-border);
-  padding: var(--spacing-8);
-  text-align: center;
+  border-bottom: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+}
+
+.header-content {
+  max-width: var(--max-width-2xl);
+  margin: 0 auto;
+  padding: var(--spacing-8) var(--spacing-6);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-6);
+}
+
+.header-text {
+  flex: 1;
 }
 
 .app-header h1 {
   margin: 0 0 var(--spacing-2) 0;
-  font-size: var(--font-size-4xl);
+  font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
+  line-height: var(--line-height-tight);
 }
 
 .app-header p {
   margin: 0;
   color: var(--color-text-secondary);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
 }
 
 .user-info {
   display: flex;
   align-items: center;
   gap: var(--spacing-4);
-  margin-top: var(--spacing-4);
+  flex-shrink: 0;
 }
 
-.user-info span {
+.user-email {
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
 }
 
 .btn-sm {
-  padding: var(--spacing-2) var(--spacing-3);
-  font-size: var(--font-size-xs);
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--font-size-sm);
 }
 
 .app-main {
-  max-width: var(--max-width-xl);
+  max-width: var(--max-width-2xl);
   margin: 0 auto;
-  padding: var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-6);
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-4);
+  }
+
+  .user-info {
+    align-self: flex-end;
+  }
+
+  .app-header h1 {
+    font-size: var(--font-size-2xl);
+  }
+
+  .app-main {
+    padding: var(--spacing-6) var(--spacing-4);
+  }
 }
 </style>

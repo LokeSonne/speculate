@@ -1,47 +1,57 @@
 <template>
   <div class="dashboard">
     <div class="dashboard-header">
-      <h2>Dashboard</h2>
-      <button @click="handleCreateSpec" class="btn-primary">+ Create New Feature Spec</button>
+      <h2 class="text-3xl font-semibold text-primary">Dashboard</h2>
+      <button @click="handleCreateSpec" class="btn btn-primary">
+        <span class="mr-2">+</span>
+        Create New Feature Spec
+      </button>
     </div>
 
-    <div v-if="loading" class="loading-state">
-      <div class="loading-spinner"></div>
-      <p>Loading feature specs...</p>
+    <div v-if="loading" class="card text-center py-16">
+      <div class="loading-spinner mb-4"></div>
+      <p class="text-secondary">Loading feature specs...</p>
     </div>
 
-    <div v-else-if="error" class="error-state">
-      <h3>Error</h3>
-      <p>{{ error }}</p>
-      <button @click="fetchFeatureSpecs" class="btn-primary">Retry</button>
+    <div v-else-if="error" class="alert alert-error">
+      <h3 class="font-semibold mb-2">Error</h3>
+      <p class="mb-4">{{ error }}</p>
+      <button @click="fetchFeatureSpecs" class="btn btn-primary">Retry</button>
     </div>
 
-    <div v-else-if="featureSpecs.length === 0" class="empty-state">
-      <h3>No feature specs yet</h3>
-      <p>Create your first feature specification to get started.</p>
-      <button @click="handleCreateSpec" class="btn-primary">Create Feature Spec</button>
+    <div v-else-if="featureSpecs.length === 0" class="card text-center py-16">
+      <h3 class="text-2xl font-semibold text-primary mb-4">No feature specs yet</h3>
+      <p class="text-secondary mb-8 text-lg">
+        Create your first feature specification to get started.
+      </p>
+      <button @click="handleCreateSpec" class="btn btn-primary">Create Feature Spec</button>
     </div>
 
     <div v-else class="specs-list">
-      <h3>Feature Specifications ({{ featureSpecs.length }})</h3>
+      <h3 class="text-xl font-semibold text-primary mb-6">
+        Feature Specifications ({{ featureSpecs.length }})
+      </h3>
       <div class="specs-grid">
-        <div v-for="spec in featureSpecs" :key="spec.id" class="spec-card">
-          <h4>{{ spec.featureName }}</h4>
-          <p class="spec-author">By {{ spec.author }}</p>
-          <p class="spec-summary">{{ spec.featureSummary }}</p>
-          <div class="spec-meta">
-            <span
-              class="spec-status"
-              :class="`status-${spec.status.toLowerCase().replace(' ', '-')}`"
-            >
-              {{ spec.status }}
-            </span>
-            <span class="spec-date">{{ new Date(spec.date).toLocaleDateString() }}</span>
-          </div>
-          <div class="spec-actions">
-            <button @click="handleViewSpec(spec)" class="btn-primary btn-sm">View</button>
-            <button @click="handleEditSpec(spec)" class="btn-secondary btn-sm">Edit</button>
-            <button @click="handleDeleteSpec(spec.id)" class="btn-remove btn-sm">Delete</button>
+        <div v-for="spec in featureSpecs" :key="spec.id" class="card spec-card">
+          <div class="card-body">
+            <h4 class="text-lg font-semibold text-primary mb-2">{{ spec.featureName }}</h4>
+            <p class="text-sm text-secondary mb-4">By {{ spec.author }}</p>
+            <p class="text-gray-700 mb-4 line-height-normal">{{ spec.featureSummary }}</p>
+            <div class="spec-meta mb-4">
+              <span class="badge" :class="`badge-${getStatusClass(spec.status)}`">
+                {{ spec.status }}
+              </span>
+              <span class="text-sm text-secondary">{{
+                new Date(spec.date).toLocaleDateString()
+              }}</span>
+            </div>
+            <div class="spec-actions">
+              <button @click="handleViewSpec(spec)" class="btn btn-primary btn-sm">View</button>
+              <button @click="handleEditSpec(spec)" class="btn btn-secondary btn-sm">Edit</button>
+              <button @click="handleDeleteSpec(spec.id)" class="btn btn-error btn-sm">
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -86,6 +96,16 @@ const handleDeleteSpec = async (id: string) => {
     await deleteFeatureSpec(id)
   }
 }
+
+const getStatusClass = (status: string) => {
+  const statusMap: Record<string, string> = {
+    Draft: 'warning',
+    'In Review': 'primary',
+    Approved: 'success',
+    Locked: 'secondary',
+  }
+  return statusMap[status] || 'secondary'
+}
 </script>
 
 <style scoped>
@@ -96,24 +116,6 @@ const handleDeleteSpec = async (id: string) => {
   margin-bottom: var(--spacing-8);
 }
 
-.dashboard-header h2 {
-  margin: 0;
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-}
-
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-16);
-  background: var(--color-background-card);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-}
-
 .loading-spinner {
   width: 32px;
   height: 32px;
@@ -121,7 +123,7 @@ const handleDeleteSpec = async (id: string) => {
   border-top: 3px solid var(--color-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: var(--spacing-4);
+  margin: 0 auto;
 }
 
 @keyframes spin {
@@ -133,87 +135,18 @@ const handleDeleteSpec = async (id: string) => {
   }
 }
 
-.error-state {
-  text-align: center;
-  padding: var(--spacing-16);
-  background: var(--color-red-50);
-  border: 1px solid var(--color-red-100);
-  border-radius: var(--radius-lg);
-}
-
-.error-state h3 {
-  margin: 0 0 var(--spacing-4) 0;
-  color: var(--color-error);
-}
-
-.error-state p {
-  margin: 0 0 var(--spacing-6) 0;
-  color: var(--color-text-secondary);
-}
-
-.empty-state {
-  text-align: center;
-  padding: var(--spacing-16) var(--spacing-8);
-  background: var(--color-background-card);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-}
-
-.empty-state h3 {
-  margin: 0 0 var(--spacing-4) 0;
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-gray-700);
-}
-
-.empty-state p {
-  margin: 0 0 var(--spacing-8) 0;
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-lg);
-}
-
-.specs-list h3 {
-  margin: 0 0 var(--spacing-6) 0;
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-gray-700);
-}
-
 .specs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: var(--spacing-6);
 }
 
 .spec-card {
-  background: var(--color-background-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-6);
-  transition: box-shadow var(--transition-fast);
+  transition: var(--transition-shadow);
 }
 
 .spec-card:hover {
-  box-shadow: var(--shadow-md);
-}
-
-.spec-card h4 {
-  margin: 0 0 var(--spacing-2) 0;
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-}
-
-.spec-author {
-  margin: 0 0 var(--spacing-4) 0;
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
-}
-
-.spec-summary {
-  margin: 0 0 var(--spacing-4) 0;
-  color: var(--color-gray-700);
-  line-height: var(--line-height-normal);
+  box-shadow: var(--shadow-lg);
 }
 
 .spec-meta {
@@ -222,57 +155,46 @@ const handleDeleteSpec = async (id: string) => {
   align-items: center;
 }
 
-.spec-status {
-  padding: var(--spacing-1) var(--spacing-3);
-  border-radius: var(--radius-full);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  text-transform: uppercase;
-}
-
-.status-draft {
-  background: var(--color-yellow-100);
-  color: var(--color-amber-600);
-}
-
-.status-in-review {
-  background: var(--color-blue-100);
-  color: var(--color-blue-600);
-}
-
-.status-approved {
-  background: var(--color-green-100);
-  color: var(--color-green-600);
-}
-
-.status-locked {
-  background: var(--color-gray-100);
-  color: var(--color-gray-700);
-}
-
-.spec-date {
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
-}
-
 .spec-actions {
   display: flex;
   gap: var(--spacing-2);
-  margin-top: var(--spacing-4);
 }
 
 .btn-sm {
-  padding: var(--spacing-2) var(--spacing-3);
-  font-size: var(--font-size-xs);
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--font-size-sm);
 }
 
-.btn-remove {
-  background: var(--color-red-50);
-  color: var(--color-error);
-  border: 1px solid var(--color-red-100);
+/* Utility classes for spacing */
+.mr-2 {
+  margin-right: var(--spacing-2);
+}
+.mb-2 {
+  margin-bottom: var(--spacing-2);
+}
+.mb-4 {
+  margin-bottom: var(--spacing-4);
+}
+.mb-6 {
+  margin-bottom: var(--spacing-6);
+}
+.mb-8 {
+  margin-bottom: var(--spacing-8);
+}
+.py-16 {
+  padding-top: var(--spacing-16);
+  padding-bottom: var(--spacing-16);
 }
 
-.btn-remove:hover {
-  background: var(--color-red-100);
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-4);
+  }
+
+  .specs-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

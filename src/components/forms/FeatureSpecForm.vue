@@ -1,6 +1,6 @@
 <template>
-  <div class="feature-spec-form">
-    <form @submit.prevent="handleSubmit">
+  <div class="form-container">
+    <form @submit.prevent="handleSubmit" class="space-y-8">
       <!-- Overview Section -->
       <OverviewSection
         :data="{
@@ -58,8 +58,8 @@
 
       <!-- Form Actions -->
       <div class="form-actions">
-        <button type="button" @click="handleCancel" class="btn-secondary">Cancel</button>
-        <button type="submit" :disabled="isSubmitting" class="btn-primary">
+        <button type="button" @click="handleCancel" class="btn btn-secondary">Cancel</button>
+        <button type="submit" :disabled="isSubmitting" class="btn btn-primary">
           {{ isSubmitting ? 'Saving...' : 'Save Feature Spec' }}
         </button>
       </div>
@@ -249,54 +249,22 @@ const updateFormField = (field: string, value: any) => {
 </script>
 
 <style scoped>
-.feature-spec-form {
-  max-width: var(--max-width-lg);
-  margin: 0 auto;
-  padding: var(--spacing-8);
-  font-family: var(--font-family-sans);
-}
-
 .form-actions {
   display: flex;
-  gap: var(--spacing-4);
   justify-content: flex-end;
-  margin-top: var(--spacing-8);
+  gap: var(--spacing-4);
   padding-top: var(--spacing-8);
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-border-light);
+  margin-top: var(--spacing-8);
 }
 
-.btn-primary,
-.btn-secondary {
-  padding: var(--spacing-3) var(--spacing-6);
-  border: none;
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: all var(--transition-fast);
+.space-y-8 > * + * {
+  margin-top: var(--spacing-8);
 }
 
-.btn-primary {
-  background: var(--color-primary);
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: var(--color-primary-hover);
-}
-
-.btn-primary:disabled {
-  background: var(--color-gray-400);
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background: var(--color-secondary);
-  color: var(--color-gray-700);
-  border: 1px solid var(--color-border-light);
-}
-
-.btn-secondary:hover {
-  background: var(--color-secondary-hover);
+@media (max-width: 768px) {
+  .form-actions {
+    flex-direction: column;
+  }
 }
 </style>
