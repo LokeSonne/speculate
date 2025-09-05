@@ -88,12 +88,15 @@ export interface UseCase {
 
 export interface CoreInteraction {
   id: string
-  name: string
+  actionName: string
   trigger: string
   behavior: string
   visualFeedback: string
   endState: string
-  errorScenarios: string[]
+  loadingState: string
+  emptyState: string
+  errorStates: ErrorState[]
+  businessRules: BusinessRule[]
 }
 
 export interface LoadingState {

@@ -28,10 +28,6 @@
       <BehavioralRequirementsSection
         :data="{
           coreInteractions: formData.coreInteractions,
-          loadingStates: formData.loadingStates,
-          emptyStates: formData.emptyStates,
-          errorStates: formData.errorStates,
-          businessRules: formData.businessRules,
         }"
         @update="updateFormField"
       />
