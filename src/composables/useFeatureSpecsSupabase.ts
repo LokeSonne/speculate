@@ -15,6 +15,7 @@ export function useFeatureSpecs() {
   const fetchFeatureSpecs = async () => {
     if (!isAuthenticated.value) return
 
+    console.log('🔄 fetchFeatureSpecs called')
     loading.value = true
     error.value = null
 
@@ -38,6 +39,21 @@ export function useFeatureSpecs() {
 
       // Transform the data to match our FrontendFeatureSpec interface
       featureSpecs.value = data?.map(transformDbToFrontend) || []
+
+      console.log(
+        '📊 Fetched and transformed feature specs:',
+        featureSpecs.value.map((s) => ({ id: s.id, name: s.featureName })),
+      )
+
+      // Log the first spec in detail to see the transformation
+      if (featureSpecs.value.length > 0) {
+        console.log('🔍 First transformed spec detail:', {
+          id: featureSpecs.value[0].id,
+          featureName: featureSpecs.value[0].featureName,
+          author: featureSpecs.value[0].author,
+          status: featureSpecs.value[0].status,
+        })
+      }
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch feature specs'
       console.error('Error fetching feature specs:', err)
@@ -205,11 +221,14 @@ export function useFeatureSpecs() {
   ): Promise<FrontendFeatureSpec | null> => {
     if (!isAuthenticated.value) return null
 
+    console.log('🔄 updateFeatureSpec called with:', { id, formData: formData.featureName })
+
     loading.value = true
     error.value = null
 
     try {
       // Update main spec
+      console.log('📡 Making PATCH request to feature_specs with id:', id)
       const { error: specError } = await supabase
         .from('feature_specs')
         .update({
@@ -221,7 +240,12 @@ export function useFeatureSpecs() {
         })
         .eq('id', id)
 
-      if (specError) throw specError
+      if (specError) {
+        console.error('❌ PATCH error:', specError)
+        throw specError
+      }
+
+      console.log('✅ PATCH request successful')
 
       // Delete existing related data and re-insert
       const deletePromises = [

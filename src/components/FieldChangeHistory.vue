@@ -1,43 +1,43 @@
 <template>
   <div class="field-change-history">
-    <div v-if="changes.length === 0" class="no-changes">
+    <div v-if="!changes || changes.length === 0" class="no-changes">
       <span class="text-sm text-muted">No changes yet</span>
     </div>
 
     <div v-else class="changes-list">
       <div
         v-for="change in changes"
-        :key="change.id"
+        :key="change?.id || Math.random()"
         class="change-item"
-        :class="`change-${change.status}`"
+        :class="`change-${change?.status || 'unknown'}`"
       >
         <!-- Main change information -->
         <div class="change-main">
           <div class="change-content">
             <div class="change-value">
               <span class="change-label">New value:</span>
-              <span class="change-text">{{ formatValue(change.newValue) }}</span>
+              <span class="change-text">{{ formatValue(change?.newValue) }}</span>
             </div>
             <div
-              v-if="change.oldValue !== null && change.oldValue !== undefined"
+              v-if="change?.oldValue !== null && change?.oldValue !== undefined"
               class="change-old"
             >
               <span class="change-label">Previous:</span>
-              <span class="change-text old-value">{{ formatValue(change.oldValue) }}</span>
+              <span class="change-text old-value">{{ formatValue(change?.oldValue) }}</span>
             </div>
           </div>
 
           <!-- Owner controls -->
-          <div v-if="isOwner && change.status === 'pending'" class="owner-controls">
+          <div v-if="isOwner && change?.status === 'pending'" class="owner-controls">
             <button
-              @click="acceptChange(change.id)"
+              @click="acceptChange(change?.id)"
               class="btn btn-success btn-sm"
               :disabled="loading"
             >
               Accept
             </button>
             <button
-              @click="rejectChange(change.id)"
+              @click="rejectChange(change?.id)"
               class="btn btn-error btn-sm"
               :disabled="loading"
             >
@@ -47,10 +47,10 @@
         </div>
 
         <!-- Secondary information (accepted state) -->
-        <div v-if="change.status === 'accepted'" class="change-secondary">
+        <div v-if="change?.status === 'accepted'" class="change-secondary">
           <span class="badge badge-success">Accepted</span>
         </div>
-        <div v-else-if="change.status === 'rejected'" class="change-secondary">
+        <div v-else-if="change?.status === 'rejected'" class="change-secondary">
           <span class="badge badge-error">Rejected</span>
         </div>
         <div v-else class="change-secondary">
@@ -59,8 +59,8 @@
 
         <!-- Tertiary information (author and date) -->
         <div class="change-tertiary">
-          <span class="change-author">{{ change.authorEmail }}</span>
-          <span class="change-date">{{ formatDate(change.createdAt) }}</span>
+          <span class="change-author">{{ change?.authorEmail }}</span>
+          <span class="change-date">{{ formatDate(change?.createdAt) }}</span>
         </div>
       </div>
     </div>

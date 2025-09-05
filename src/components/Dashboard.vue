@@ -60,9 +60,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
 import { useFeatureSpecs } from '../composables/useFeatureSpecsSupabase'
 import type { FrontendFeatureSpec } from '../types/feature'
+
+interface Props {
+  refreshTrigger?: boolean
+}
 
 interface Emits {
   (e: 'create-spec'): void
@@ -70,6 +74,7 @@ interface Emits {
   (e: 'view-spec', spec: FrontendFeatureSpec): void
 }
 
+const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const { featureSpecs, loading, error, fetchFeatureSpecs, deleteFeatureSpec } = useFeatureSpecs()
@@ -78,6 +83,15 @@ const { featureSpecs, loading, error, fetchFeatureSpecs, deleteFeatureSpec } = u
 onMounted(() => {
   fetchFeatureSpecs()
 })
+
+// Watch for refresh trigger changes
+watch(
+  () => props.refreshTrigger,
+  () => {
+    console.log('🔄 Dashboard refresh triggered, refetching data...')
+    fetchFeatureSpecs()
+  },
+)
 
 const handleCreateSpec = () => {
   emit('create-spec')

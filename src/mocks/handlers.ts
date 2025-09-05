@@ -739,6 +739,8 @@ export const handlers = [
     // Return all feature specs with related data
     const specs = mockData.featureSpecs.map((spec) => ({
       ...spec,
+      feature_name: spec.featureName, // Map featureName to feature_name for API response
+      feature_summary: spec.featureSummary, // Map featureSummary to feature_summary
       success_criteria: spec.successCriteria,
       reviewers: spec.reviewers,
       target_users: spec.targetUsers,
@@ -761,6 +763,21 @@ export const handlers = [
       business_rules: spec.businessRules,
       approvals: spec.approvals,
     }))
+
+    console.log(
+      '📡 GET feature_specs called, returning:',
+      specs.map((s) => ({ id: s.id, name: s.feature_name })),
+    )
+
+    // Log the first spec in detail to see the structure
+    if (specs.length > 0) {
+      console.log('🔍 First spec detail:', {
+        id: specs[0].id,
+        feature_name: specs[0].feature_name,
+        author: specs[0].author,
+        status: specs[0].status,
+      })
+    }
 
     return HttpResponse.json(specs)
   }),
@@ -836,12 +853,39 @@ export const handlers = [
     await delay(400)
     const body = (await request.json()) as any
     const url = new URL(request.url)
-    const id = url.searchParams.get('id')?.replace('eq.', '')
 
-    const index = mockData.featureSpecs.findIndex((spec) => spec.id === id)
+    // Supabase sends the ID in the URL path, not as a query parameter
+    const pathParts = url.pathname.split('/')
+    const pathId = pathParts[pathParts.length - 1]
+
+    // Also check for id in query params as fallback
+    const queryId = url.searchParams.get('id')?.replace('eq.', '')
+
+    // Use queryId if it exists and is not the table name, otherwise use pathId
+    const finalId = queryId && queryId !== 'feature_specs' ? queryId : pathId
+
+    console.log('🔧 PATCH feature_specs called:', {
+      url: url.pathname,
+      pathId: pathId,
+      queryId,
+      finalId,
+      body,
+    })
+
+    const index = mockData.featureSpecs.findIndex((spec) => spec.id === finalId)
     if (index === -1) {
+      console.log('❌ Feature spec not found:', finalId)
       return HttpResponse.json({ error: 'Feature spec not found' }, { status: 404 })
     }
+
+    console.log(
+      '📝 Updating feature spec at index:',
+      index,
+      'from:',
+      mockData.featureSpecs[index].featureName,
+      'to:',
+      body.feature_name,
+    )
 
     // Update the spec
     const updatedSpec = {
@@ -882,6 +926,12 @@ export const handlers = [
     }
 
     mockData.featureSpecs[index] = updatedSpec
+
+    console.log('✅ Feature spec updated successfully:', updatedSpec.featureName)
+    console.log(
+      '📊 Current mock data:',
+      mockData.featureSpecs.map((s) => ({ id: s.id, name: s.featureName })),
+    )
 
     return HttpResponse.json([updatedSpec])
   }),
@@ -1023,7 +1073,7 @@ export const handlers = [
   http.get('*/rest/v1/field_changes', async ({ request }) => {
     await delay(300)
     const url = new URL(request.url)
-    const featureSpecId = url.searchParams.get('feature_spec_id')
+    const featureSpecId = url.searchParams.get('feature_spec_id')?.replace('eq.', '')
     const fieldPath = url.searchParams.get('field_path')
 
     console.log('🔍 Mock API: Field changes request', { featureSpecId, fieldPath })
@@ -1101,6 +1151,243 @@ export const handlers = [
     }
 
     mockData.fieldChanges.splice(changeIndex, 1)
+    return HttpResponse.json({ success: true })
+  }),
+
+  // Reviewers endpoints
+  http.get('*/rest/v1/reviewers', async ({ request }) => {
+    await delay(200)
+    const url = new URL(request.url)
+    const featureSpecId = url.searchParams.get('feature_spec_id')
+
+    let reviewers = []
+    if (featureSpecId) {
+      const spec = mockData.featureSpecs.find((s) => s.id === featureSpecId)
+      reviewers = spec?.reviewers || []
+    }
+
+    return HttpResponse.json(reviewers)
+  }),
+
+  http.post('*/rest/v1/reviewers', async ({ request }) => {
+    await delay(300)
+    const body = (await request.json()) as any
+
+    const reviewer = {
+      id: `reviewer-${Date.now()}`,
+      feature_spec_id: body.feature_spec_id,
+      name: body.name,
+      role: body.role,
+      status: body.status || 'pending',
+    }
+
+    return HttpResponse.json([reviewer])
+  }),
+
+  http.delete('*/rest/v1/reviewers', async ({ request }) => {
+    await delay(200)
+    const url = new URL(request.url)
+    const featureSpecId = url.searchParams.get('feature_spec_id')?.replace('eq.', '')
+
+    // In a real app, this would delete from the database
+    // For mock purposes, we just return success
+    return HttpResponse.json({ success: true })
+  }),
+
+  // Success Criteria endpoints
+  http.get('*/rest/v1/success_criteria', async ({ request }) => {
+    await delay(200)
+    const url = new URL(request.url)
+    const featureSpecId = url.searchParams.get('feature_spec_id')
+
+    let criteria = []
+    if (featureSpecId) {
+      const spec = mockData.featureSpecs.find((s) => s.id === featureSpecId)
+      criteria = spec?.successCriteria || []
+    }
+
+    return HttpResponse.json(criteria)
+  }),
+
+  http.post('*/rest/v1/success_criteria', async ({ request }) => {
+    await delay(300)
+    const body = (await request.json()) as any
+
+    const criterion = {
+      id: `criteria-${Date.now()}`,
+      feature_spec_id: body.feature_spec_id,
+      type: body.type,
+      description: body.description,
+    }
+
+    return HttpResponse.json([criterion])
+  }),
+
+  http.delete('*/rest/v1/success_criteria', async ({ request }) => {
+    await delay(200)
+    const url = new URL(request.url)
+    const featureSpecId = url.searchParams.get('feature_spec_id')?.replace('eq.', '')
+
+    return HttpResponse.json({ success: true })
+  }),
+
+  // Target Users endpoints
+  http.get('*/rest/v1/target_users', async ({ request }) => {
+    await delay(200)
+    const url = new URL(request.url)
+    const featureSpecId = url.searchParams.get('feature_spec_id')
+
+    let users = []
+    if (featureSpecId) {
+      const spec = mockData.featureSpecs.find((s) => s.id === featureSpecId)
+      users = spec?.targetUsers || []
+    }
+
+    return HttpResponse.json(users)
+  }),
+
+  http.post('*/rest/v1/target_users', async ({ request }) => {
+    await delay(300)
+    const body = (await request.json()) as any
+
+    const user = {
+      id: `target-user-${Date.now()}`,
+      feature_spec_id: body.feature_spec_id,
+      type: body.type,
+      description: body.description,
+      characteristics: body.characteristics || [],
+    }
+
+    return HttpResponse.json([user])
+  }),
+
+  http.delete('*/rest/v1/target_users', async ({ request }) => {
+    await delay(200)
+    const url = new URL(request.url)
+    const featureSpecId = url.searchParams.get('feature_spec_id')?.replace('eq.', '')
+
+    return HttpResponse.json({ success: true })
+  }),
+
+  // User Goals endpoints
+  http.get('*/rest/v1/user_goals', async ({ request }) => {
+    await delay(200)
+    const url = new URL(request.url)
+    const featureSpecId = url.searchParams.get('feature_spec_id')
+
+    let goals = []
+    if (featureSpecId) {
+      const spec = mockData.featureSpecs.find((s) => s.id === featureSpecId)
+      goals = spec?.userGoals || []
+    }
+
+    return HttpResponse.json(goals)
+  }),
+
+  http.post('*/rest/v1/user_goals', async ({ request }) => {
+    await delay(300)
+    const body = (await request.json()) as any
+
+    const goal = {
+      id: `goal-${Date.now()}`,
+      feature_spec_id: body.feature_spec_id,
+      description: body.description,
+      priority: body.priority,
+    }
+
+    return HttpResponse.json([goal])
+  }),
+
+  http.delete('*/rest/v1/user_goals', async ({ request }) => {
+    await delay(200)
+    const url = new URL(request.url)
+    const featureSpecId = url.searchParams.get('feature_spec_id')?.replace('eq.', '')
+
+    return HttpResponse.json({ success: true })
+  }),
+
+  // Use Cases endpoints
+  http.get('*/rest/v1/use_cases', async ({ request }) => {
+    await delay(200)
+    const url = new URL(request.url)
+    const featureSpecId = url.searchParams.get('feature_spec_id')
+
+    let useCases = []
+    if (featureSpecId) {
+      const spec = mockData.featureSpecs.find((s) => s.id === featureSpecId)
+      useCases = spec?.useCases || []
+    }
+
+    return HttpResponse.json(useCases)
+  }),
+
+  http.post('*/rest/v1/use_cases', async ({ request }) => {
+    await delay(300)
+    const body = (await request.json()) as any
+
+    const useCase = {
+      id: `use-case-${Date.now()}`,
+      feature_spec_id: body.feature_spec_id,
+      name: body.name,
+      type: body.type,
+      context: body.context,
+      userAction: body.user_action,
+      expectedOutcome: body.expected_outcome,
+      successCondition: body.success_condition,
+    }
+
+    return HttpResponse.json([useCase])
+  }),
+
+  http.delete('*/rest/v1/use_cases', async ({ request }) => {
+    await delay(200)
+    const url = new URL(request.url)
+    const featureSpecId = url.searchParams.get('feature_spec_id')?.replace('eq.', '')
+
+    return HttpResponse.json({ success: true })
+  }),
+
+  // Core Interactions endpoints
+  http.get('*/rest/v1/core_interactions', async ({ request }) => {
+    await delay(200)
+    const url = new URL(request.url)
+    const featureSpecId = url.searchParams.get('feature_spec_id')
+
+    let interactions = []
+    if (featureSpecId) {
+      const spec = mockData.featureSpecs.find((s) => s.id === featureSpecId)
+      interactions = spec?.coreInteractions || []
+    }
+
+    return HttpResponse.json(interactions)
+  }),
+
+  http.post('*/rest/v1/core_interactions', async ({ request }) => {
+    await delay(300)
+    const body = (await request.json()) as any
+
+    const interaction = {
+      id: `interaction-${Date.now()}`,
+      feature_spec_id: body.feature_spec_id,
+      actionName: body.action_name,
+      trigger: body.trigger,
+      behavior: body.behavior,
+      visualFeedback: body.visual_feedback,
+      endState: body.end_state,
+      loadingState: body.loading_state,
+      emptyState: body.empty_state,
+      errorStates: body.error_states || [],
+      businessRules: body.business_rules || [],
+    }
+
+    return HttpResponse.json([interaction])
+  }),
+
+  http.delete('*/rest/v1/core_interactions', async ({ request }) => {
+    await delay(200)
+    const url = new URL(request.url)
+    const featureSpecId = url.searchParams.get('feature_spec_id')?.replace('eq.', '')
+
     return HttpResponse.json({ success: true })
   }),
 ]

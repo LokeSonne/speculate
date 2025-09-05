@@ -23,6 +23,7 @@
           @create-spec="handleCreateSpec"
           @edit-spec="handleEditSpec"
           @view-spec="handleViewSpec"
+          :refresh-trigger="refreshDashboard"
         />
 
         <FeatureSpecView
@@ -59,6 +60,7 @@ const { createFeatureSpec, updateFeatureSpec } = useFeatureSpecs()
 const showForm = ref(false)
 const viewingSpec = ref<FrontendFeatureSpec | null>(null)
 const editingSpec = ref<FrontendFeatureSpec | null>(null)
+const refreshDashboard = ref(false)
 
 const handleCreateSpec = () => {
   editingSpec.value = null
@@ -82,10 +84,16 @@ const handleBackToDashboard = () => {
 
 const handleFormSubmit = async (data: FeatureSpecFormData) => {
   if (editingSpec.value) {
+    console.log('💾 Updating feature spec:', editingSpec.value.id, 'with data:', data.featureName)
     await updateFeatureSpec(editingSpec.value.id, data)
   } else {
+    console.log('➕ Creating new feature spec with data:', data.featureName)
     await createFeatureSpec(data)
   }
+
+  // Refresh the dashboard data to show updated information
+  console.log('🔄 Triggering dashboard refresh...')
+  refreshDashboard.value = !refreshDashboard.value
 
   showForm.value = false
   editingSpec.value = null

@@ -140,12 +140,19 @@ export function useFieldChanges(featureSpecId: string) {
   }
 
   // Check if user is the owner of the feature spec
-  const isOwner = computed(async () => {
+  const isOwner = ref(false)
+  const ownershipLoading = ref(true)
+
+  const checkOwnership = async () => {
     try {
+      ownershipLoading.value = true
       const {
         data: { user },
       } = await supabase.auth.getUser()
-      if (!user) return false
+      if (!user) {
+        isOwner.value = false
+        return
+      }
 
       const { data: spec } = await supabase
         .from('feature_specs')
@@ -153,11 +160,16 @@ export function useFieldChanges(featureSpecId: string) {
         .eq('id', featureSpecId)
         .single()
 
-      return spec?.author_id === user.id
+      isOwner.value = spec?.author_id === user.id
     } catch {
-      return false
+      isOwner.value = false
+    } finally {
+      ownershipLoading.value = false
     }
-  })
+  }
+
+  // Initialize ownership check
+  checkOwnership()
 
   return {
     fieldChanges,
@@ -170,5 +182,6 @@ export function useFieldChanges(featureSpecId: string) {
     getAcceptedFieldChanges,
     getPendingFieldChanges,
     isOwner,
+    ownershipLoading,
   }
 }

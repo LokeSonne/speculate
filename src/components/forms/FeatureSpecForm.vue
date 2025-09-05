@@ -12,7 +12,7 @@
         }"
         :errors="errors"
         :is-editing="isEditing"
-        :feature-spec-id="editingSpec?.id"
+        :feature-spec-id="props.initialData.id"
         @update="updateFormField"
         @field-change="handleFieldChange"
       />
@@ -123,7 +123,11 @@ const getUserDisplayName = () => {
 const formData = reactive<FeatureSpecFormData>({
   featureName: props.initialData.featureName || '',
   author: props.initialData.author || getUserDisplayName(),
-  date: props.initialData.date || new Date().toISOString().split('T')[0],
+  date: props.initialData.date
+    ? props.initialData.date instanceof Date
+      ? props.initialData.date.toISOString().split('T')[0]
+      : props.initialData.date
+    : new Date().toISOString().split('T')[0],
   status: props.initialData.status || 'Draft',
   featureSummary: props.initialData.featureSummary || '',
   reviewers: props.initialData.reviewers || [],

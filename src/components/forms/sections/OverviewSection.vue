@@ -18,8 +18,8 @@
         {{ errors.featureName }}
       </div>
       <FieldChangeHistory
-        v-if="featureSpecId"
-        :changes="getFieldChanges('featureName')"
+        v-if="featureSpecId && !ownershipLoading"
+        :changes="getFieldChanges('featureName').value"
         :is-owner="isOwner"
         :loading="loading"
         @accept="acceptChange"
@@ -44,8 +44,8 @@
           {{ errors.author }}
         </div>
         <FieldChangeHistory
-          v-if="featureSpecId"
-          :changes="getFieldChanges('author')"
+          v-if="featureSpecId && !ownershipLoading"
+          :changes="getFieldChanges('author').value"
           :is-owner="isOwner"
           :loading="loading"
           @accept="acceptChange"
@@ -68,8 +68,8 @@
           {{ errors.date }}
         </div>
         <FieldChangeHistory
-          v-if="featureSpecId"
-          :changes="getFieldChanges('date')"
+          v-if="featureSpecId && !ownershipLoading"
+          :changes="getFieldChanges('date').value"
           :is-owner="isOwner"
           :loading="loading"
           @accept="acceptChange"
@@ -96,8 +96,8 @@
           {{ errors.status }}
         </div>
         <FieldChangeHistory
-          v-if="featureSpecId"
-          :changes="getFieldChanges('status')"
+          v-if="featureSpecId && !ownershipLoading"
+          :changes="getFieldChanges('status').value"
           :is-owner="isOwner"
           :loading="loading"
           @accept="acceptChange"
@@ -122,8 +122,8 @@
         {{ errors.featureSummary }}
       </div>
       <FieldChangeHistory
-        v-if="featureSpecId"
-        :changes="getFieldChanges('featureSummary')"
+        v-if="featureSpecId && !ownershipLoading"
+        :changes="getFieldChanges('featureSummary').value"
         :is-owner="isOwner"
         :loading="loading"
         @accept="acceptChange"
@@ -167,6 +167,7 @@ const {
   getFieldChanges,
   updateFieldChangeStatus,
   isOwner,
+  ownershipLoading,
   fetchFieldChanges,
 } = props.featureSpecId
   ? useFieldChanges(props.featureSpecId)
@@ -176,6 +177,7 @@ const {
       getFieldChanges: () => computed(() => []),
       updateFieldChangeStatus: async () => {},
       isOwner: computed(() => false),
+      ownershipLoading: computed(() => false),
       fetchFieldChanges: async () => {},
     }
 
