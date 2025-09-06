@@ -125,9 +125,9 @@ const formData = reactive<FeatureSpecFormData>({
   author: props.initialData.author || getUserDisplayName(),
   date: props.initialData.date
     ? props.initialData.date instanceof Date
-      ? props.initialData.date.toISOString().split('T')[0]
-      : props.initialData.date
-    : new Date().toISOString().split('T')[0],
+      ? props.initialData.date
+      : new Date(props.initialData.date)
+    : new Date(),
   status: props.initialData.status || 'Draft',
   featureSummary: props.initialData.featureSummary || '',
   reviewers: props.initialData.reviewers || [],
@@ -203,9 +203,7 @@ const validateForm = (): boolean => {
     newErrors.author = 'Author is required'
   }
 
-  if (!formData.date) {
-    newErrors.date = 'Date is required'
-  }
+  // Date is automatically set by the system, no validation needed
 
   if (!formData.status) {
     newErrors.status = 'Status is required'

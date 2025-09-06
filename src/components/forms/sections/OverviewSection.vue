@@ -54,18 +54,9 @@
       </div>
 
       <div class="form-group">
-        <label for="date">Date *</label>
-        <input
-          id="date"
-          :value="data.date"
-          @input="updateField('date', ($event.target as HTMLInputElement).value)"
-          type="date"
-          required
-          class="form-input"
-          :class="{ error: errors.date }"
-        />
-        <div v-if="errors.date" class="error-message">
-          {{ errors.date }}
+        <label for="date">Created Date</label>
+        <div class="form-display">
+          {{ formatDate(data.date) }}
         </div>
         <FieldChangeHistory
           v-if="featureSpecId && !ownershipLoading"
@@ -143,7 +134,7 @@ interface Props {
   data: {
     featureName: string
     author: string
-    date: string
+    date: Date | string
     status: string
     featureSummary: string
   }
@@ -218,6 +209,18 @@ const rejectChange = async (changeId: string) => {
     console.error('Failed to reject change:', error)
   }
 }
+
+// Format date for display
+const formatDate = (date: Date | string) => {
+  const dateObj = typeof date === 'string' ? new Date(date) : date
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(dateObj)
+}
 </script>
 
 <style scoped>
@@ -238,6 +241,18 @@ const rejectChange = async (changeId: string) => {
 
 .form-group {
   margin-bottom: var(--spacing-4);
+}
+
+.form-display {
+  padding: var(--spacing-3);
+  background: var(--color-background-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
 }
 
 .form-row {
