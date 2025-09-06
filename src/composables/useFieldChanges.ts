@@ -114,7 +114,7 @@ export function useFieldChanges(featureSpecId: string) {
   // Get field changes for a specific field path
   const getFieldChanges = (fieldPath: string) => {
     const changes = computed(() => {
-      const filtered = fieldChanges.value.filter((change) => change.field_path === fieldPath)
+      const filtered = fieldChanges.value.filter((change) => change.fieldPath === fieldPath)
       console.log(`🔍 Field changes for "${fieldPath}":`, filtered)
       return filtered
     })
@@ -125,7 +125,7 @@ export function useFieldChanges(featureSpecId: string) {
   const getAcceptedFieldChanges = (fieldPath: string) => {
     return computed(() =>
       fieldChanges.value.filter(
-        (change) => change.field_path === fieldPath && change.status === 'accepted',
+        (change) => change.fieldPath === fieldPath && change.status === 'accepted',
       ),
     )
   }
@@ -134,7 +134,7 @@ export function useFieldChanges(featureSpecId: string) {
   const getPendingFieldChanges = (fieldPath: string) => {
     return computed(() =>
       fieldChanges.value.filter(
-        (change) => change.field_path === fieldPath && change.status === 'pending',
+        (change) => change.fieldPath === fieldPath && change.status === 'pending',
       ),
     )
   }

@@ -962,9 +962,22 @@ export const handlers = [
       requests = requests.filter((cr) => cr.featureSpecId === featureSpecId)
     }
 
-    // Add comments to each request
+    // Add comments to each request and transform field names
     const requestsWithComments = requests.map((cr) => ({
-      ...cr,
+      id: cr.id,
+      feature_spec_id: cr.featureSpecId,
+      user_id: cr.userId,
+      user_email: cr.userEmail,
+      user_name: cr.userName,
+      title: cr.title,
+      description: cr.description,
+      type: cr.type,
+      status: cr.status,
+      section: cr.section,
+      section_id: cr.sectionId,
+      suggested_change: cr.suggestedChange,
+      created_at: cr.createdAt,
+      updated_at: cr.updatedAt,
       comments: mockData.changeRequestComments.filter(
         (comment) => comment.changeRequestId === cr.id,
       ),
@@ -1079,14 +1092,23 @@ export const handlers = [
     console.log('🔍 Mock API: Field changes request', { featureSpecId, fieldPath })
     console.log('🔍 Mock API: All field changes', mockData.fieldChanges)
 
+    // Log all field paths in the data
+    const allFieldPaths = mockData.fieldChanges.map((c) => c.fieldPath)
+    console.log('🔍 Mock API: All field paths in data:', allFieldPaths)
+
     let changes = mockData.fieldChanges
 
     if (featureSpecId) {
       changes = changes.filter((change) => change.featureSpecId === featureSpecId)
       console.log('🔍 Mock API: Filtered by featureSpecId', changes)
+
+      // Log field paths for this specific feature spec
+      const specFieldPaths = changes.map((c) => c.fieldPath)
+      console.log('🔍 Mock API: Field paths for this spec:', specFieldPaths)
     }
 
     if (fieldPath) {
+      console.log('🔍 Mock API: Searching for fieldPath:', fieldPath)
       changes = changes.filter((change) => change.fieldPath === fieldPath)
       console.log('🔍 Mock API: Filtered by fieldPath', changes)
     }
@@ -1098,6 +1120,8 @@ export const handlers = [
   http.post('*/rest/v1/field_changes', async ({ request }) => {
     await delay(300)
     const body = (await request.json()) as any
+
+    console.log('🔧 POST field_changes called with body:', body)
 
     const change: FieldChange = {
       id: `fc-${Date.now()}`,
@@ -1115,6 +1139,10 @@ export const handlers = [
     }
 
     mockData.fieldChanges.push(change)
+
+    console.log('✅ Field change created:', change)
+    console.log('📊 Total field changes now:', mockData.fieldChanges.length)
+
     return HttpResponse.json(change)
   }),
 

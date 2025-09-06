@@ -156,14 +156,24 @@ const handleDelete = async () => {
   }
 }
 
-const formatDate = (date: Date) => {
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date)
+const formatDate = (date: Date | string | undefined) => {
+  if (!date) return 'No date'
+
+  try {
+    const dateObj = typeof date === 'string' ? new Date(date) : date
+    if (isNaN(dateObj.getTime())) return 'Invalid date'
+
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(dateObj)
+  } catch (error) {
+    console.error('Error formatting date:', error, 'Date value:', date)
+    return 'Invalid date'
+  }
 }
 </script>
 

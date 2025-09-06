@@ -60,7 +60,10 @@
               <p v-else class="spec-summary">{{ localSpec.featureSummary }}</p>
             </div>
 
-            <div v-if="localSpec.successCriteria.length" class="subsection">
+            <div
+              v-if="localSpec.successCriteria && localSpec.successCriteria.length"
+              class="subsection"
+            >
               <h3>Success Criteria</h3>
               <div class="criteria-list">
                 <div
@@ -96,7 +99,7 @@
               </button>
             </div>
 
-            <div v-if="localSpec.reviewers.length" class="subsection">
+            <div v-if="localSpec.reviewers && localSpec.reviewers.length" class="subsection">
               <h3>Reviewers</h3>
               <div class="reviewers-list">
                 <div
@@ -139,13 +142,15 @@
         <!-- User Requirements Section -->
         <section
           v-if="
-            localSpec.targetUsers.length || localSpec.userGoals.length || localSpec.useCases.length
+            (localSpec.targetUsers && localSpec.targetUsers.length) ||
+            (localSpec.userGoals && localSpec.userGoals.length) ||
+            (localSpec.useCases && localSpec.useCases.length)
           "
           class="spec-section"
         >
           <h2>User Requirements</h2>
           <div class="section-content">
-            <div v-if="localSpec.targetUsers.length" class="subsection">
+            <div v-if="localSpec.targetUsers && localSpec.targetUsers.length" class="subsection">
               <h3>Target Users</h3>
               <div class="target-users-list">
                 <div
@@ -182,7 +187,7 @@
               </button>
             </div>
 
-            <div v-if="localSpec.userGoals.length" class="subsection">
+            <div v-if="localSpec.userGoals && localSpec.userGoals.length" class="subsection">
               <h3>User Goals</h3>
               <div class="user-goals-list">
                 <div
@@ -216,7 +221,7 @@
               <button v-if="isEditing" @click="addUserGoal" class="btn-add">+ Add User Goal</button>
             </div>
 
-            <div v-if="localSpec.useCases.length" class="subsection">
+            <div v-if="localSpec.useCases && localSpec.useCases.length" class="subsection">
               <h3>Use Cases</h3>
               <div class="use-cases-list">
                 <div
@@ -251,7 +256,7 @@
                   <div v-else class="use-case-display">
                     <h4>{{ useCase.title }}</h4>
                     <p>{{ useCase.description }}</p>
-                    <div v-if="useCase.steps.length" class="use-case-steps">
+                    <div v-if="useCase.steps && useCase.steps.length" class="use-case-steps">
                       <h5>Steps:</h5>
                       <ol>
                         <li v-for="step in useCase.steps" :key="step">{{ step }}</li>
@@ -269,7 +274,10 @@
         </section>
 
         <!-- Behavioral Requirements Section -->
-        <section v-if="localSpec.coreInteractions.length" class="spec-section">
+        <section
+          v-if="localSpec.coreInteractions && localSpec.coreInteractions.length"
+          class="spec-section"
+        >
           <h2>Behavioral Requirements</h2>
           <div class="section-content">
             <div class="subsection">

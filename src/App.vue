@@ -47,6 +47,7 @@
 import { ref } from 'vue'
 import { useAuth } from './composables/useAuth'
 import { useFeatureSpecs } from './composables/useFeatureSpecsSupabase'
+import { useFieldChanges } from './composables/useFieldChanges'
 import AuthGuard from './components/AuthGuard.vue'
 import Dashboard from './components/Dashboard.vue'
 import FeatureSpecView from './components/EditableFeatureSpecView.vue'
@@ -56,6 +57,77 @@ import type { FrontendFeatureSpec, FeatureSpecFormData } from './types/feature'
 
 const { user, signOut } = useAuth()
 const { createFeatureSpec, updateFeatureSpec } = useFeatureSpecs()
+
+// Function to create field changes from form data
+const createFieldChangesFromFormData = async (
+  featureSpecId: string,
+  formData: FeatureSpecFormData,
+) => {
+  const { createFieldChange } = useFieldChanges(featureSpecId)
+
+  // Compare form data with original spec data and create field changes for differences
+  const originalSpec = editingSpec.value
+  if (!originalSpec) return
+
+  const changes = []
+
+  // Check each field for changes
+  if (formData.featureName !== originalSpec.featureName) {
+    changes.push({
+      featureSpecId,
+      fieldPath: 'featureName',
+      fieldType: 'string',
+      oldValue: originalSpec.featureName,
+      newValue: formData.featureName,
+      changeDescription: `Changed feature name from "${originalSpec.featureName}" to "${formData.featureName}"`,
+    })
+  }
+
+  if (formData.featureSummary !== originalSpec.featureSummary) {
+    changes.push({
+      featureSpecId,
+      fieldPath: 'featureSummary',
+      fieldType: 'string',
+      oldValue: originalSpec.featureSummary,
+      newValue: formData.featureSummary,
+      changeDescription: `Changed feature summary`,
+    })
+  }
+
+  if (formData.status !== originalSpec.status) {
+    changes.push({
+      featureSpecId,
+      fieldPath: 'status',
+      fieldType: 'string',
+      oldValue: originalSpec.status,
+      newValue: formData.status,
+      changeDescription: `Changed status from "${originalSpec.status}" to "${formData.status}"`,
+    })
+  }
+
+  if (formData.date !== originalSpec.date?.toISOString().split('T')[0]) {
+    changes.push({
+      featureSpecId,
+      fieldPath: 'date',
+      fieldType: 'date',
+      oldValue: originalSpec.date?.toISOString().split('T')[0],
+      newValue: formData.date,
+      changeDescription: `Changed date from "${originalSpec.date?.toISOString().split('T')[0]}" to "${formData.date}"`,
+    })
+  }
+
+  // Create field changes for all detected changes
+  for (const change of changes) {
+    try {
+      await createFieldChange(change)
+      console.log('✅ Created field change:', change.fieldPath)
+    } catch (error) {
+      console.error('❌ Failed to create field change:', error)
+    }
+  }
+
+  console.log(`📝 Created ${changes.length} field changes`)
+}
 
 const showForm = ref(false)
 const viewingSpec = ref<FrontendFeatureSpec | null>(null)
@@ -84,8 +156,24 @@ const handleBackToDashboard = () => {
 
 const handleFormSubmit = async (data: FeatureSpecFormData) => {
   if (editingSpec.value) {
-    console.log('💾 Updating feature spec:', editingSpec.value.id, 'with data:', data.featureName)
-    await updateFeatureSpec(editingSpec.value.id, data)
+    console.log(
+      '💾 Processing edits for feature spec:',
+      editingSpec.value.id,
+      'with data:',
+      data.featureName,
+    )
+
+    // Check if user is the owner - if not, create field changes instead of direct updates
+    const { user } = useAuth()
+    const isOwner = editingSpec.value.author === user.value?.email
+
+    if (isOwner) {
+      console.log('👑 Owner editing - updating directly')
+      await updateFeatureSpec(editingSpec.value.id, data)
+    } else {
+      console.log('👤 Non-owner editing - creating field changes')
+      await createFieldChangesFromFormData(editingSpec.value.id, data)
+    }
   } else {
     console.log('➕ Creating new feature spec with data:', data.featureName)
     await createFeatureSpec(data)
