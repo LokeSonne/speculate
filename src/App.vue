@@ -13,7 +13,7 @@
     <AuthForm v-else-if="!isAuthenticated" />
 
     <!-- Show main app if authenticated -->
-    <div v-else>
+    <div v-else class="app-layout">
       <header class="app-header">
         <div class="header-content">
           <div class="header-text">
@@ -27,9 +27,12 @@
         </div>
       </header>
 
-      <main class="app-main">
-        <router-view />
-      </main>
+      <div class="app-body">
+        <SidePanel />
+        <main class="app-main">
+          <router-view />
+        </main>
+      </div>
     </div>
   </div>
 </template>
@@ -38,6 +41,7 @@
 import { useAuth } from './composables/useAuth'
 import AuthForm from './components/auth/AuthForm.vue'
 import MockAuthStatus from './components/MockAuthStatus.vue'
+import SidePanel from './components/SidePanel.vue'
 
 const { user, isAuthenticated, loading: authLoading, signOut } = useAuth()
 
@@ -141,10 +145,23 @@ const handleSignOut = async () => {
   font-size: var(--font-size-sm);
 }
 
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
 .app-main {
-  max-width: var(--max-width-2xl);
-  margin: 0 auto;
-  padding: var(--spacing-8) var(--spacing-6);
+  flex: 1;
+  padding: var(--spacing-6);
+  overflow-y: auto;
+  background: var(--color-background);
 }
 
 @media (max-width: 768px) {
@@ -162,8 +179,12 @@ const handleSignOut = async () => {
     font-size: var(--font-size-2xl);
   }
 
+  .app-body {
+    flex-direction: column;
+  }
+
   .app-main {
-    padding: var(--spacing-6) var(--spacing-4);
+    padding: var(--spacing-4);
   }
 }
 </style>
