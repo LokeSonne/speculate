@@ -18,7 +18,7 @@
         <div class="header-content">
           <div class="user-info">
             <span class="user-email">Welcome, {{ user?.email }}</span>
-            <button @click="handleSignOut" class="btn btn-secondary btn-sm">Sign Out</button>
+            <Button @click="handleSignOut" variant="secondary" size="sm">Sign Out</Button>
           </div>
         </div>
       </header>
@@ -38,6 +38,7 @@ import { useAuth } from './composables/useAuth'
 import AuthForm from './components/auth/AuthForm.vue'
 import MockAuthStatus from './components/MockAuthStatus.vue'
 import SidePanel from './components/SidePanel.vue'
+import Button from './components/ui/Button.vue'
 
 const { user, isAuthenticated, loading: authLoading, signOut } = useAuth()
 

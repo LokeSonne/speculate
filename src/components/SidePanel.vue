@@ -2,10 +2,10 @@
   <div class="side-panel">
     <div class="side-panel-header">
       <h3>Specifications</h3>
-      <button @click="handleCreateSpec" class="btn btn-primary btn-sm">
+      <Button @click="handleCreateSpec" variant="primary" size="sm">
         <span class="mr-2">+</span>
         New Spec
-      </button>
+      </Button>
     </div>
 
     <div class="side-panel-content">
@@ -65,6 +65,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
 import { useFeatureSpecs } from '../composables/useFeatureSpecsSupabase'
 import SpecListItem from './SpecListItem.vue'
+import Button from './ui/Button.vue'
 import type { FrontendFeatureSpec } from '../types/feature'
 
 const route = useRoute()
