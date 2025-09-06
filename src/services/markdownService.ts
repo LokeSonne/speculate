@@ -90,17 +90,21 @@ ${useCases || 'No use cases defined'}`
    * Generate the behavioral requirements section
    */
   private generateBehavioralRequirements(spec: FrontendFeatureSpec): string {
-    const coreInteractions = spec.coreInteractions
+    const coreInteractions = (spec.coreInteractions || [])
       .map((interaction) => this.generateCoreInteraction(interaction))
       .join('\n\n')
 
-    const loadingStates = spec.loadingStates
+    const loadingStates = (spec.loadingStates || [])
       .map((state) => this.generateLoadingState(state))
       .join('\n\n')
 
-    const emptyStates = spec.emptyStates.map((state) => this.generateEmptyState(state)).join('\n\n')
+    const emptyStates = (spec.emptyStates || [])
+      .map((state) => this.generateEmptyState(state))
+      .join('\n\n')
 
-    const errorStates = spec.errorStates.map((state) => this.generateErrorState(state)).join('\n\n')
+    const errorStates = (spec.errorStates || [])
+      .map((state) => this.generateErrorState(state))
+      .join('\n\n')
 
     const formBehavior = spec.formBehavior ? this.generateFormBehavior(spec.formBehavior) : ''
 
@@ -131,7 +135,9 @@ ${formBehavior}`
    * Generate a core interaction
    */
   private generateCoreInteraction(interaction: any): string {
-    const errorScenarios = interaction.errorScenarios.map((scenario) => `- ${scenario}`).join('\n')
+    const errorScenarios = (interaction.errorScenarios || [])
+      .map((scenario) => `- ${scenario}`)
+      .join('\n')
 
     return `#### Interaction: ${interaction.name}
 **Trigger:** ${interaction.trigger}  
@@ -157,7 +163,7 @@ ${state.timeoutHandling ? `**Timeout Handling:** ${state.timeoutHandling}` : ''}
    * Generate an empty state
    */
   private generateEmptyState(state: any): string {
-    const actions = state.actions.map((action) => `- ${action}`).join('\n')
+    const actions = (state.actions || []).map((action) => `- ${action}`).join('\n')
     return `**Scenario:** ${state.scenario}  
 - **Message:** ${state.message}  
 - **Visual:** ${state.visual}  
@@ -586,7 +592,7 @@ ${approval.comments ? `  - Comments: ${approval.comments}` : ''}`
   /**
    * Export a single spec to markdown file
    */
-  async exportSpec(spec: FrontendFeatureSpec): Promise<{ filename: string; content: string }> {
+  exportSpec(spec: FrontendFeatureSpec): { filename: string; content: string } {
     return {
       filename: `${spec.featureName
         .replace(/[^a-zA-Z0-9]+/g, '-')

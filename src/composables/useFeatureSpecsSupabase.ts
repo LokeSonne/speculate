@@ -12,11 +12,11 @@ export function useFeatureSpecs() {
   const { user, isAuthenticated } = useAuth()
 
   // Fetch all feature specs
-  const fetchFeatureSpecs = async () => {
+  const fetchFeatureSpecs = async (): Promise<FrontendFeatureSpec[]> => {
     console.log('🔄 fetchFeatureSpecs called, isAuthenticated:', isAuthenticated.value)
     if (!isAuthenticated.value) {
       console.log('❌ Not authenticated, skipping fetch')
-      return
+      return []
     }
 
     console.log('🔄 fetchFeatureSpecs called')
@@ -42,25 +42,29 @@ export function useFeatureSpecs() {
       if (fetchError) throw fetchError
 
       // Transform the data to match our FrontendFeatureSpec interface
-      featureSpecs.value = data?.map(transformDbToFrontend) || []
+      const transformedData = data?.map(transformDbToFrontend) || []
+      featureSpecs.value = transformedData
 
       console.log(
         '📊 Fetched and transformed feature specs:',
-        featureSpecs.value.map((s) => ({ id: s.id, name: s.featureName })),
+        transformedData.map((s) => ({ id: s.id, name: s.featureName })),
       )
 
       // Log the first spec in detail to see the transformation
-      if (featureSpecs.value.length > 0) {
+      if (transformedData.length > 0) {
         console.log('🔍 First transformed spec detail:', {
-          id: featureSpecs.value[0].id,
-          featureName: featureSpecs.value[0].featureName,
-          author: featureSpecs.value[0].author,
-          status: featureSpecs.value[0].status,
+          id: transformedData[0].id,
+          featureName: transformedData[0].featureName,
+          author: transformedData[0].author,
+          status: transformedData[0].status,
         })
       }
+
+      return transformedData
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch feature specs'
       console.error('Error fetching feature specs:', err)
+      return []
     } finally {
       loading.value = false
     }

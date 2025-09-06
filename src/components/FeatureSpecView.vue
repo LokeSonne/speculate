@@ -79,11 +79,22 @@ const loading = ref(true)
 // Load spec data
 onMounted(async () => {
   try {
-    await fetchFeatureSpecs()
+    console.log('🔍 FeatureSpecView: Loading spec with ID:', route.params.id)
     const specs = await fetchFeatureSpecs()
-    spec.value = specs.find((s: FrontendFeatureSpec) => s.id === route.params.id) || null
+    console.log(
+      '📊 FeatureSpecView: Fetched specs:',
+      specs.map((s) => ({ id: s.id, name: s.featureName })),
+    )
+
+    const foundSpec = specs.find((s: FrontendFeatureSpec) => s.id === route.params.id)
+    console.log(
+      '🎯 FeatureSpecView: Found spec:',
+      foundSpec ? { id: foundSpec.id, name: foundSpec.featureName } : 'null',
+    )
+
+    spec.value = foundSpec || null
   } catch (error) {
-    console.error('Error loading spec:', error)
+    console.error('❌ FeatureSpecView: Error loading spec:', error)
   } finally {
     loading.value = false
   }
@@ -113,11 +124,11 @@ const handleBack = () => {
   router.push('/dashboard')
 }
 
-const handleExport = async () => {
+const handleExport = () => {
   if (!spec.value) return
 
   try {
-    const { content, filename } = await markdownService.exportSpec(spec.value)
+    const { content, filename } = markdownService.exportSpec(spec.value)
 
     // Create and download the file
     const blob = new Blob([content], { type: 'text/markdown' })
