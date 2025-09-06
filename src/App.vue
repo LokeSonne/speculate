@@ -1,9 +1,19 @@
 <template>
-  <AuthGuard>
-    <div class="app">
-      <!-- Mock Authentication Status (Development Only) -->
-      <MockAuthStatus />
+  <div class="app">
+    <!-- Mock Authentication Status (Development Only) -->
+    <MockAuthStatus />
 
+    <!-- Show loading while checking authentication -->
+    <div v-if="authLoading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Loading...</p>
+    </div>
+
+    <!-- Show auth form if not authenticated -->
+    <AuthForm v-else-if="!isAuthenticated" />
+
+    <!-- Show main app if authenticated -->
+    <div v-else>
       <header class="app-header">
         <div class="header-content">
           <div class="header-text">
@@ -18,179 +28,18 @@
       </header>
 
       <main class="app-main">
-        <Dashboard
-          v-if="!showForm && !viewingSpec"
-          @create-spec="handleCreateSpec"
-          @edit-spec="handleEditSpec"
-          @view-spec="handleViewSpec"
-          :refresh-trigger="refreshDashboard"
-        />
-
-        <FeatureSpecView
-          v-else-if="viewingSpec"
-          :spec="viewingSpec"
-          @back="handleBackToDashboard"
-        />
-
-        <FeatureSpecFormContainer
-          v-else
-          :editing-spec="editingSpec"
-          @submit="handleFormSubmit"
-          @cancel="handleFormCancel"
-        />
+        <router-view />
       </main>
     </div>
-  </AuthGuard>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useAuth } from './composables/useAuth'
-import { useFeatureSpecs } from './composables/useFeatureSpecsSupabase'
-import { useFieldChanges } from './composables/useFieldChanges'
-import AuthGuard from './components/AuthGuard.vue'
-import Dashboard from './components/Dashboard.vue'
-import FeatureSpecView from './components/EditableFeatureSpecView.vue'
-import FeatureSpecFormContainer from './components/FeatureSpecFormContainer.vue'
+import AuthForm from './components/auth/AuthForm.vue'
 import MockAuthStatus from './components/MockAuthStatus.vue'
-import type { FrontendFeatureSpec, FeatureSpecFormData } from './types/feature'
 
-const { user, signOut } = useAuth()
-const { createFeatureSpec, updateFeatureSpec } = useFeatureSpecs()
-
-// Function to create field changes from form data
-const createFieldChangesFromFormData = async (
-  featureSpecId: string,
-  formData: FeatureSpecFormData,
-) => {
-  const { createFieldChange } = useFieldChanges(featureSpecId)
-
-  // Compare form data with original spec data and create field changes for differences
-  const originalSpec = editingSpec.value
-  if (!originalSpec) return
-
-  const changes = []
-
-  // Check each field for changes
-  if (formData.featureName !== originalSpec.featureName) {
-    changes.push({
-      featureSpecId,
-      fieldPath: 'featureName',
-      fieldType: 'string',
-      oldValue: originalSpec.featureName,
-      newValue: formData.featureName,
-      changeDescription: `Changed feature name from "${originalSpec.featureName}" to "${formData.featureName}"`,
-    })
-  }
-
-  if (formData.featureSummary !== originalSpec.featureSummary) {
-    changes.push({
-      featureSpecId,
-      fieldPath: 'featureSummary',
-      fieldType: 'string',
-      oldValue: originalSpec.featureSummary,
-      newValue: formData.featureSummary,
-      changeDescription: `Changed feature summary`,
-    })
-  }
-
-  if (formData.status !== originalSpec.status) {
-    changes.push({
-      featureSpecId,
-      fieldPath: 'status',
-      fieldType: 'string',
-      oldValue: originalSpec.status,
-      newValue: formData.status,
-      changeDescription: `Changed status from "${originalSpec.status}" to "${formData.status}"`,
-    })
-  }
-
-  if (formData.date !== originalSpec.date?.toISOString().split('T')[0]) {
-    changes.push({
-      featureSpecId,
-      fieldPath: 'date',
-      fieldType: 'date',
-      oldValue: originalSpec.date?.toISOString().split('T')[0],
-      newValue: formData.date,
-      changeDescription: `Changed date from "${originalSpec.date?.toISOString().split('T')[0]}" to "${formData.date}"`,
-    })
-  }
-
-  // Create field changes for all detected changes
-  for (const change of changes) {
-    try {
-      await createFieldChange(change)
-      console.log('✅ Created field change:', change.fieldPath)
-    } catch (error) {
-      console.error('❌ Failed to create field change:', error)
-    }
-  }
-
-  console.log(`📝 Created ${changes.length} field changes`)
-}
-
-const showForm = ref(false)
-const viewingSpec = ref<FrontendFeatureSpec | null>(null)
-const editingSpec = ref<FrontendFeatureSpec | null>(null)
-const refreshDashboard = ref(false)
-
-const handleCreateSpec = () => {
-  editingSpec.value = null
-  showForm.value = true
-}
-
-const handleEditSpec = (spec: FrontendFeatureSpec) => {
-  editingSpec.value = spec
-  showForm.value = true
-}
-
-const handleViewSpec = (spec: FrontendFeatureSpec) => {
-  viewingSpec.value = spec
-  showForm.value = false
-}
-
-const handleBackToDashboard = () => {
-  viewingSpec.value = null
-  showForm.value = false
-}
-
-const handleFormSubmit = async (data: FeatureSpecFormData) => {
-  if (editingSpec.value) {
-    console.log(
-      '💾 Processing edits for feature spec:',
-      editingSpec.value.id,
-      'with data:',
-      data.featureName,
-    )
-
-    // Check if user is the owner - if not, create field changes instead of direct updates
-    const { user } = useAuth()
-    const isOwner = editingSpec.value.author === user.value?.email
-
-    if (isOwner) {
-      console.log('👑 Owner editing - updating directly')
-      await updateFeatureSpec(editingSpec.value.id, data)
-    } else {
-      console.log('👤 Non-owner editing - creating field changes')
-      await createFieldChangesFromFormData(editingSpec.value.id, data)
-    }
-  } else {
-    console.log('➕ Creating new feature spec with data:', data.featureName)
-    await createFeatureSpec(data)
-  }
-
-  // Refresh the dashboard data to show updated information
-  console.log('🔄 Triggering dashboard refresh...')
-  refreshDashboard.value = !refreshDashboard.value
-
-  showForm.value = false
-  editingSpec.value = null
-}
-
-const handleFormCancel = () => {
-  showForm.value = false
-  editingSpec.value = null
-}
+const { user, isAuthenticated, loading: authLoading, signOut } = useAuth()
 
 const handleSignOut = async () => {
   await signOut()
@@ -202,6 +51,38 @@ const handleSignOut = async () => {
   min-height: 100vh;
   background: var(--color-background);
   font-family: var(--font-family-sans);
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: var(--spacing-4);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--color-gray-200);
+  border-top: 4px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-container p {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
 }
 
 .app-header {

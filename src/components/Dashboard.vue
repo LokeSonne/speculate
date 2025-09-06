@@ -56,58 +56,75 @@
         </div>
       </div>
     </div>
+
+    <!-- Debug info -->
+    <div class="debug-info mt-8 p-4 bg-gray-100 rounded">
+      <h4 class="font-semibold mb-2">Debug Info:</h4>
+      <p><strong>Loading:</strong> {{ loading }}</p>
+      <p><strong>Error:</strong> {{ error }}</p>
+      <p><strong>Feature Specs Count:</strong> {{ featureSpecs.length }}</p>
+      <p>
+        <strong>Feature Specs:</strong>
+        {{
+          JSON.stringify(
+            featureSpecs.map((s) => ({ id: s.id, name: s.featureName })),
+            null,
+            2,
+          )
+        }}
+      </p>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch } from 'vue'
+import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useFeatureSpecs } from '../composables/useFeatureSpecsSupabase'
 import type { FrontendFeatureSpec } from '../types/feature'
 
-interface Props {
-  refreshTrigger?: boolean
-}
-
-interface Emits {
-  (e: 'create-spec'): void
-  (e: 'edit-spec', spec: FrontendFeatureSpec): void
-  (e: 'view-spec', spec: FrontendFeatureSpec): void
-}
-
-const props = defineProps<Props>()
-const emit = defineEmits<Emits>()
+const router = useRouter()
 
 const { featureSpecs, loading, error, fetchFeatureSpecs, deleteFeatureSpec } = useFeatureSpecs()
 
 // Load feature specs when component mounts
-onMounted(() => {
-  fetchFeatureSpecs()
+onMounted(async () => {
+  console.log('📊 Dashboard mounted, fetching feature specs...')
+  console.log('🔍 Environment check:', {
+    VITE_USE_MOCK_API: import.meta.env.VITE_USE_MOCK_API,
+    NODE_ENV: import.meta.env.NODE_ENV,
+    DEV: import.meta.env.DEV,
+  })
+
+  try {
+    await fetchFeatureSpecs()
+    console.log('📊 After fetchFeatureSpecs:', {
+      featureSpecs: featureSpecs.value,
+      loading: loading.value,
+      error: error.value,
+    })
+  } catch (err) {
+    console.error('❌ Error in Dashboard onMounted:', err)
+  }
 })
 
-// Watch for refresh trigger changes
-watch(
-  () => props.refreshTrigger,
-  () => {
-    console.log('🔄 Dashboard refresh triggered, refetching data...')
-    fetchFeatureSpecs()
-  },
-)
-
 const handleCreateSpec = () => {
-  emit('create-spec')
+  router.push('/specs/create')
 }
 
 const handleViewSpec = (spec: FrontendFeatureSpec) => {
-  emit('view-spec', spec)
+  router.push(`/specs/${spec.id}/view`)
 }
 
 const handleEditSpec = (spec: FrontendFeatureSpec) => {
-  emit('edit-spec', spec)
+  router.push(`/specs/${spec.id}/edit`)
 }
 
 const handleDeleteSpec = async (id: string) => {
   if (confirm('Are you sure you want to delete this feature specification?')) {
     await deleteFeatureSpec(id)
+    // Refresh the list after deletion
+    fetchFeatureSpecs()
   }
 }
 

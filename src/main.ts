@@ -9,10 +9,9 @@ if (import.meta.env.DEV) {
   const { startMockServiceWorker } = await import('./mocks/browser')
   await startMockServiceWorker()
 
-  // Initialize mock authentication helper
-  if (import.meta.env.VITE_USE_MOCK_API === 'true') {
-    await import('./lib/mockAuth')
-  }
+  // Initialize mock authentication helper in development
+  console.log('🔧 Initializing mock auth in development mode')
+  await import('./lib/mockAuth')
 }
 
 const app = createApp(App)

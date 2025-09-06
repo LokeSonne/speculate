@@ -1,76 +1,100 @@
 <template>
   <div class="feature-spec-view">
-    <div class="spec-header">
-      <div class="spec-title">
-        <h1>{{ spec.featureName }}</h1>
-        <div class="spec-meta">
-          <span class="spec-author">By {{ spec.author }}</span>
-          <span class="spec-date">{{ formatDate(spec.date) }}</span>
-          <span
-            class="spec-status"
-            :class="`status-${spec.status.toLowerCase().replace(' ', '-')}`"
-          >
-            {{ spec.status }}
-          </span>
-        </div>
-      </div>
-      <div class="spec-actions">
-        <div class="view-toggle">
-          <button 
-            @click="viewMode = 'rendered'" 
-            :class="{ active: viewMode === 'rendered' }"
-            class="btn-toggle"
-          >
-            Rendered View
-          </button>
-          <button 
-            @click="viewMode = 'markdown'" 
-            :class="{ active: viewMode === 'markdown' }"
-            class="btn-toggle"
-          >
-            Markdown Source
-          </button>
-        </div>
-        <button @click="handleEdit" class="btn-secondary">Edit</button>
-        <button @click="handleExport" class="btn-primary">Export</button>
-        <button @click="handleBack" class="btn-secondary">← Back</button>
-      </div>
+    <div v-if="loading" class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Loading specification...</p>
     </div>
 
-    <div class="spec-content">
-      <MarkdownViewer v-if="viewMode === 'rendered'" :spec="spec" />
-      <div v-else class="markdown-source">
-        <pre><code>{{ markdownSource }}</code></pre>
+    <div v-else-if="!spec" class="error-state">
+      <h2>Specification not found</h2>
+      <p>The requested specification could not be found.</p>
+      <button @click="handleBack" class="btn btn-primary">Back to Dashboard</button>
+    </div>
+
+    <div v-else>
+      <div class="spec-header">
+        <div class="spec-title">
+          <h1>{{ spec.featureName }}</h1>
+          <div class="spec-meta">
+            <span class="spec-author">By {{ spec.author }}</span>
+            <span class="spec-date">{{ formatDate(spec.date) }}</span>
+            <span
+              class="spec-status"
+              :class="`status-${spec.status.toLowerCase().replace(' ', '-')}`"
+            >
+              {{ spec.status }}
+            </span>
+          </div>
+        </div>
+        <div class="spec-actions">
+          <div class="view-toggle">
+            <button
+              @click="viewMode = 'rendered'"
+              :class="{ active: viewMode === 'rendered' }"
+              class="btn-toggle"
+            >
+              Rendered View
+            </button>
+            <button
+              @click="viewMode = 'markdown'"
+              :class="{ active: viewMode === 'markdown' }"
+              class="btn-toggle"
+            >
+              Markdown Source
+            </button>
+          </div>
+          <button @click="handleEdit" class="btn-secondary">Edit</button>
+          <button @click="handleExport" class="btn-primary">Export</button>
+          <button @click="handleBack" class="btn-secondary">← Back</button>
+        </div>
+      </div>
+
+      <div class="spec-content">
+        <MarkdownViewer v-if="viewMode === 'rendered'" :spec="spec" />
+        <div v-else class="markdown-source">
+          <pre><code>{{ markdownSource }}</code></pre>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useFeatureSpecs } from '../composables/useFeatureSpecsSupabase'
 import MarkdownViewer from './MarkdownViewer.vue'
 import { MarkdownService } from '../services/markdownService'
 import type { FrontendFeatureSpec } from '../types/feature'
 
-interface Props {
-  spec: FrontendFeatureSpec
-}
-
-interface Emits {
-  (e: 'edit', spec: FrontendFeatureSpec): void
-  (e: 'back'): void
-}
-
-const props = defineProps<Props>()
-const emit = defineEmits<Emits>()
+const route = useRoute()
+const router = useRouter()
+const { fetchFeatureSpecs } = useFeatureSpecs()
 
 const markdownService = new MarkdownService()
 const viewMode = ref<'rendered' | 'markdown'>('rendered')
+const spec = ref<FrontendFeatureSpec | null>(null)
+const loading = ref(true)
+
+// Load spec data
+onMounted(async () => {
+  try {
+    await fetchFeatureSpecs()
+    const specs = await fetchFeatureSpecs()
+    spec.value = specs.find((s: FrontendFeatureSpec) => s.id === route.params.id) || null
+  } catch (error) {
+    console.error('Error loading spec:', error)
+  } finally {
+    loading.value = false
+  }
+})
 
 // Computed property for markdown source
 const markdownSource = computed(() => {
+  if (!spec.value) return 'Loading...'
+
   try {
-    const { content } = markdownService.exportSpec(props.spec)
+    const { content } = markdownService.exportSpec(spec.value)
     return content
   } catch (error) {
     console.error('Error generating markdown source:', error)
@@ -80,16 +104,20 @@ const markdownSource = computed(() => {
 
 // Event handlers
 const handleEdit = () => {
-  emit('edit', props.spec)
+  if (spec.value) {
+    router.push(`/specs/${spec.value.id}/edit`)
+  }
 }
 
 const handleBack = () => {
-  emit('back')
+  router.push('/dashboard')
 }
 
 const handleExport = async () => {
+  if (!spec.value) return
+
   try {
-    const { content, filename } = await markdownService.exportSpec(props.spec)
+    const { content, filename } = await markdownService.exportSpec(spec.value)
 
     // Create and download the file
     const blob = new Blob([content], { type: 'text/markdown' })
@@ -107,6 +135,7 @@ const handleExport = async () => {
   }
 }
 
+// Format date for display
 const formatDate = (date: Date | string) => {
   const dateObj = typeof date === 'string' ? new Date(date) : date
   return new Intl.DateTimeFormat('en-US', {
@@ -124,6 +153,31 @@ const formatDate = (date: Date | string) => {
   padding: var(--spacing-6);
 }
 
+.loading-state,
+.error-state {
+  text-align: center;
+  padding: var(--spacing-8);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--color-border);
+  border-top: 4px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto var(--spacing-4);
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 .spec-header {
   display: flex;
   justify-content: space-between;
@@ -134,10 +188,11 @@ const formatDate = (date: Date | string) => {
 }
 
 .spec-title h1 {
-  margin: 0 0 var(--spacing-3) 0;
-  font-size: var(--font-size-4xl);
+  margin: 0 0 var(--spacing-4) 0;
+  font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
+  line-height: var(--line-height-tight);
 }
 
 .spec-meta {
@@ -155,25 +210,26 @@ const formatDate = (date: Date | string) => {
 
 .spec-status {
   padding: var(--spacing-1) var(--spacing-3);
-  border-radius: var(--radius-full);
+  border-radius: var(--border-radius-full);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .status-draft {
-  background: var(--color-yellow-100);
-  color: var(--color-amber-600);
+  background: var(--color-warning-light);
+  color: var(--color-warning-dark);
 }
 
 .status-in-review {
-  background: var(--color-blue-100);
-  color: var(--color-blue-600);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
 }
 
 .status-approved {
-  background: var(--color-green-100);
-  color: var(--color-green-600);
+  background: var(--color-success-light);
+  color: var(--color-success-dark);
 }
 
 .status-locked {
@@ -293,20 +349,29 @@ const formatDate = (date: Date | string) => {
   color: var(--color-text-primary);
 }
 
+.markdown-body h4 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  margin: var(--spacing-3) 0 var(--spacing-2) 0;
+  color: var(--color-text-primary);
+}
+
 .markdown-body p {
-  margin: var(--spacing-3) 0;
-  font-size: var(--font-size-base);
+  margin: 0 0 var(--spacing-4) 0;
+  color: var(--color-text-secondary);
   line-height: var(--line-height-relaxed);
 }
 
-.markdown-body ul {
-  margin: var(--spacing-3) 0;
+.markdown-body ul,
+.markdown-body ol {
+  margin: 0 0 var(--spacing-4) 0;
   padding-left: var(--spacing-6);
 }
 
 .markdown-body li {
-  margin: var(--spacing-2) 0;
-  font-size: var(--font-size-base);
+  margin: 0 0 var(--spacing-2) 0;
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
 }
 
 .markdown-body strong {
@@ -320,53 +385,66 @@ const formatDate = (date: Date | string) => {
 }
 
 .markdown-body code {
-  background: var(--color-gray-100);
+  background: var(--color-background-muted);
+  color: var(--color-text-primary);
   padding: var(--spacing-1) var(--spacing-2);
-  border-radius: var(--radius-sm);
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  border-radius: var(--border-radius-sm);
+  font-family: var(--font-family-mono);
   font-size: var(--font-size-sm);
 }
 
 .markdown-body pre {
-  background: var(--color-gray-100);
+  background: var(--color-background-muted);
+  color: var(--color-text-primary);
   padding: var(--spacing-4);
-  border-radius: var(--radius-md);
+  border-radius: var(--border-radius-md);
   overflow-x: auto;
-  margin: var(--spacing-4) 0;
+  margin: 0 0 var(--spacing-4) 0;
 }
 
 .markdown-body pre code {
   background: none;
   padding: 0;
+  border-radius: 0;
 }
 
 .markdown-body blockquote {
   border-left: 4px solid var(--color-primary);
   padding-left: var(--spacing-4);
   margin: var(--spacing-4) 0;
-  color: var(--color-text-secondary);
   font-style: italic;
+  color: var(--color-text-secondary);
 }
 
 .markdown-body table {
   width: 100%;
   border-collapse: collapse;
-  margin: var(--spacing-4) 0;
+  margin: 0 0 var(--spacing-4) 0;
 }
 
 .markdown-body th,
 .markdown-body td {
-  padding: var(--spacing-3);
+  border: 1px solid var(--color-border);
+  padding: var(--spacing-2) var(--spacing-3);
   text-align: left;
-  border-bottom: 1px solid var(--color-border);
 }
 
 .markdown-body th {
+  background: var(--color-background-muted);
   font-weight: var(--font-weight-semibold);
-  background: var(--color-gray-50);
+  color: var(--color-text-primary);
 }
 
-/* Responsive Design */
+.markdown-body td {
+  color: var(--color-text-secondary);
+}
+
+.markdown-body hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: var(--spacing-8) 0;
+}
+
 @media (max-width: 768px) {
   .feature-spec-view {
     padding: var(--spacing-4);
@@ -393,6 +471,10 @@ const formatDate = (date: Date | string) => {
 
   .markdown-body h2 {
     font-size: var(--font-size-xl);
+  }
+
+  .markdown-body h3 {
+    font-size: var(--font-size-lg);
   }
 }
 </style>

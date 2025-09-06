@@ -13,7 +13,11 @@ export function useFeatureSpecs() {
 
   // Fetch all feature specs
   const fetchFeatureSpecs = async () => {
-    if (!isAuthenticated.value) return
+    console.log('🔄 fetchFeatureSpecs called, isAuthenticated:', isAuthenticated.value)
+    if (!isAuthenticated.value) {
+      console.log('❌ Not authenticated, skipping fetch')
+      return
+    }
 
     console.log('🔄 fetchFeatureSpecs called')
     loading.value = true
