@@ -366,9 +366,10 @@ export interface CreateFieldChangeData {
 
 // Form field types for TanStack Forms
 export interface FeatureSpecFormData {
+  id?: string
   featureName: string
   author: string
-  date: string
+  date: Date
   status: string
   featureSummary: string
   reviewers: Reviewer[]

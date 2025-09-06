@@ -96,7 +96,7 @@ const handleSubmit = async () => {
 
   try {
     if (isSignUp.value) {
-      const { data, error: signUpError } = await signUp(formData.email, formData.password, {
+      const { error: signUpError } = await signUp(formData.email, formData.password, {
         full_name: formData.fullName,
       })
 
@@ -111,7 +111,7 @@ const handleSubmit = async () => {
         isSignUp.value = false
       }
     } else {
-      const { data, error: signInError } = await signIn(formData.email, formData.password)
+      const { error: signInError } = await signIn(formData.email, formData.password)
 
       if (signInError) {
         error.value = signInError.message
@@ -143,7 +143,7 @@ const handleForgotPassword = async () => {
   error.value = ''
 
   try {
-    const { data, error: resetError } = await resetPassword(formData.email)
+    const { error: resetError } = await resetPassword(formData.email)
 
     if (resetError) {
       error.value = resetError.message

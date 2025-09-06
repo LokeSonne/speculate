@@ -62,14 +62,7 @@ const handleFormCancel = () => {
         </div>
       </div>
 
-      <div v-else class="form-container">
-        <div class="form-header">
-          <h2>Create Feature Specification</h2>
-          <button @click="handleFormCancel" class="btn-secondary">← Back to Dashboard</button>
-        </div>
-
-        <FeatureSpecForm @submit="handleFormSubmit" @cancel="handleFormCancel" />
-      </div>
+      <FeatureSpecForm @submit="handleFormSubmit" @cancel="handleFormCancel" />
     </main>
   </div>
 </template>

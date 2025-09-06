@@ -1,23 +1,14 @@
 <template>
-  <div class="form-container">
-    <div class="form-header">
-      <h2>
-        {{ editingSpec ? 'Edit Feature Specification' : 'Create Feature Specification' }}
-      </h2>
-      <button @click="handleCancel" class="btn-secondary">← Back to Dashboard</button>
-    </div>
-
-    <FeatureSpecForm
-      :initial-data="editingSpec || undefined"
-      :is-editing="!!editingSpec"
-      @submit="handleSubmit"
-      @cancel="handleCancel"
-    />
-  </div>
+  <FeatureSpecForm
+    :initial-data="editingSpec || undefined"
+    :is-editing="!!editingSpec"
+    @submit="handleSubmit"
+    @cancel="handleCancel"
+  />
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useFeatureSpecs } from '../composables/useFeatureSpecsSupabase'
 import { useFieldChanges } from '../composables/useFieldChanges'
@@ -74,7 +65,7 @@ const createFieldChangesFromFormData = async (
     changes.push({
       featureSpecId,
       fieldPath: 'featureName',
-      fieldType: 'string',
+      fieldType: 'string' as const,
       oldValue: originalSpec.featureName,
       newValue: formData.featureName,
       changeDescription: `Changed feature name from "${originalSpec.featureName}" to "${formData.featureName}"`,
@@ -85,7 +76,7 @@ const createFieldChangesFromFormData = async (
     changes.push({
       featureSpecId,
       fieldPath: 'featureSummary',
-      fieldType: 'string',
+      fieldType: 'string' as const,
       oldValue: originalSpec.featureSummary,
       newValue: formData.featureSummary,
       changeDescription: `Changed feature summary`,
@@ -96,21 +87,22 @@ const createFieldChangesFromFormData = async (
     changes.push({
       featureSpecId,
       fieldPath: 'status',
-      fieldType: 'string',
+      fieldType: 'string' as const,
       oldValue: originalSpec.status,
       newValue: formData.status,
       changeDescription: `Changed status from "${originalSpec.status}" to "${formData.status}"`,
     })
   }
 
-  if (formData.date !== originalSpec.date?.toISOString().split('T')[0]) {
+  // Date comparison - compare Date objects directly
+  if (formData.date.getTime() !== originalSpec.date?.getTime()) {
     changes.push({
       featureSpecId,
       fieldPath: 'date',
-      fieldType: 'date',
-      oldValue: originalSpec.date?.toISOString().split('T')[0],
+      fieldType: 'object' as const,
+      oldValue: originalSpec.date,
       newValue: formData.date,
-      changeDescription: `Changed date from "${originalSpec.date?.toISOString().split('T')[0]}" to "${formData.date}"`,
+      changeDescription: `Changed date from "${originalSpec.date?.toISOString()}" to "${formData.date.toISOString()}"`,
     })
   }
 

@@ -136,7 +136,7 @@ ${formBehavior}`
    */
   private generateCoreInteraction(interaction: any): string {
     const errorScenarios = (interaction.errorScenarios || [])
-      .map((scenario) => `- ${scenario}`)
+      .map((scenario: string) => `- ${scenario}`)
       .join('\n')
 
     return `#### Interaction: ${interaction.name}
