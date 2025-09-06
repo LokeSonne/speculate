@@ -16,10 +16,6 @@
     <div v-else class="app-layout">
       <header class="app-header">
         <div class="header-content">
-          <div class="header-text">
-            <h1>Frontend Feature Specs</h1>
-            <p>Create and manage frontend feature specifications</p>
-          </div>
           <div class="user-info">
             <span class="user-email">Welcome, {{ user?.email }}</span>
             <button @click="handleSignOut" class="btn btn-secondary btn-sm">Sign Out</button>
@@ -101,7 +97,7 @@ const handleSignOut = async () => {
 .header-content {
   max-width: var(--max-width-2xl);
   margin: 0 auto;
-  padding: var(--spacing-8) var(--spacing-6);
+  padding: var(--spacing-1) var(--spacing-6);
   display: flex;
   justify-content: space-between;
   align-items: center;
