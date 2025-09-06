@@ -81,9 +81,9 @@ const handleReview = () => {
 
 <style scoped>
 .spec-item {
-  padding: var(--spacing-3);
+  padding: var(--spacing-2);
   border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-sm);
   background: var(--color-background);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -113,7 +113,7 @@ const handleReview = () => {
 
 .spec-name {
   margin: 0 0 var(--spacing-1) 0;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   color: var(--color-text-primary);
   line-height: var(--line-height-tight);
@@ -127,12 +127,12 @@ const handleReview = () => {
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
   display: flex;
-  gap: var(--spacing-2);
+  gap: var(--spacing-1);
   align-items: center;
 }
 
 .status {
-  padding: var(--spacing-1) var(--spacing-2);
+  padding: var(--spacing-1) var(--spacing-1);
   border-radius: var(--border-radius-sm);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
@@ -171,7 +171,7 @@ const handleReview = () => {
 .spec-actions {
   display: flex;
   gap: var(--spacing-1);
-  margin-left: var(--spacing-2);
+  margin-left: var(--spacing-1);
 }
 
 .btn-icon {
@@ -180,7 +180,7 @@ const handleReview = () => {
   padding: var(--spacing-1);
   border-radius: var(--border-radius-sm);
   cursor: pointer;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   transition: background-color 0.2s ease;
 }
 

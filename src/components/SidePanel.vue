@@ -146,7 +146,7 @@ const handleCreateSpec = () => {
 }
 
 .spec-section {
-  margin-bottom: var(--spacing-6);
+  margin-bottom: var(--spacing-4);
 }
 
 .section-header {
@@ -187,7 +187,7 @@ const handleCreateSpec = () => {
 .spec-list {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2);
+  gap: var(--spacing-1);
 }
 
 /* Responsive design */
