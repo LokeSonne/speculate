@@ -19,12 +19,18 @@
       </p>
     </div>
     <div class="spec-actions">
-      <button v-if="showEditButton" @click.stop="handleEdit" class="btn-icon" title="Edit">
+      <Button v-if="showEditButton" @click.stop="handleEdit" variant="ghost" size="sm" title="Edit">
         ✏️
-      </button>
-      <button v-if="showReviewButton" @click.stop="handleReview" class="btn-icon" title="Review">
+      </Button>
+      <Button
+        v-if="showReviewButton"
+        @click.stop="handleReview"
+        variant="ghost"
+        size="sm"
+        title="Review"
+      >
         👁️
-      </button>
+      </Button>
     </div>
   </div>
 </template>
@@ -32,6 +38,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import Button from './ui/Button.vue'
 import type { FrontendFeatureSpec } from '../types/feature'
 
 interface Props {
@@ -174,17 +181,5 @@ const handleReview = () => {
   margin-left: var(--spacing-1);
 }
 
-.btn-icon {
-  background: none;
-  border: none;
-  padding: var(--spacing-1);
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  font-size: var(--font-size-xs);
-  transition: background-color 0.2s ease;
-}
-
-.btn-icon:hover {
-  background: var(--color-background-muted);
-}
+/* Button styles are now handled by the Button component */
 </style>

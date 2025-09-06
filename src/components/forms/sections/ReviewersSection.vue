@@ -25,16 +25,21 @@
               <option value="Engineering">Engineering</option>
             </select>
           </div>
-          <button type="button" @click="removeReviewer(index)" class="btn-remove">Remove</button>
+          <Button type="button" @click="removeReviewer(index)" variant="danger" size="sm"
+            >Remove</Button
+          >
         </div>
       </div>
-      <button type="button" @click="addReviewer" class="btn-add">+ Add Reviewer</button>
+      <Button type="button" @click="addReviewer" variant="secondary" size="sm"
+        >+ Add Reviewer</Button
+      >
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { Reviewer } from '../../../types/feature'
+import Button from '../../ui/Button.vue'
 
 interface Props {
   data: {

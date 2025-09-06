@@ -2,10 +2,10 @@
   <div class="dashboard">
     <div class="dashboard-header">
       <h2 class="text-3xl font-semibold text-primary">Dashboard</h2>
-      <button @click="handleCreateSpec" class="btn btn-primary">
+      <Button @click="handleCreateSpec" variant="primary">
         <span class="mr-2">+</span>
         Create New Feature Spec
-      </button>
+      </Button>
     </div>
 
     <div v-if="loading" class="card text-center py-16">
@@ -16,7 +16,7 @@
     <div v-else-if="error" class="alert alert-error">
       <h3 class="font-semibold mb-2">Error</h3>
       <p class="mb-4">{{ error }}</p>
-      <button @click="fetchFeatureSpecs" class="btn btn-primary">Retry</button>
+      <Button @click="fetchFeatureSpecs" variant="primary">Retry</Button>
     </div>
 
     <div v-else-if="featureSpecs.length === 0" class="card text-center py-16">
@@ -24,7 +24,7 @@
       <p class="text-secondary mb-8 text-lg">
         Create your first feature specification to get started.
       </p>
-      <button @click="handleCreateSpec" class="btn btn-primary">Create Feature Spec</button>
+      <Button @click="handleCreateSpec" variant="primary">Create Feature Spec</Button>
     </div>
 
     <div v-else class="specs-list">
@@ -46,11 +46,11 @@
               }}</span>
             </div>
             <div class="spec-actions">
-              <button @click="handleViewSpec(spec)" class="btn btn-primary btn-sm">View</button>
-              <button @click="handleEditSpec(spec)" class="btn btn-secondary btn-sm">Edit</button>
-              <button @click="handleDeleteSpec(spec.id)" class="btn btn-error btn-sm">
+              <Button @click="handleViewSpec(spec)" variant="primary" size="sm">View</Button>
+              <Button @click="handleEditSpec(spec)" variant="secondary" size="sm">Edit</Button>
+              <Button @click="handleDeleteSpec(spec.id)" variant="danger" size="sm">
                 Delete
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -81,6 +81,7 @@
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useFeatureSpecs } from '../composables/useFeatureSpecsSupabase'
+import Button from './ui/Button.vue'
 import type { FrontendFeatureSpec } from '../types/feature'
 
 const router = useRouter()
@@ -191,10 +192,7 @@ const getStatusClass = (status: string) => {
   gap: var(--spacing-2);
 }
 
-.btn-sm {
-  padding: var(--spacing-2) var(--spacing-4);
-  font-size: var(--font-size-sm);
-}
+/* Button styles are now handled by the Button component */
 
 /* Utility classes for spacing */
 .mr-2 {

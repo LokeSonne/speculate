@@ -16,10 +16,12 @@
               class="form-input"
             />
           </div>
-          <button type="button" @click="removeGoal(index)" class="btn-remove">Remove</button>
+          <Button type="button" @click="removeGoal(index)" variant="danger" size="sm"
+            >Remove</Button
+          >
         </div>
       </div>
-      <button type="button" @click="addGoal" class="btn-add">+ Add User Goal</button>
+      <Button type="button" @click="addGoal" variant="secondary" size="sm">+ Add User Goal</Button>
     </div>
 
     <!-- Use Cases -->
@@ -34,7 +36,9 @@
             placeholder="Use Case Name"
             class="form-input use-case-name"
           />
-          <button type="button" @click="removeUseCase(index)" class="btn-remove">Remove</button>
+          <Button type="button" @click="removeUseCase(index)" variant="danger" size="sm"
+            >Remove</Button
+          >
         </div>
 
         <div class="use-case-fields">
@@ -97,13 +101,16 @@
           </div>
         </div>
       </div>
-      <button type="button" @click="addUseCase" class="btn-add">+ Add Use Case</button>
+      <Button type="button" @click="addUseCase" variant="secondary" size="sm"
+        >+ Add Use Case</Button
+      >
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { UserGoal, UseCase } from '../../../types/feature'
+import Button from '../../ui/Button.vue'
 
 interface Props {
   data: {

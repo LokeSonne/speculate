@@ -49,22 +49,29 @@
           {{ successMessage }}
         </div>
 
-        <button type="submit" :disabled="loading" class="btn-primary auth-submit">
+        <Button type="submit" :disabled="loading" variant="primary" size="lg" class="auth-submit">
           {{ loading ? 'Please wait...' : isSignUp ? 'Create Account' : 'Sign In' }}
-        </button>
+        </Button>
       </form>
 
       <div class="auth-footer">
         <p>
           {{ isSignUp ? 'Already have an account?' : "Don't have an account?" }}
-          <button type="button" @click="toggleMode" class="btn-link">
+          <Button type="button" @click="toggleMode" variant="ghost" size="sm" class="btn-link">
             {{ isSignUp ? 'Sign In' : 'Create Account' }}
-          </button>
+          </Button>
         </p>
 
-        <button v-if="!isSignUp" type="button" @click="handleForgotPassword" class="btn-link">
+        <Button
+          v-if="!isSignUp"
+          type="button"
+          @click="handleForgotPassword"
+          variant="ghost"
+          size="sm"
+          class="btn-link"
+        >
           Forgot your password?
-        </button>
+        </Button>
       </div>
     </div>
   </div>
@@ -74,6 +81,7 @@
 import { ref, reactive } from 'vue'
 import { useAuth } from '../../composables/useAuth'
 import { useRouter } from 'vue-router'
+import Button from '../ui/Button.vue'
 
 const router = useRouter()
 const { signUp, signIn, resetPassword } = useAuth()
@@ -240,34 +248,6 @@ const handleForgotPassword = async () => {
 
 .auth-submit {
   width: 100%;
-  padding: var(--spacing-3) var(--spacing-6);
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: background var(--transition-fast);
-}
-
-.auth-submit:hover:not(:disabled) {
-  background: var(--color-primary-hover);
-}
-
-.auth-submit:disabled {
-  background: var(--color-gray-400);
-  cursor: not-allowed;
-}
-
-.auth-footer {
-  text-align: center;
-}
-
-.auth-footer p {
-  margin: 0 0 var(--spacing-4) 0;
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
 }
 
 .btn-link {

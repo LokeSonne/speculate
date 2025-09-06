@@ -9,12 +9,12 @@
       </div>
       <div v-else class="not-logged-in">
         <p>Not logged in</p>
-        <button @click="loginAsJohn" class="btn-primary btn-sm">Login as John</button>
-        <button @click="loginAsJane" class="btn-secondary btn-sm">Login as Jane</button>
+        <Button @click="loginAsJohn" variant="primary" size="sm">Login as John</Button>
+        <Button @click="loginAsJane" variant="secondary" size="sm">Login as Jane</Button>
       </div>
       <div class="auth-actions">
-        <button v-if="user" @click="logout" class="btn-secondary btn-sm">Logout</button>
-        <button @click="createTestUser" class="btn-secondary btn-sm">Create Test User</button>
+        <Button v-if="user" @click="logout" variant="secondary" size="sm">Logout</Button>
+        <Button @click="createTestUser" variant="secondary" size="sm">Create Test User</Button>
       </div>
     </div>
   </div>
@@ -24,6 +24,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuth } from '../composables/useAuth'
 import { mockAuth } from '../lib/mockAuth'
+import Button from './ui/Button.vue'
 
 const { user, signOut } = useAuth()
 
@@ -91,37 +92,5 @@ const createTestUser = async () => {
   flex-wrap: wrap;
 }
 
-.btn-primary,
-.btn-secondary {
-  padding: var(--spacing-2) var(--spacing-3);
-  border: none;
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-xs);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.btn-primary {
-  background: var(--color-primary);
-  color: white;
-}
-
-.btn-primary:hover {
-  background: var(--color-primary-hover);
-}
-
-.btn-secondary {
-  background: var(--color-secondary);
-  color: var(--color-gray-700);
-  border: 1px solid var(--color-border-light);
-}
-
-.btn-secondary:hover {
-  background: var(--color-secondary-hover);
-}
-
-.btn-sm {
-  padding: var(--spacing-1) var(--spacing-2);
-  font-size: var(--font-size-xs);
-}
+/* Button styles are now handled by the Button component */
 </style>

@@ -8,7 +8,7 @@
     <div v-else-if="!spec" class="error-state">
       <h2>Specification not found</h2>
       <p>The requested specification could not be found.</p>
-      <button @click="handleBack" class="btn btn-primary">Back to Dashboard</button>
+      <Button @click="handleBack" variant="primary">Back to Dashboard</Button>
     </div>
 
     <div v-else>
@@ -28,24 +28,28 @@
         </div>
         <div class="spec-actions">
           <div class="view-toggle">
-            <button
+            <Button
               @click="viewMode = 'rendered'"
               :class="{ active: viewMode === 'rendered' }"
+              variant="ghost"
+              size="sm"
               class="btn-toggle"
             >
               Rendered View
-            </button>
-            <button
+            </Button>
+            <Button
               @click="viewMode = 'markdown'"
               :class="{ active: viewMode === 'markdown' }"
+              variant="ghost"
+              size="sm"
               class="btn-toggle"
             >
               Markdown Source
-            </button>
+            </Button>
           </div>
-          <button @click="handleEdit" class="btn-secondary">Edit</button>
-          <button @click="handleExport" class="btn-primary">Export</button>
-          <button @click="handleBack" class="btn-secondary">← Back</button>
+          <Button @click="handleEdit" variant="secondary">Edit</Button>
+          <Button @click="handleExport" variant="primary">Export</Button>
+          <Button @click="handleBack" variant="secondary">← Back</Button>
         </div>
       </div>
 
@@ -64,6 +68,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useFeatureSpecs } from '../composables/useFeatureSpecsSupabase'
 import MarkdownViewer from './MarkdownViewer.vue'
+import Button from './ui/Button.vue'
 import { MarkdownService } from '../services/markdownService'
 import type { FrontendFeatureSpec } from '../types/feature'
 

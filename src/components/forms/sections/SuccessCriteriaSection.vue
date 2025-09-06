@@ -36,20 +36,21 @@
               class="form-input"
             />
           </div>
-          <button type="button" @click="removeSuccessCriteria(index)" class="btn-remove">
+          <Button type="button" @click="removeSuccessCriteria(index)" variant="danger" size="sm">
             Remove
-          </button>
+          </Button>
         </div>
       </div>
-      <button type="button" @click="addSuccessCriteria" class="btn-add">
+      <Button type="button" @click="addSuccessCriteria" variant="secondary" size="sm">
         + Add Success Criteria
-      </button>
+      </Button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { SuccessCriteria } from '../../../types/feature'
+import Button from '../../ui/Button.vue'
 
 interface Props {
   data: {

@@ -60,10 +60,10 @@
 
       <!-- Form Actions -->
       <div class="form-actions">
-        <button type="button" @click="handleCancel" class="btn btn-secondary">Cancel</button>
-        <button type="submit" :disabled="isSubmitting" class="btn btn-primary">
+        <Button type="button" @click="handleCancel" variant="secondary">Cancel</Button>
+        <Button type="submit" :disabled="isSubmitting" variant="primary">
           {{ isSubmitting ? 'Saving...' : 'Save Feature Spec' }}
-        </button>
+        </Button>
       </div>
     </form>
   </div>
@@ -73,6 +73,7 @@
 import { ref, reactive } from 'vue'
 import { useAuth } from '../../composables/useAuth'
 import { useFieldChanges } from '../../composables/useFieldChanges'
+import Button from '../ui/Button.vue'
 import type { FeatureSpecFormData } from '../../types/feature'
 import OverviewSection from './sections/OverviewSection.vue'
 import UserRequirementsSection from './sections/UserRequirementsSection.vue'

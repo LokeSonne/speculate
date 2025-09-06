@@ -20,7 +20,9 @@
             placeholder="Action Name"
             class="form-input interaction-name"
           />
-          <button type="button" @click="removeInteraction(index)" class="btn-remove">Remove</button>
+          <Button type="button" @click="removeInteraction(index)" variant="danger" size="sm"
+            >Remove</Button
+          >
         </div>
 
         <div class="interaction-fields">
@@ -103,13 +105,14 @@
                   placeholder="Error Type (e.g., Network Error, Validation Error)"
                   class="form-input error-state-name"
                 />
-                <button
+                <Button
                   type="button"
                   @click="removeInteractionErrorState(index, errorIndex)"
-                  class="btn-remove"
+                  variant="danger"
+                  size="sm"
                 >
                   Remove
-                </button>
+                </Button>
               </div>
 
               <div class="error-state-fields">
@@ -186,9 +189,14 @@
                 </div>
               </div>
             </div>
-            <button type="button" @click="addInteractionErrorState(index)" class="btn-add">
+            <Button
+              type="button"
+              @click="addInteractionErrorState(index)"
+              variant="secondary"
+              size="sm"
+            >
               + Add Error State
-            </button>
+            </Button>
           </div>
 
           <div class="form-group">
@@ -246,28 +254,37 @@
                     class="form-textarea"
                   ></textarea>
                 </div>
-                <button
+                <Button
                   type="button"
                   @click="removeInteractionBusinessRule(index, ruleIndex)"
-                  class="btn-remove"
+                  variant="danger"
+                  size="sm"
                 >
                   Remove
-                </button>
+                </Button>
               </div>
             </div>
-            <button type="button" @click="addInteractionBusinessRule(index)" class="btn-add">
+            <Button
+              type="button"
+              @click="addInteractionBusinessRule(index)"
+              variant="secondary"
+              size="sm"
+            >
               + Add Business Rule
-            </button>
+            </Button>
           </div>
         </div>
       </div>
-      <button type="button" @click="addInteraction" class="btn-add">+ Add Interaction</button>
+      <Button type="button" @click="addInteraction" variant="secondary" size="sm"
+        >+ Add Interaction</Button
+      >
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { CoreInteraction } from '../../../types/feature'
+import Button from '../../ui/Button.vue'
 
 interface Props {
   data: {
