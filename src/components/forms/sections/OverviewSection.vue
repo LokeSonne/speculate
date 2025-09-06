@@ -2,6 +2,13 @@
   <div class="form-section">
     <h2>Overview</h2>
 
+    <!-- Metadata display in edit mode -->
+    <div v-if="isEditing" class="metadata-display">
+      <span class="metadata-item">By {{ data.author }}</span>
+      <span class="metadata-separator">•</span>
+      <span class="metadata-item">{{ formatDate(data.date) }}</span>
+    </div>
+
     <div class="form-group">
       <label for="featureName">Feature Name *</label>
       <input
@@ -27,74 +34,32 @@
       />
     </div>
 
-    <div class="form-row">
-      <div v-if="isEditing" class="form-group">
-        <label for="author">Author *</label>
-        <input
-          id="author"
-          :value="data.author"
-          @input="updateField('author', ($event.target as HTMLInputElement).value)"
-          type="text"
-          required
-          placeholder="Author name"
-          class="form-input"
-          :class="{ error: errors.author }"
-        />
-        <div v-if="errors.author" class="error-message">
-          {{ errors.author }}
-        </div>
-        <FieldChangeHistory
-          v-if="featureSpecId && !ownershipLoading"
-          :changes="getFieldChanges('author').value"
-          :is-owner="isOwner"
-          :loading="loading"
-          @accept="acceptChange"
-          @reject="rejectChange"
-        />
+    <div class="form-group">
+      <label for="status">Status *</label>
+      <select
+        id="status"
+        :value="data.status"
+        @change="updateField('status', ($event.target as HTMLSelectElement).value)"
+        required
+        class="form-select"
+        :class="{ error: errors.status }"
+      >
+        <option value="Draft">Draft</option>
+        <option value="In Review">In Review</option>
+        <option value="Approved">Approved</option>
+        <option value="Locked">Locked</option>
+      </select>
+      <div v-if="errors.status" class="error-message">
+        {{ errors.status }}
       </div>
-
-      <div class="form-group">
-        <label for="date">Created Date</label>
-        <div class="form-display">
-          {{ formatDate(data.date) }}
-        </div>
-        <FieldChangeHistory
-          v-if="featureSpecId && !ownershipLoading"
-          :changes="getFieldChanges('date').value"
-          :is-owner="isOwner"
-          :loading="loading"
-          @accept="acceptChange"
-          @reject="rejectChange"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="status">Status *</label>
-        <select
-          id="status"
-          :value="data.status"
-          @change="updateField('status', ($event.target as HTMLSelectElement).value)"
-          required
-          class="form-select"
-          :class="{ error: errors.status }"
-        >
-          <option value="Draft">Draft</option>
-          <option value="In Review">In Review</option>
-          <option value="Approved">Approved</option>
-          <option value="Locked">Locked</option>
-        </select>
-        <div v-if="errors.status" class="error-message">
-          {{ errors.status }}
-        </div>
-        <FieldChangeHistory
-          v-if="featureSpecId && !ownershipLoading"
-          :changes="getFieldChanges('status').value"
-          :is-owner="isOwner"
-          :loading="loading"
-          @accept="acceptChange"
-          @reject="rejectChange"
-        />
-      </div>
+      <FieldChangeHistory
+        v-if="featureSpecId && !ownershipLoading"
+        :changes="getFieldChanges('status').value"
+        :is-owner="isOwner"
+        :loading="loading"
+        @accept="acceptChange"
+        @reject="rejectChange"
+      />
     </div>
 
     <div class="form-group">
@@ -239,31 +204,25 @@ const formatDate = (date: Date | string) => {
   color: var(--color-gray-700);
 }
 
+.metadata-display {
+  margin-bottom: var(--spacing-4);
+  padding: var(--spacing-2) 0;
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-sm);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.metadata-item {
+  color: var(--color-text-secondary);
+}
+
+.metadata-separator {
+  margin: 0 var(--spacing-2);
+  color: var(--color-text-tertiary);
+}
+
 .form-group {
   margin-bottom: var(--spacing-4);
-}
-
-.form-display {
-  padding: var(--spacing-3);
-  background: var(--color-background-muted);
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-md);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
-  min-height: 2.5rem;
-  display: flex;
-  align-items: center;
-}
-
-.form-row {
-  display: flex;
-  gap: var(--spacing-4);
-  align-items: end;
-}
-
-.form-row .form-group {
-  flex: 1;
-  margin-bottom: 0;
 }
 
 label {
