@@ -109,6 +109,7 @@ interface Props {
 interface Emits {
   (e: 'update', field: string, value: string): void
   (e: 'field-change', fieldPath: string, oldValue: unknown, newValue: unknown): void
+  (e: 'apply-accepted-change', field: string, value: string): void
 }
 
 const props = defineProps<Props>()
@@ -145,7 +146,7 @@ const updateField = (field: string, value: string) => {
 const applyAcceptedChange = (field: string, value: string) => {
   console.log('🎯 applyAcceptedChange called:', { field, value })
   console.trace('Call stack for applyAcceptedChange')
-  emit('update', field, value)
+  emit('apply-accepted-change', field, value)
   // Note: Do not emit 'field-change' event for accepted changes to prevent form submission
 }
 
