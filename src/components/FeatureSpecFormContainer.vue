@@ -20,7 +20,7 @@ import { useFeatureSpecs, useFeatureSpec } from '../composables/useFeatureSpecsQ
 import { useFieldChanges } from '../composables/useFieldChangesQuery'
 import { useAuth } from '../composables/useAuth'
 import FeatureSpecForm from './forms/FeatureSpecForm.vue'
-import type { FeatureSpecFormData } from '../types/feature'
+import type { FeatureSpecFormData, FieldChange, CreateFieldChangeData } from '../types/feature'
 
 interface Props {
   mode: 'create' | 'edit'
@@ -37,6 +37,11 @@ const { featureSpec: editingSpec, isLoading } = useFeatureSpec(
   props.mode === 'edit' ? (route.params.id as string) : '',
 )
 
+// Get field changes functionality for non-owner editing
+const { createFieldChangeAsync } = useFieldChanges(
+  props.mode === 'edit' ? (route.params.id as string) : '',
+)
+
 console.log('🔍 FeatureSpecFormContainer:', {
   mode: props.mode,
   routeId: route.params.id,
@@ -50,9 +55,8 @@ console.log('🔍 FeatureSpecFormContainer:', {
 const createFieldChangesFromFormData = async (
   featureSpecId: string,
   formData: FeatureSpecFormData,
+  createFieldChange: (change: CreateFieldChangeData) => Promise<FieldChange>,
 ) => {
-  const { createFieldChange } = useFieldChanges(featureSpecId)
-
   // Compare form data with original spec data and create field changes for differences
   const originalSpec = editingSpec.value
   if (!originalSpec) return
@@ -136,7 +140,7 @@ const handleSubmit = async (data: FeatureSpecFormData) => {
         await updateSpecAsync({ id: editingSpec.value.id, data })
       } else {
         console.log('👤 Non-owner editing - creating field changes')
-        await createFieldChangesFromFormData(editingSpec.value.id, data)
+        await createFieldChangesFromFormData(editingSpec.value.id, data, createFieldChangeAsync)
       }
     } else {
       console.log('➕ Creating new feature spec with data:', data.featureName)

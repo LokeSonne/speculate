@@ -1202,11 +1202,26 @@ export const handlers = [
   http.patch('*/rest/v1/field_changes', async ({ request }) => {
     await delay(300)
     const url = new URL(request.url)
-    const changeId = url.searchParams.get('id')
+    const idParam = url.searchParams.get('id')
     const body = (await request.json()) as any
+
+    console.log('🔧 PATCH field_changes called:', { idParam, body })
+
+    // Handle Supabase query format: id=eq.{value}
+    let changeId = idParam
+    if (idParam?.startsWith('eq.')) {
+      changeId = idParam.replace('eq.', '')
+    }
+
+    console.log('🔍 Looking for field change with ID:', changeId)
 
     const changeIndex = mockData.fieldChanges.findIndex((change) => change.id === changeId)
     if (changeIndex === -1) {
+      console.log('❌ Field change not found:', changeId)
+      console.log(
+        '🔍 Available field changes:',
+        mockData.fieldChanges.map((c) => c.id),
+      )
       return HttpResponse.json({ error: 'Field change not found' }, { status: 404 })
     }
 
@@ -1218,6 +1233,7 @@ export const handlers = [
     }
 
     mockData.fieldChanges[changeIndex] = updatedChange
+    console.log('✅ Field change updated:', updatedChange)
     return HttpResponse.json(updatedChange)
   }),
 
