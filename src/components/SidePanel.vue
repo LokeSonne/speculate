@@ -8,60 +8,68 @@
       </Button>
     </div>
 
-    <div class="side-panel-content">
-      <!-- Owned Specifications -->
-      <div class="spec-section">
-        <div class="section-header">
-          <h4>My Specifications</h4>
-          <span class="count">{{ ownedSpecs.length }}</span>
-        </div>
-        <div v-if="ownedSpecs.length === 0" class="empty-state">
-          <p class="text-secondary">No specifications created yet</p>
-        </div>
-        <div v-else class="spec-list">
-          <SpecListItem
-            v-for="spec in ownedSpecs"
-            :key="spec.id"
-            :spec="spec"
-            :is-active="isActiveSpec(spec.id)"
-            :show-status="true"
-            :show-author="false"
-            :show-edit-button="true"
-            :show-review-button="false"
-          />
-        </div>
-      </div>
+    <ScrollAreaRoot class="side-panel-scroll-area">
+      <ScrollAreaViewport class="side-panel-viewport">
+        <div class="side-panel-content">
+          <!-- Owned Specifications -->
+          <div class="spec-section">
+            <div class="section-header">
+              <h4>My Specifications</h4>
+              <span class="count">{{ ownedSpecs.length }}</span>
+            </div>
+            <div v-if="ownedSpecs.length === 0" class="empty-state">
+              <p class="text-secondary">No specifications created yet</p>
+            </div>
+            <div v-else class="spec-list">
+              <SpecListItem
+                v-for="spec in ownedSpecs"
+                :key="spec.id"
+                :spec="spec"
+                :is-active="isActiveSpec(spec.id)"
+                :show-status="true"
+                :show-author="false"
+                :show-edit-button="true"
+                :show-review-button="false"
+              />
+            </div>
+          </div>
 
-      <!-- Review Requested Specifications -->
-      <div class="spec-section">
-        <div class="section-header">
-          <h4>Review Requests</h4>
-          <span class="count">{{ reviewSpecs.length }}</span>
+          <!-- Review Requested Specifications -->
+          <div class="spec-section">
+            <div class="section-header">
+              <h4>Review Requests</h4>
+              <span class="count">{{ reviewSpecs.length }}</span>
+            </div>
+            <div v-if="reviewSpecs.length === 0" class="empty-state">
+              <p class="text-secondary">No review requests</p>
+            </div>
+            <div v-else class="spec-list">
+              <SpecListItem
+                v-for="spec in reviewSpecs"
+                :key="spec.id"
+                :spec="spec"
+                :is-active="isActiveSpec(spec.id)"
+                :is-review-item="true"
+                :show-status="false"
+                :show-author="true"
+                :show-edit-button="false"
+                :show-review-button="true"
+              />
+            </div>
+          </div>
         </div>
-        <div v-if="reviewSpecs.length === 0" class="empty-state">
-          <p class="text-secondary">No review requests</p>
-        </div>
-        <div v-else class="spec-list">
-          <SpecListItem
-            v-for="spec in reviewSpecs"
-            :key="spec.id"
-            :spec="spec"
-            :is-active="isActiveSpec(spec.id)"
-            :is-review-item="true"
-            :show-status="false"
-            :show-author="true"
-            :show-edit-button="false"
-            :show-review-button="true"
-          />
-        </div>
-      </div>
-    </div>
+      </ScrollAreaViewport>
+      <ScrollAreaScrollbar orientation="vertical" class="side-panel-scrollbar">
+        <ScrollAreaThumb class="side-panel-thumb" />
+      </ScrollAreaScrollbar>
+    </ScrollAreaRoot>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { ScrollAreaRoot, ScrollAreaViewport, ScrollAreaScrollbar, ScrollAreaThumb } from 'reka-ui'
 import { useAuth } from '../composables/useAuth'
 import { useFeatureSpecs } from '../composables/useFeatureSpecsQuery'
 import SpecListItem from './SpecListItem.vue'
@@ -116,12 +124,17 @@ const handleCreateSpec = () => {
 <style scoped>
 .side-panel {
   width: 300px;
-  height: 100vh;
+  height: calc(100vh - 60px); /* Subtract header height */
   background: var(--color-background-card);
   border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  flex-shrink: 0;
+  position: fixed;
+  top: 60px; /* Start below the header */
+  left: 0;
+  z-index: 10;
 }
 
 .side-panel-header {
@@ -131,6 +144,7 @@ const handleCreateSpec = () => {
   justify-content: space-between;
   align-items: center;
   background: var(--color-background);
+  flex-shrink: 0;
 }
 
 .side-panel-header h3 {
@@ -140,10 +154,34 @@ const handleCreateSpec = () => {
   color: var(--color-text-primary);
 }
 
-.side-panel-content {
+.side-panel-scroll-area {
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden;
+}
+
+.side-panel-viewport {
+  width: 100%;
+  height: 100%;
+}
+
+.side-panel-content {
   padding: var(--spacing-4);
+}
+
+.side-panel-scrollbar {
+  width: 8px;
+  background: var(--color-background-muted);
+  border-radius: var(--radius-sm);
+}
+
+.side-panel-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.side-panel-thumb:hover {
+  background: var(--color-text-secondary);
 }
 
 .spec-section {
@@ -195,13 +233,13 @@ const handleCreateSpec = () => {
 @media (max-width: 768px) {
   .side-panel {
     width: 100%;
-    height: auto;
+    height: 200px;
     border-right: none;
     border-bottom: 1px solid var(--color-border);
-  }
-
-  .side-panel-content {
-    max-height: 200px;
+    position: relative;
+    top: auto;
+    left: auto;
+    z-index: auto;
   }
 }
 </style>

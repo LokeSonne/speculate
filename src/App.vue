@@ -151,7 +151,9 @@ const handleSignOut = async () => {
 .app-body {
   display: flex;
   flex: 1;
+  height: calc(100vh - 60px); /* Subtract header height */
   overflow: hidden;
+  margin-left: 300px; /* Account for fixed sidebar */
 }
 
 .app-main {
@@ -159,6 +161,7 @@ const handleSignOut = async () => {
   padding: var(--spacing-6);
   overflow-y: auto;
   background: var(--color-background);
+  height: 100%;
 }
 
 @media (max-width: 768px) {
@@ -178,10 +181,14 @@ const handleSignOut = async () => {
 
   .app-body {
     flex-direction: column;
+    height: calc(100vh - 80px); /* Adjust for mobile header height */
+    margin-left: 0; /* Remove sidebar margin on mobile */
   }
 
   .app-main {
     padding: var(--spacing-4);
+    height: auto;
+    flex: 1;
   }
 }
 </style>
