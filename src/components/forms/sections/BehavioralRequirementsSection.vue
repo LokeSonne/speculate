@@ -20,9 +20,9 @@
             placeholder="Action Name"
             class="form-input interaction-name"
           />
-          <Button type="button" @click="removeInteraction(index)" variant="danger" size="sm"
-            >Remove</Button
-          >
+          <Button type="button" @click="removeInteraction(index)" variant="danger" size="sm">
+            <DeleteIcon :size="16" />
+          </Button>
         </div>
 
         <div class="interaction-fields">
@@ -111,7 +111,7 @@
                   variant="danger"
                   size="sm"
                 >
-                  Remove
+                  <DeleteIcon :size="16" />
                 </Button>
               </div>
 
@@ -260,7 +260,7 @@
                   variant="danger"
                   size="sm"
                 >
-                  Remove
+                  <DeleteIcon :size="16" />
                 </Button>
               </div>
             </div>
@@ -285,6 +285,7 @@
 <script setup lang="ts">
 import type { CoreInteraction } from '../../../types/feature'
 import Button from '../../ui/Button.vue'
+import DeleteIcon from '../../../icons/DeleteIcon.vue'
 
 interface Props {
   data: {

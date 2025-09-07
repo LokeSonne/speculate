@@ -193,11 +193,18 @@ describe('UserRequirementsSection', () => {
         props: defaultProps,
       })
 
-      const removeButtons = wrapper.findAll('button')
-      const removeGoalButton = Array.from(removeButtons).find((btn) =>
-        btn.text().includes('Remove'),
-      )
-      await removeGoalButton?.trigger('click')
+      // Find the remove button by looking for the DeleteIcon component
+      const goalItem = wrapper.find('.goal-item')
+      expect(goalItem.exists()).toBe(true)
+
+      const removeButton = goalItem.find('button')
+      expect(removeButton.exists()).toBe(true)
+
+      // Check that the button contains the DeleteIcon component
+      const deleteIcon = removeButton.findComponent({ name: 'DeleteIcon' })
+      expect(deleteIcon.exists()).toBe(true)
+
+      await removeButton.trigger('click')
 
       expect(wrapper.emitted('update')).toBeTruthy()
       const updateEvent = wrapper.emitted('update')?.[0]
@@ -252,7 +259,10 @@ describe('UserRequirementsSection', () => {
 
       const removeButton = useCaseItem.find('button')
       expect(removeButton.exists()).toBe(true)
-      expect(removeButton.text()).toBe('Remove')
+
+      // Check that the button contains the DeleteIcon component
+      const deleteIcon = removeButton.findComponent({ name: 'DeleteIcon' })
+      expect(deleteIcon.exists()).toBe(true)
 
       await removeButton.trigger('click')
 

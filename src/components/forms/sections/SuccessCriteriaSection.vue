@@ -37,7 +37,7 @@
             />
           </div>
           <Button type="button" @click="removeSuccessCriteria(index)" variant="danger" size="sm">
-            Remove
+            <DeleteIcon :size="16" />
           </Button>
         </div>
       </div>
@@ -59,6 +59,7 @@
 <script setup lang="ts">
 import type { SuccessCriteria } from '../../../types/feature'
 import Button from '../../ui/Button.vue'
+import DeleteIcon from '../../../icons/DeleteIcon.vue'
 import FieldChangeHistory from '../../FieldChangeHistory.vue'
 import { useFieldChanges } from '../../../composables/useFieldChangesQuery'
 import { computed } from 'vue'

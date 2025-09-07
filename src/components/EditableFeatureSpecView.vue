@@ -86,7 +86,9 @@
                       class="editable-input"
                       @blur="trackCriteriaChange(index, 'description')"
                     />
-                    <button @click="removeCriteria(index)" class="btn-remove btn-sm">Remove</button>
+                    <button @click="removeCriteria(index)" class="btn-remove btn-sm">
+                      <DeleteIcon :size="16" />
+                    </button>
                   </div>
                   <div v-else class="criteria-display">
                     <span class="criteria-type">{{ criteria.type }}:</span>
@@ -123,7 +125,9 @@
                       <option value="Design">Design</option>
                       <option value="Engineering">Engineering</option>
                     </select>
-                    <button @click="removeReviewer(index)" class="btn-remove btn-sm">Remove</button>
+                    <button @click="removeReviewer(index)" class="btn-remove btn-sm">
+                      <DeleteIcon :size="16" />
+                    </button>
                   </div>
                   <div v-else class="reviewer-display">
                     <span class="reviewer-name">{{ reviewer.name }}</span>
@@ -175,7 +179,7 @@
                       @blur="trackTargetUserChange(index, 'description')"
                     />
                     <button @click="removeTargetUser(index)" class="btn-remove btn-sm">
-                      Remove
+                      <DeleteIcon :size="16" />
                     </button>
                   </div>
                   <div v-else class="target-user-display">
@@ -212,7 +216,9 @@
                       class="editable-input"
                       @blur="trackUserGoalChange(index, 'description')"
                     />
-                    <button @click="removeUserGoal(index)" class="btn-remove btn-sm">Remove</button>
+                    <button @click="removeUserGoal(index)" class="btn-remove btn-sm">
+                      <DeleteIcon :size="16" />
+                    </button>
                   </div>
                   <div v-else class="user-goal-display">
                     <strong>{{ goal.priority }}:</strong> {{ goal.description }}
@@ -259,7 +265,9 @@
                       rows="2"
                       @blur="trackUseCaseChange(index, 'expectedOutcome')"
                     />
-                    <button @click="removeUseCase(index)" class="btn-remove btn-sm">Remove</button>
+                    <button @click="removeUseCase(index)" class="btn-remove btn-sm">
+                      <DeleteIcon :size="16" />
+                    </button>
                   </div>
                   <div v-else class="use-case-display">
                     <h4>{{ useCase.name }}</h4>
@@ -314,7 +322,7 @@
                       @blur="trackInteractionChange(index, 'behavior')"
                     />
                     <button @click="removeInteraction(index)" class="btn-remove btn-sm">
-                      Remove
+                      <DeleteIcon :size="16" />
                     </button>
                   </div>
                   <div v-else class="interaction-display">
@@ -400,6 +408,7 @@ import { useChangeRequests } from '../composables/useChangeRequests'
 import { useFeatureSpecs } from '../composables/useFeatureSpecsSupabase'
 import { MarkdownService } from '../services/markdownService'
 import ChangeRequestCard from './ChangeRequestCard.vue'
+import DeleteIcon from '../icons/DeleteIcon.vue'
 import type { FrontendFeatureSpec, FeatureSpecFormData } from '../types/feature'
 
 interface Props {

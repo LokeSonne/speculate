@@ -25,9 +25,9 @@
               <option value="Engineering">Engineering</option>
             </select>
           </div>
-          <Button type="button" @click="removeReviewer(index)" variant="danger" size="sm"
-            >Remove</Button
-          >
+          <Button type="button" @click="removeReviewer(index)" variant="danger" size="sm">
+            <DeleteIcon :size="16" />
+          </Button>
         </div>
       </div>
       <Button type="button" @click="addReviewer" variant="secondary" size="sm"
@@ -40,6 +40,7 @@
 <script setup lang="ts">
 import type { Reviewer } from '../../../types/feature'
 import Button from '../../ui/Button.vue'
+import DeleteIcon from '../../../icons/DeleteIcon.vue'
 
 interface Props {
   data: {

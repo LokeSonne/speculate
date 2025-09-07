@@ -16,9 +16,9 @@
               class="form-input"
             />
           </div>
-          <Button type="button" @click="removeGoal(index)" variant="danger" size="sm"
-            >Remove</Button
-          >
+          <Button type="button" @click="removeGoal(index)" variant="danger" size="sm">
+            <DeleteIcon :size="16" />
+          </Button>
         </div>
       </div>
       <Button type="button" @click="addGoal" variant="secondary" size="sm">+ Add User Goal</Button>
@@ -44,9 +44,9 @@
             placeholder="Use Case Name"
             class="form-input use-case-name"
           />
-          <Button type="button" @click="removeUseCase(index)" variant="danger" size="sm"
-            >Remove</Button
-          >
+          <Button type="button" @click="removeUseCase(index)" variant="danger" size="sm">
+            <DeleteIcon :size="16" />
+          </Button>
         </div>
 
         <div class="use-case-fields">
@@ -128,6 +128,7 @@
 import { computed } from 'vue'
 import type { UserGoal, UseCase } from '../../../types/feature'
 import Button from '../../ui/Button.vue'
+import DeleteIcon from '../../../icons/DeleteIcon.vue'
 import FieldChangeHistory from '../../FieldChangeHistory.vue'
 import { useFieldChanges } from '../../../composables/useFieldChangesQuery'
 
