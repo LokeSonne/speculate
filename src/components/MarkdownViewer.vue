@@ -17,10 +17,12 @@ interface Props {
 const props = defineProps<Props>()
 
 // Configure marked options
-marked.setOptions({
-  breaks: true,
-  gfm: true, // GitHub Flavored Markdown
-})
+if (typeof marked.setOptions === 'function') {
+  marked.setOptions({
+    breaks: true,
+    gfm: true, // GitHub Flavored Markdown
+  })
+}
 
 const markdownService = new MarkdownService()
 

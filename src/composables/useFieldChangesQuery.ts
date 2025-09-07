@@ -17,6 +17,26 @@ export const fieldChangeKeys = {
     [...fieldChangeKeys.byField(featureSpecId, fieldPath), 'pending'] as const,
 }
 
+// Helper function to transform database field names to interface field names
+const transformFieldChange = (dbChange: Record<string, unknown>): FieldChange => ({
+  id: dbChange.id as string,
+  featureSpecId: dbChange.feature_spec_id as string,
+  fieldPath: dbChange.field_path as string,
+  fieldType: dbChange.field_type as 'string' | 'array' | 'object',
+  oldValue: dbChange.old_value,
+  newValue: dbChange.new_value,
+  changeDescription: dbChange.change_description as string | undefined,
+  authorId: dbChange.author_id as string,
+  authorEmail: dbChange.author_email as string,
+  status: dbChange.status as FieldChangeStatus,
+  createdAt: dbChange.created_at as string,
+  updatedAt: dbChange.updated_at as string,
+  acceptedAt: dbChange.accepted_at as string | undefined,
+  acceptedBy: dbChange.accepted_by as string | undefined,
+  rejectedAt: dbChange.rejected_at as string | undefined,
+  rejectedBy: dbChange.rejected_by as string | undefined,
+})
+
 // API functions
 const fetchFieldChanges = async (featureSpecId: string): Promise<FieldChange[]> => {
   const { data, error } = await supabase
@@ -26,7 +46,7 @@ const fetchFieldChanges = async (featureSpecId: string): Promise<FieldChange[]> 
     .order('created_at', { ascending: false })
 
   if (error) throw error
-  return data || []
+  return (data || []).map(transformFieldChange)
 }
 
 const fetchFieldChangesByField = async (
@@ -41,7 +61,7 @@ const fetchFieldChangesByField = async (
     .order('created_at', { ascending: false })
 
   if (error) throw error
-  return data || []
+  return (data || []).map(transformFieldChange)
 }
 
 const createFieldChange = async (changeData: CreateFieldChangeData): Promise<FieldChange> => {
@@ -66,7 +86,7 @@ const createFieldChange = async (changeData: CreateFieldChangeData): Promise<Fie
     .single()
 
   if (error) throw error
-  return data
+  return transformFieldChange(data)
 }
 
 const updateFieldChangeStatus = async ({
@@ -81,7 +101,7 @@ const updateFieldChangeStatus = async ({
   } = await supabase.auth.getUser()
   if (!user) throw new Error('User not authenticated')
 
-  const updateData: any = {
+  const updateData: Record<string, unknown> = {
     status,
     updated_at: new Date().toISOString(),
   }
@@ -102,7 +122,7 @@ const updateFieldChangeStatus = async ({
     .single()
 
   if (error) throw error
-  return data
+  return transformFieldChange(data)
 }
 
 // Composable for field changes
@@ -130,7 +150,7 @@ export function useFieldChanges(featureSpecId: string) {
       queryClient.invalidateQueries({ queryKey: fieldChangeKeys.list(featureSpecId) })
       // Also invalidate specific field queries
       queryClient.invalidateQueries({
-        queryKey: fieldChangeKeys.byField(featureSpecId, data.field_path),
+        queryKey: fieldChangeKeys.byField(featureSpecId, data.fieldPath),
       })
     },
   })
@@ -143,7 +163,7 @@ export function useFieldChanges(featureSpecId: string) {
       queryClient.invalidateQueries({ queryKey: fieldChangeKeys.list(featureSpecId) })
       // Also invalidate specific field queries
       queryClient.invalidateQueries({
-        queryKey: fieldChangeKeys.byField(featureSpecId, data.field_path),
+        queryKey: fieldChangeKeys.byField(featureSpecId, data.fieldPath),
       })
     },
   })

@@ -72,7 +72,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useAuth } from '../../composables/useAuth'
-import { useFieldChanges } from '../../composables/useFieldChanges'
+import { useFieldChanges } from '../../composables/useFieldChangesQuery'
 import Button from '../ui/Button.vue'
 import type { FeatureSpecFormData } from '../../types/feature'
 import OverviewSection from './sections/OverviewSection.vue'
