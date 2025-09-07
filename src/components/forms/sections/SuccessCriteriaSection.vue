@@ -60,7 +60,7 @@
 import type { SuccessCriteria } from '../../../types/feature'
 import Button from '../../ui/Button.vue'
 import FieldChangeHistory from '../../FieldChangeHistory.vue'
-import { useFieldChanges } from '../../../composables/useFieldChanges'
+import { useFieldChanges } from '../../../composables/useFieldChangesQuery'
 import { computed } from 'vue'
 
 interface Props {
@@ -84,13 +84,7 @@ const {
   isLoading: loading,
   getFieldChanges,
   updateFieldChangeStatus,
-} = props.featureSpecId
-  ? useFieldChanges(props.featureSpecId)
-  : {
-      isLoading: computed(() => false),
-      getFieldChanges: () => computed(() => []),
-      updateFieldChangeStatus: async () => {},
-    }
+} = useFieldChanges(props.featureSpecId || '')
 
 const acceptChange = async (changeId: string) => {
   await updateFieldChangeStatus(changeId, 'accepted')

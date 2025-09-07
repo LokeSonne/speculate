@@ -73,6 +73,7 @@ const fetchFeatureSpecs = async (): Promise<FrontendFeatureSpec[]> => {
 }
 
 const fetchFeatureSpec = async (id: string): Promise<FrontendFeatureSpec> => {
+  console.log('🔍 fetchFeatureSpec called with id:', id)
   const { data, error } = await supabase
     .from('feature_specs')
     .select(
@@ -90,6 +91,7 @@ const fetchFeatureSpec = async (id: string): Promise<FrontendFeatureSpec> => {
     .single()
 
   if (error) throw error
+  console.log('🔍 fetchFeatureSpec returning:', data)
   return transformDbToFrontend(data)
 }
 
@@ -275,8 +277,26 @@ export function useFeatureSpec(id: string) {
     refetch,
   } = useQuery({
     queryKey: featureSpecKeys.detail(id),
-    queryFn: () => fetchFeatureSpec(id),
-    enabled: computed(() => isAuthenticated.value && !!id),
+    queryFn: () => {
+      console.log('🔍 useFeatureSpec queryFn called for id:', id)
+      return fetchFeatureSpec(id)
+    },
+    enabled: computed(() => {
+      const enabled = isAuthenticated.value && !!id
+      console.log('🔍 useFeatureSpec enabled check:', {
+        id,
+        isAuthenticated: isAuthenticated.value,
+        enabled,
+      })
+      return enabled
+    }),
+  })
+
+  console.log('🔍 useFeatureSpec state:', {
+    id,
+    isLoading: isLoading.value,
+    error: error.value,
+    data: featureSpec.value,
   })
 
   // Mutation for updating this specific feature spec

@@ -20,42 +20,45 @@ export const fieldChangeKeys = {
 // Helper function to transform database field names to interface field names
 const transformFieldChange = (dbChange: Record<string, unknown>): FieldChange => ({
   id: dbChange.id as string,
-  featureSpecId: dbChange.feature_spec_id as string,
-  fieldPath: dbChange.field_path as string,
-  fieldType: dbChange.field_type as 'string' | 'array' | 'object',
-  oldValue: dbChange.old_value,
-  newValue: dbChange.new_value,
-  changeDescription: dbChange.change_description as string | undefined,
-  authorId: dbChange.author_id as string,
-  authorEmail: dbChange.author_email as string,
+  featureSpecId: (dbChange.feature_spec_id || dbChange.featureSpecId) as string,
+  fieldPath: (dbChange.field_path || dbChange.fieldPath) as string,
+  fieldType: (dbChange.field_type || dbChange.fieldType) as 'string' | 'array' | 'object',
+  oldValue: dbChange.old_value || dbChange.oldValue,
+  newValue: dbChange.new_value || dbChange.newValue,
+  changeDescription: (dbChange.change_description || dbChange.changeDescription) as
+    | string
+    | undefined,
+  authorId: (dbChange.author_id || dbChange.authorId) as string,
+  authorEmail: (dbChange.author_email || dbChange.authorEmail) as string,
   status: dbChange.status as FieldChangeStatus,
-  createdAt: dbChange.created_at as string,
-  updatedAt: dbChange.updated_at as string,
-  acceptedAt: dbChange.accepted_at as string | undefined,
-  acceptedBy: dbChange.accepted_by as string | undefined,
-  rejectedAt: dbChange.rejected_at as string | undefined,
-  rejectedBy: dbChange.rejected_by as string | undefined,
+  createdAt: (dbChange.created_at || dbChange.createdAt) as string,
+  updatedAt: (dbChange.updated_at || dbChange.updatedAt) as string,
+  acceptedAt: (dbChange.accepted_at || dbChange.acceptedAt) as string | undefined,
+  acceptedBy: (dbChange.accepted_by || dbChange.acceptedBy) as string | undefined,
+  rejectedAt: (dbChange.rejected_at || dbChange.rejectedAt) as string | undefined,
+  rejectedBy: (dbChange.rejected_by || dbChange.rejectedBy) as string | undefined,
 })
 
 // API functions
 const fetchFieldChanges = async (featureSpecId: string): Promise<FieldChange[]> => {
   console.log('🔍 fetchFieldChanges called with featureSpecId:', featureSpecId)
-
+  console.log('🔍 fetchFieldChanges mode:', import.meta.env.MODE)
+  console.log('🔍 fetchFieldChanges useMockApi:', import.meta.env.VITE_USE_MOCK_API)
   // In test environment, return mock data instead of making real requests
   if (import.meta.env.MODE === 'test') {
     console.log('🧪 Test mode: returning mock field changes data')
-    const mockFieldChanges = [
+    const mockFieldChanges: FieldChange[] = [
       {
         id: 'fc-5',
         featureSpecId: 'mock-spec-2',
         fieldPath: 'featureName',
-        fieldType: 'string',
+        fieldType: 'string' as const,
         oldValue: 'User Profile Management',
         newValue: 'Advanced User Profile Management',
         changeDescription: 'Added "Advanced" to better describe the feature capabilities',
         authorId: 'mock-user-1',
         authorEmail: 'john@example.com',
-        status: 'pending',
+        status: 'pending' as const,
         createdAt: '2024-01-21T09:15:00.000Z',
         updatedAt: '2024-01-21T09:15:00.000Z',
       },
@@ -63,13 +66,13 @@ const fetchFieldChanges = async (featureSpecId: string): Promise<FieldChange[]> 
         id: 'fc-6',
         featureSpecId: 'mock-spec-2',
         fieldPath: 'successCriteria.0.description',
-        fieldType: 'string',
+        fieldType: 'string' as const,
         oldValue: 'Users can update their profile information',
         newValue: 'Users can update their profile information with real-time validation',
         changeDescription: 'Added real-time validation requirement',
         authorId: 'mock-user-2',
         authorEmail: 'jane@example.com',
-        status: 'accepted',
+        status: 'accepted' as const,
         createdAt: '2024-01-21T10:30:00.000Z',
         updatedAt: '2024-01-21T11:00:00.000Z',
         acceptedAt: '2024-01-21T11:00:00.000Z',
@@ -101,6 +104,13 @@ const fetchFieldChanges = async (featureSpecId: string): Promise<FieldChange[]> 
 
     const result = (data || []).map(transformFieldChange)
     console.log('🔍 fetchFieldChanges transformed result:', result)
+
+    // Debug: Check for any field changes with undefined fieldPath
+    const invalidChanges = result.filter((change) => !change.fieldPath)
+    if (invalidChanges.length > 0) {
+      console.warn('⚠️ Found field changes with undefined fieldPath:', invalidChanges)
+    }
+
     return result
   } catch (err) {
     console.error('❌ fetchFieldChanges exception:', err)
@@ -199,12 +209,16 @@ export function useFieldChanges(featureSpecId: string) {
     queryKey: fieldChangeKeys.list(featureSpecId),
     queryFn: () => fetchFieldChanges(featureSpecId),
     enabled: computed(() => {
+      const hasFeatureSpecId = Boolean(featureSpecId && featureSpecId.trim() !== '')
       const enabled =
-        import.meta.env.MODE === 'test' ? !!featureSpecId : isAuthenticated.value && !!featureSpecId
+        import.meta.env.MODE === 'test'
+          ? hasFeatureSpecId
+          : Boolean(isAuthenticated.value && hasFeatureSpecId)
 
       console.log('🔍 useFieldChangesQuery enabled check:', {
         mode: import.meta.env.MODE,
         featureSpecId,
+        hasFeatureSpecId,
         isAuthenticated: isAuthenticated.value,
         enabled,
       })
@@ -248,7 +262,9 @@ export function useFieldChanges(featureSpecId: string) {
       }
 
       const filtered = fieldChanges.value.filter(
-        (change) => change.fieldPath === fieldPath || change.fieldPath.startsWith(fieldPath + '.'),
+        (change) =>
+          change.fieldPath &&
+          (change.fieldPath === fieldPath || change.fieldPath.startsWith(fieldPath + '.')),
       )
 
       console.log('🔍 getFieldChanges:', {

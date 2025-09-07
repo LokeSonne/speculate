@@ -1,10 +1,17 @@
 <template>
+  <div v-if="!editingSpec && isLoading" class="loading-container">
+    <div class="loading-spinner">Loading...</div>
+  </div>
   <FeatureSpecForm
-    :initial-data="editingSpec || undefined"
-    :is-editing="!!editingSpec"
+    v-else-if="editingSpec"
+    :initial-data="editingSpec"
+    :is-editing="true"
     @submit="handleSubmit"
     @cancel="handleCancel"
   />
+  <div v-else class="error-container">
+    <div class="error-message">Specification not found</div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -26,9 +33,16 @@ const { user } = useAuth()
 
 // Use TanStack Query composables
 const { createSpecAsync, updateSpecAsync } = useFeatureSpecs()
-const { featureSpec: editingSpec } = useFeatureSpec(
+const { featureSpec: editingSpec, isLoading } = useFeatureSpec(
   props.mode === 'edit' ? (route.params.id as string) : '',
 )
+
+console.log('🔍 FeatureSpecFormContainer:', {
+  mode: props.mode,
+  routeId: route.params.id,
+  editingSpec: editingSpec.value,
+  hasInitialData: !!editingSpec.value,
+})
 
 // TanStack Query will automatically fetch the spec data when needed
 
@@ -163,5 +177,20 @@ const handleCancel = () => {
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
+}
+
+.loading-container,
+.error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  padding: var(--spacing-8);
+}
+
+.loading-spinner,
+.error-message {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
 }
 </style>

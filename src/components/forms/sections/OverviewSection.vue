@@ -90,7 +90,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useFieldChanges } from '../../../composables/useFieldChangesQuery'
 import FieldChangeHistory from '../../FieldChangeHistory.vue'
 
@@ -115,18 +114,18 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
+console.log('🔍 OverviewSection props:', {
+  featureSpecId: props.featureSpecId,
+  isEditing: props.isEditing,
+  data: props.data,
+})
+
 // Field changes functionality
 const {
   isLoading: loading,
   getFieldChanges,
   updateFieldChangeStatus,
-} = props.featureSpecId
-  ? useFieldChanges(props.featureSpecId)
-  : {
-      isLoading: computed(() => false),
-      getFieldChanges: () => computed(() => []),
-      updateFieldChangeStatus: async () => {},
-    }
+} = useFieldChanges(props.featureSpecId || '')
 
 // TanStack Query will automatically fetch field changes when needed
 

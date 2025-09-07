@@ -158,13 +158,7 @@ const {
   isLoading: loading,
   getFieldChanges,
   updateFieldChangeStatus,
-} = props.featureSpecId
-  ? useFieldChanges(props.featureSpecId)
-  : {
-      isLoading: computed(() => false),
-      getFieldChanges: () => computed(() => []),
-      updateFieldChangeStatus: async () => {},
-    }
+} = useFieldChanges(props.featureSpecId || '')
 
 // Handle field change acceptance/rejection
 const acceptChange = async (changeId: string) => {
