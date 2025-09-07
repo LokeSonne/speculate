@@ -16,7 +16,7 @@
               class="form-input"
             />
           </div>
-          <Button type="button" @click="removeGoal(index)" variant="danger" size="sm">
+          <Button type="button" @click="removeGoal(index)" variant="text" size="sm">
             <DeleteIcon :size="16" />
           </Button>
         </div>
@@ -44,7 +44,7 @@
             placeholder="Use Case Name"
             class="form-input use-case-name"
           />
-          <Button type="button" @click="removeUseCase(index)" variant="danger" size="sm">
+          <Button type="button" @click="removeUseCase(index)" variant="text" size="sm">
             <DeleteIcon :size="16" />
           </Button>
         </div>

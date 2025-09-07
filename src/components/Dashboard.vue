@@ -48,9 +48,7 @@
             <div class="spec-actions">
               <Button @click="handleViewSpec(spec)" variant="primary" size="sm">View</Button>
               <Button @click="handleEditSpec(spec)" variant="secondary" size="sm">Edit</Button>
-              <Button @click="handleDeleteSpec(spec.id)" variant="danger" size="sm">
-                Delete
-              </Button>
+              <Button @click="handleDeleteSpec(spec.id)" variant="text" size="sm"> Delete </Button>
             </div>
           </div>
         </div>

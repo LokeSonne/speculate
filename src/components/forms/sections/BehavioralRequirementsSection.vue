@@ -20,7 +20,7 @@
             placeholder="Action Name"
             class="form-input interaction-name"
           />
-          <Button type="button" @click="removeInteraction(index)" variant="danger" size="sm">
+          <Button type="button" @click="removeInteraction(index)" variant="text" size="sm">
             <DeleteIcon :size="16" />
           </Button>
         </div>

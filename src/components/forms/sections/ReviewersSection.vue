@@ -25,7 +25,7 @@
               <option value="Engineering">Engineering</option>
             </select>
           </div>
-          <Button type="button" @click="removeReviewer(index)" variant="danger" size="sm">
+          <Button type="button" @click="removeReviewer(index)" variant="text" size="sm">
             <DeleteIcon :size="16" />
           </Button>
         </div>

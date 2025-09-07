@@ -2,9 +2,8 @@
   <div class="side-panel">
     <div class="side-panel-header">
       <h3>Specifications</h3>
-      <Button @click="handleCreateSpec" variant="primary" size="sm">
-        <span class="mr-2">+</span>
-        New Spec
+      <Button @click="handleCreateSpec" variant="text" size="sm">
+        <PlusIcon :size="16" />
       </Button>
     </div>
 
@@ -74,6 +73,7 @@ import { useAuth } from '../composables/useAuth'
 import { useFeatureSpecs } from '../composables/useFeatureSpecsQuery'
 import SpecListItem from './SpecListItem.vue'
 import Button from './ui/Button.vue'
+import PlusIcon from '../icons/PlusIcon.vue'
 import type { FrontendFeatureSpec } from '../types/feature'
 
 const route = useRoute()
@@ -138,7 +138,7 @@ const handleCreateSpec = () => {
 }
 
 .side-panel-header {
-  padding: var(--spacing-4);
+  padding: var(--spacing-1);
   border-bottom: 1px solid var(--color-border);
   display: flex;
   justify-content: space-between;

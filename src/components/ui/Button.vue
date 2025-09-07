@@ -8,7 +8,7 @@
 import { computed } from 'vue'
 
 interface Props {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger'
+  variant?: 'primary' | 'secondary' | 'ghost' | 'text' | 'danger'
   size?: 'sm' | 'md' | 'lg'
   type?: 'button' | 'submit' | 'reset'
   disabled?: boolean
@@ -153,6 +153,25 @@ const handleClick = (event: MouseEvent) => {
 .btn-danger:active:not(.btn-disabled) {
   background: var(--color-error-darker);
   border-color: var(--color-error-darker);
+}
+
+.btn-text {
+  background: transparent;
+  color: var(--color-text-primary);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.btn-text:hover:not(.btn-disabled) {
+  background: transparent;
+  color: var(--color-text-primary);
+  box-shadow: none;
+}
+
+.btn-text:active:not(.btn-disabled) {
+  background: transparent;
+  color: var(--color-text-primary);
+  box-shadow: none;
 }
 
 /* States */
