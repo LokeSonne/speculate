@@ -9,9 +9,9 @@
         <label class="checkbox-label">
           <input
             type="checkbox"
-            :checked="data.approvals.design?.visualDesign || false"
+            :checked="getApprovalValue('Design', 'visualDesign')"
             @change="
-              updateApproval('design', 'visualDesign', ($event.target as HTMLInputElement).checked)
+              updateApproval('Design', 'visualDesign', ($event.target as HTMLInputElement).checked)
             "
           />
           <span class="checkbox-text">Visual design approved</span>
@@ -19,10 +19,10 @@
         <label class="checkbox-label">
           <input
             type="checkbox"
-            :checked="data.approvals.design?.interactionDesign || false"
+            :checked="getApprovalValue('Design', 'interactionDesign')"
             @change="
               updateApproval(
-                'design',
+                'Design',
                 'interactionDesign',
                 ($event.target as HTMLInputElement).checked,
               )
@@ -33,10 +33,10 @@
         <label class="checkbox-label">
           <input
             type="checkbox"
-            :checked="data.approvals.design?.responsiveBehavior || false"
+            :checked="getApprovalValue('Design', 'responsiveBehavior')"
             @change="
               updateApproval(
-                'design',
+                'Design',
                 'responsiveBehavior',
                 ($event.target as HTMLInputElement).checked,
               )
@@ -54,10 +54,10 @@
         <label class="checkbox-label">
           <input
             type="checkbox"
-            :checked="data.approvals.product?.userRequirements || false"
+            :checked="getApprovalValue('Product', 'userRequirements')"
             @change="
               updateApproval(
-                'product',
+                'Product',
                 'userRequirements',
                 ($event.target as HTMLInputElement).checked,
               )
@@ -68,10 +68,10 @@
         <label class="checkbox-label">
           <input
             type="checkbox"
-            :checked="data.approvals.product?.behavioralRequirements || false"
+            :checked="getApprovalValue('Product', 'behavioralRequirements')"
             @change="
               updateApproval(
-                'product',
+                'Product',
                 'behavioralRequirements',
                 ($event.target as HTMLInputElement).checked,
               )
@@ -82,10 +82,10 @@
         <label class="checkbox-label">
           <input
             type="checkbox"
-            :checked="data.approvals.product?.successCriteria || false"
+            :checked="getApprovalValue('Product', 'successCriteria')"
             @change="
               updateApproval(
-                'product',
+                'Product',
                 'successCriteria',
                 ($event.target as HTMLInputElement).checked,
               )
@@ -103,10 +103,10 @@
         <label class="checkbox-label">
           <input
             type="checkbox"
-            :checked="data.approvals.engineering?.technicalApproach || false"
+            :checked="getApprovalValue('Engineering', 'technicalApproach')"
             @change="
               updateApproval(
-                'engineering',
+                'Engineering',
                 'technicalApproach',
                 ($event.target as HTMLInputElement).checked,
               )
@@ -117,10 +117,10 @@
         <label class="checkbox-label">
           <input
             type="checkbox"
-            :checked="data.approvals.engineering?.performanceRequirements || false"
+            :checked="getApprovalValue('Engineering', 'performanceRequirements')"
             @change="
               updateApproval(
-                'engineering',
+                'Engineering',
                 'performanceRequirements',
                 ($event.target as HTMLInputElement).checked,
               )
@@ -134,32 +134,50 @@
 </template>
 
 <script setup lang="ts">
-import type { Approvals } from '../../../types/feature'
+import type { Approval } from '../../../types/feature'
 
 interface Props {
   data: {
-    approvals: Approvals
+    approvals: Approval[]
   }
 }
 
 interface Emits {
-  (e: 'update', field: string, value: any): void
+  (e: 'update', field: string, value: unknown): void
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const updateApproval = (category: keyof Approvals, field: string, value: boolean) => {
-  const updatedApprovals = { ...props.data.approvals }
+const getApprovalValue = (type: 'Design' | 'Product' | 'Engineering', field: string): boolean => {
+  const approval = props.data.approvals.find((a) => a.type === type)
+  return approval ? (approval as unknown as Record<string, unknown>)[field] === true : false
+}
 
-  if (!updatedApprovals[category]) {
-    updatedApprovals[category] = {} as any
+const updateApproval = (category: string, field: string, value: boolean) => {
+  const updatedApprovals = [...props.data.approvals]
+
+  // Find existing approval or create new one
+  let existingApproval = updatedApprovals.find((approval) => approval.type === category)
+
+  if (!existingApproval) {
+    existingApproval = {
+      id: crypto.randomUUID(),
+      type: category as 'Design' | 'Product' | 'Engineering',
+      status: 'pending',
+      approver: '',
+    }
+    updatedApprovals.push(existingApproval)
   }
 
-  updatedApprovals[category] = {
-    ...updatedApprovals[category],
+  // Update the approval with the new field value
+  const updatedApproval = {
+    ...existingApproval,
     [field]: value,
   }
+
+  const index = updatedApprovals.findIndex((approval) => approval.id === existingApproval!.id)
+  updatedApprovals[index] = updatedApproval
 
   emit('update', 'approvals', updatedApprovals)
 }

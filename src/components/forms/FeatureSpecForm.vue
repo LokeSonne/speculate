@@ -243,26 +243,26 @@ const handleCancel = () => {
 }
 
 // Generic form field update handler
-const updateFormField = (field: string, value: any) => {
+const updateFormField = (field: string, value: unknown) => {
   // Handle nested field updates (e.g., 'approvals.design.visualDesign')
   if (field.includes('.')) {
     const keys = field.split('.')
-    let current = formData as any
+    let current = formData as Record<string, unknown>
     for (let i = 0; i < keys.length - 1; i++) {
       if (!current[keys[i]]) {
         current[keys[i]] = {}
       }
-      current = current[keys[i]]
+      current = current[keys[i]] as Record<string, unknown>
     }
     current[keys[keys.length - 1]] = value
   } else {
     // Handle direct field updates
-    ;(formData as any)[field] = value
+    ;(formData as Record<string, unknown>)[field] = value
   }
 }
 
 // Handle field changes for collaborative editing
-const handleFieldChange = async (fieldPath: string, oldValue: any, newValue: any) => {
+const handleFieldChange = async (fieldPath: string, oldValue: unknown, newValue: unknown) => {
   if (!props.isEditing || !props.initialData.id) return
 
   try {

@@ -25,9 +25,9 @@
         {{ errors.featureName }}
       </div>
       <FieldChangeHistory
-        v-if="featureSpecId && !ownershipLoading"
+        v-if="featureSpecId"
         :changes="getFieldChanges('featureName').value"
-        :is-owner="isOwner"
+        :is-owner="true"
         :loading="loading"
         @accept="acceptChange"
         @reject="rejectChange"
@@ -53,9 +53,9 @@
         {{ errors.status }}
       </div>
       <FieldChangeHistory
-        v-if="featureSpecId && !ownershipLoading"
+        v-if="featureSpecId"
         :changes="getFieldChanges('status').value"
-        :is-owner="isOwner"
+        :is-owner="true"
         :loading="loading"
         @accept="acceptChange"
         @reject="rejectChange"
@@ -78,9 +78,9 @@
         {{ errors.featureSummary }}
       </div>
       <FieldChangeHistory
-        v-if="featureSpecId && !ownershipLoading"
+        v-if="featureSpecId"
         :changes="getFieldChanges('featureSummary').value"
-        :is-owner="isOwner"
+        :is-owner="true"
         :loading="loading"
         @accept="acceptChange"
         @reject="rejectChange"
@@ -93,7 +93,6 @@
 import { computed } from 'vue'
 import { useFieldChanges } from '../../../composables/useFieldChangesQuery'
 import FieldChangeHistory from '../../FieldChangeHistory.vue'
-import type { FieldChangeStatus } from '../../../types/feature'
 
 interface Props {
   data: {
@@ -110,7 +109,7 @@ interface Props {
 
 interface Emits {
   (e: 'update', field: string, value: string): void
-  (e: 'field-change', fieldPath: string, oldValue: any, newValue: any): void
+  (e: 'field-change', fieldPath: string, oldValue: unknown, newValue: unknown): void
 }
 
 const props = defineProps<Props>()
@@ -118,21 +117,15 @@ const emit = defineEmits<Emits>()
 
 // Field changes functionality
 const {
-  fieldChanges,
   isLoading: loading,
   getFieldChanges,
   updateFieldChangeStatus,
-  isOwner,
-  ownershipLoading,
 } = props.featureSpecId
   ? useFieldChanges(props.featureSpecId)
   : {
-      fieldChanges: computed(() => []),
       isLoading: computed(() => false),
       getFieldChanges: () => computed(() => []),
       updateFieldChangeStatus: async () => {},
-      isOwner: computed(() => false),
-      ownershipLoading: computed(() => false),
     }
 
 // TanStack Query will automatically fetch field changes when needed
@@ -151,7 +144,7 @@ const updateField = (field: string, value: string) => {
 
 const acceptChange = async (changeId: string) => {
   try {
-    await updateFieldChangeStatus(changeId, 'accepted')
+    await updateFieldChangeStatus({ changeId, status: 'accepted' })
   } catch (error) {
     console.error('Failed to accept change:', error)
   }
@@ -159,7 +152,7 @@ const acceptChange = async (changeId: string) => {
 
 const rejectChange = async (changeId: string) => {
   try {
-    await updateFieldChangeStatus(changeId, 'rejected')
+    await updateFieldChangeStatus({ changeId, status: 'rejected' })
   } catch (error) {
     console.error('Failed to reject change:', error)
   }
