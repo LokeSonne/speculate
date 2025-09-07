@@ -347,7 +347,10 @@ describe('UserRequirementsSection', () => {
 
       await userGoalsFCH.vm.$emit('accept', 'fc-1')
 
-      expect(mockUpdateFieldChangeStatus).toHaveBeenCalledWith('fc-1', 'accepted')
+      expect(mockUpdateFieldChangeStatus).toHaveBeenCalledWith({
+        changeId: 'fc-1',
+        status: 'accepted',
+      })
     })
 
     it('handles field change rejection', async () => {
@@ -360,7 +363,10 @@ describe('UserRequirementsSection', () => {
 
       await userGoalsFCH.vm.$emit('reject', 'fc-1')
 
-      expect(mockUpdateFieldChangeStatus).toHaveBeenCalledWith('fc-1', 'rejected')
+      expect(mockUpdateFieldChangeStatus).toHaveBeenCalledWith({
+        changeId: 'fc-1',
+        status: 'rejected',
+      })
     })
 
     it('handles updateFieldChangeStatus errors gracefully', async () => {
@@ -376,7 +382,10 @@ describe('UserRequirementsSection', () => {
       // Should not throw error
       await userGoalsFCH.vm.$emit('accept', 'fc-1')
 
-      expect(mockUpdateFieldChangeStatus).toHaveBeenCalledWith('fc-1', 'accepted')
+      expect(mockUpdateFieldChangeStatus).toHaveBeenCalledWith({
+        changeId: 'fc-1',
+        status: 'accepted',
+      })
     })
   })
 

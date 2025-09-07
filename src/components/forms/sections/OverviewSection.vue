@@ -147,9 +147,9 @@ const acceptChange = async (changeId: string) => {
   try {
     // Find the change being accepted
     const change =
-      getFieldChanges('featureName').value.find((c) => c.id === changeId) ||
-      getFieldChanges('status').value.find((c) => c.id === changeId) ||
-      getFieldChanges('featureSummary').value.find((c) => c.id === changeId)
+      getFieldChanges('featureName').value?.find((c) => c.id === changeId) ||
+      getFieldChanges('status').value?.find((c) => c.id === changeId) ||
+      getFieldChanges('featureSummary').value?.find((c) => c.id === changeId)
 
     await updateFieldChangeStatus({ changeId, status: 'accepted' })
 

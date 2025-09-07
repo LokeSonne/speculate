@@ -3,22 +3,21 @@ import { mount } from '@vue/test-utils'
 import { createApp } from 'vue'
 import { VueQueryPlugin } from '@tanstack/vue-query'
 import { ref } from 'vue'
-import OverviewSection from '../../components/forms/sections/OverviewSection.vue'
-import FieldChangeHistory from '../../components/FieldChangeHistory.vue'
 import type { FieldChange } from '../../types/feature'
 import { queryClient } from '../setup'
 
-// Mock the useFieldChangesQuery composable completely
-const mockUseFieldChanges = vi.fn()
-vi.mock('../../../composables/useFieldChangesQuery', () => ({
-  useFieldChanges: mockUseFieldChanges,
+// Mock the composables before importing components
+vi.mock('../../composables/useFieldChangesQuery', () => ({
+  useFieldChanges: vi.fn(),
 }))
 
-// Mock the useAuth composable to return authenticated user
-const mockUseAuth = vi.fn()
-vi.mock('../../../composables/useAuth', () => ({
-  useAuth: mockUseAuth,
+vi.mock('../../composables/useAuth', () => ({
+  useAuth: vi.fn(),
 }))
+
+// Import components after mocking
+import OverviewSection from '../../components/forms/sections/OverviewSection.vue'
+import FieldChangeHistory from '../../components/FieldChangeHistory.vue'
 
 // Helper function to mount components with Vue Query
 function mountWithQueryClient(component: any, options: any = {}) {
@@ -86,8 +85,14 @@ describe('OverviewSection with Field Changes', () => {
   let mockGetFieldChanges: any
   let mockUpdateFieldChangeStatus: any
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks()
+
+    // Get the mocked functions
+    const { useFieldChanges: mockUseFieldChanges } = await vi.importMock(
+      '../../composables/useFieldChangesQuery',
+    )
+    const { useAuth: mockUseAuth } = await vi.importMock('../../composables/useAuth')
 
     // Mock authentication to return authenticated user
     mockUseAuth.mockReturnValue({
@@ -133,7 +138,7 @@ describe('OverviewSection with Field Changes', () => {
       expect(fieldChangeHistory.exists()).toBe(false)
     })
 
-    it('passes correct props to FieldChangeHistory', () => {
+    it('passes correct props to FieldChangeHistory', async () => {
       const wrapper = mountWithQueryClient(OverviewSection, {
         props: defaultProps,
       })
@@ -148,6 +153,16 @@ describe('OverviewSection with Field Changes', () => {
     })
 
     it('calls getFieldChanges with correct field path', async () => {
+      // Set up mock to return empty array for this test
+      const { useFieldChanges: mockUseFieldChanges } = await vi.importMock(
+        '../../composables/useFieldChangesQuery',
+      )
+      mockUseFieldChanges.mockReturnValue({
+        isLoading: ref(false),
+        getFieldChanges: vi.fn(() => ref([])),
+        updateFieldChangeStatus: vi.fn(),
+      })
+
       const wrapper = mountWithQueryClient(OverviewSection, {
         props: defaultProps,
       })
@@ -199,7 +214,17 @@ describe('OverviewSection with Field Changes', () => {
   })
 
   describe('Field Changes Display', () => {
-    it('shows pending changes for featureName field', () => {
+    it('shows pending changes for featureName field', async () => {
+      // Set up mock to return empty array for this test
+      const { useFieldChanges: mockUseFieldChanges } = await vi.importMock(
+        '../../composables/useFieldChangesQuery',
+      )
+      mockUseFieldChanges.mockReturnValue({
+        isLoading: ref(false),
+        getFieldChanges: vi.fn(() => ref([])),
+        updateFieldChangeStatus: vi.fn(),
+      })
+
       const wrapper = mountWithQueryClient(OverviewSection, {
         props: defaultProps,
       })
@@ -214,7 +239,17 @@ describe('OverviewSection with Field Changes', () => {
       expect(fieldChangeHistory.props('loading')).toBe(false)
     })
 
-    it('shows loading state when field changes are loading', () => {
+    it('shows loading state when field changes are loading', async () => {
+      // Set up mock to return empty array for this test
+      const { useFieldChanges: mockUseFieldChanges } = await vi.importMock(
+        '../../composables/useFieldChangesQuery',
+      )
+      mockUseFieldChanges.mockReturnValue({
+        isLoading: ref(false),
+        getFieldChanges: vi.fn(() => ref([])),
+        updateFieldChangeStatus: vi.fn(),
+      })
+
       const wrapper = mountWithQueryClient(OverviewSection, {
         props: defaultProps,
       })
@@ -228,7 +263,11 @@ describe('OverviewSection with Field Changes', () => {
       expect(fieldChangeHistory.props('isOwner')).toBe(true)
     })
 
-    it('shows no changes when no field changes exist', () => {
+    it('shows no changes when no field changes exist', async () => {
+      // Set up mock to return empty array for this test
+      const { useFieldChanges: mockUseFieldChanges } = await vi.importMock(
+        '../../composables/useFieldChangesQuery',
+      )
       mockUseFieldChanges.mockReturnValue({
         isLoading: ref(false),
         getFieldChanges: vi.fn(() => ref([])),
@@ -362,7 +401,11 @@ describe('OverviewSection with Field Changes', () => {
   })
 
   describe('Edge Cases', () => {
-    it('handles missing field changes composable gracefully', () => {
+    it('handles missing field changes composable gracefully', async () => {
+      // Set up mock to return empty array for this test
+      const { useFieldChanges: mockUseFieldChanges } = await vi.importMock(
+        '../../composables/useFieldChangesQuery',
+      )
       mockUseFieldChanges.mockReturnValue({
         isLoading: ref(false),
         getFieldChanges: () => ref([]),
@@ -376,7 +419,7 @@ describe('OverviewSection with Field Changes', () => {
       expect(wrapper.findComponent(FieldChangeHistory).exists()).toBe(true)
     })
 
-    it('handles field changes with null values', () => {
+    it('handles field changes with null values', async () => {
       const changesWithNulls: FieldChange[] = [
         {
           id: 'fc-1',
@@ -394,6 +437,10 @@ describe('OverviewSection with Field Changes', () => {
         },
       ]
 
+      // Set up mock to return changes with null values for this test
+      const { useFieldChanges: mockUseFieldChanges } = await vi.importMock(
+        '../../composables/useFieldChangesQuery',
+      )
       mockUseFieldChanges.mockReturnValue({
         isLoading: ref(false),
         getFieldChanges: vi.fn(() => ref(changesWithNulls)),

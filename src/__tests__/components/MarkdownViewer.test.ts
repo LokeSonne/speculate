@@ -289,29 +289,7 @@ describe('MarkdownViewer', () => {
   })
 
   describe('Console Logging', () => {
-    it('should log markdown generation process', async () => {
-      const spec = createDefaultFeatureSpec()
-      spec.featureName = 'Test Feature'
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-
-      mockMarkdownService.exportSpec.mockReturnValue('# Test Feature\n\nTest content')
-      mockMarked.mockReturnValue('<h1>Test Feature</h1><p>Test content</p>')
-
-      mount(MarkdownViewer, {
-        props: {
-          spec,
-          filename: 'test-feature-spec.md',
-        },
-      })
-
-      await nextTick()
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        '🔍 MarkdownViewer: Generating markdown for spec:',
-        spec.featureName,
-      )
-      consoleSpy.mockRestore()
-    })
+    // Removed test for console.log since we cleaned up console.log statements
 
     it('should log error when content generation fails', async () => {
       const spec = createDefaultFeatureSpec()
