@@ -75,6 +75,7 @@ interface Props {
 
 interface Emits {
   (e: 'update', field: string, value: any): void
+  (e: 'apply-accepted-change', field: string, value: any): void
 }
 
 const props = defineProps<Props>()
@@ -88,7 +89,31 @@ const {
 } = useFieldChanges(props.featureSpecId || '')
 
 const acceptChange = async (changeId: string) => {
-  await updateFieldChangeStatus(changeId, 'accepted')
+  try {
+    console.log('🔄 SuccessCriteria: Accepting change:', changeId)
+
+    // Find the change being accepted
+    const change = getFieldChanges('successCriteria').value.find((c) => c.id === changeId)
+
+    await updateFieldChangeStatus(changeId, 'accepted')
+
+    // Apply the accepted change to the form field
+    if (change && change.newValue !== undefined) {
+      console.log(
+        '✅ SuccessCriteria: Applying accepted change to form field:',
+        change.fieldPath,
+        '=',
+        change.newValue,
+      )
+      emit('apply-accepted-change', change.fieldPath, change.newValue)
+    }
+
+    console.log(
+      '✅ SuccessCriteria: Change accepted and applied to form field - no navigation should occur',
+    )
+  } catch (error) {
+    console.error('Failed to accept change:', error)
+  }
 }
 
 const rejectChange = async (changeId: string) => {

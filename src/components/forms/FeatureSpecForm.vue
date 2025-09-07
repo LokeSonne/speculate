@@ -28,6 +28,7 @@
         :is-editing="props.isEditing"
         @update="updateFormField"
         @field-change="handleFieldChange"
+        @apply-accepted-change="updateFormField"
       />
 
       <!-- Behavioral Requirements Section -->
@@ -47,6 +48,7 @@
         :is-owner="true"
         :is-editing="props.isEditing"
         @update="updateFormField"
+        @apply-accepted-change="updateFormField"
       />
 
       <!-- Reviewers Section -->
@@ -251,6 +253,9 @@ const handleCancel = () => {
 
 // Generic form field update handler
 const updateFormField = (field: string, value: unknown) => {
+  console.log('🔄 updateFormField called:', { field, value })
+  console.trace('Call stack for updateFormField')
+
   // Handle nested field updates (e.g., 'approvals.design.visualDesign')
   if (field.includes('.')) {
     const keys = field.split('.')
@@ -270,6 +275,9 @@ const updateFormField = (field: string, value: unknown) => {
 
 // Handle field changes for collaborative editing
 const handleFieldChange = async (fieldPath: string, oldValue: unknown, newValue: unknown) => {
+  console.log('🚨 handleFieldChange called:', { fieldPath, oldValue, newValue })
+  console.trace('Call stack for handleFieldChange')
+
   if (!props.isEditing || !props.initialData.id) return
 
   try {
@@ -281,6 +289,7 @@ const handleFieldChange = async (fieldPath: string, oldValue: unknown, newValue:
       newValue,
       changeDescription: `Changed ${fieldPath} from "${oldValue}" to "${newValue}"`,
     })
+    console.log('✅ Created new field change for:', fieldPath)
   } catch (error) {
     console.error('Failed to create field change:', error)
   }

@@ -141,9 +141,38 @@ const updateField = (field: string, value: string) => {
   }
 }
 
+// Apply accepted field change without triggering field-change event
+const applyAcceptedChange = (field: string, value: string) => {
+  console.log('🎯 applyAcceptedChange called:', { field, value })
+  console.trace('Call stack for applyAcceptedChange')
+  emit('update', field, value)
+  // Note: Do not emit 'field-change' event for accepted changes to prevent form submission
+}
+
 const acceptChange = async (changeId: string) => {
   try {
+    // Find the change being accepted
+    const change =
+      getFieldChanges('featureName').value.find((c) => c.id === changeId) ||
+      getFieldChanges('status').value.find((c) => c.id === changeId) ||
+      getFieldChanges('featureSummary').value.find((c) => c.id === changeId)
+
+    console.log('🔄 Accepting change:', { changeId, change })
+
     await updateFieldChangeStatus({ changeId, status: 'accepted' })
+
+    // Apply the accepted change to the form field
+    if (change && change.newValue !== undefined) {
+      console.log(
+        '✅ Applying accepted change to form field:',
+        change.fieldPath,
+        '=',
+        change.newValue,
+      )
+      applyAcceptedChange(change.fieldPath, change.newValue)
+    }
+
+    console.log('✅ Change accepted and applied to form field - no navigation should occur')
   } catch (error) {
     console.error('Failed to accept change:', error)
   }

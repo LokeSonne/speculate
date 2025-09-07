@@ -124,6 +124,10 @@ const createFieldChangesFromFormData = async (
 
 const handleSubmit = async (data: FeatureSpecFormData) => {
   try {
+    console.log(
+      '🔄 Form submission triggered - this should only happen from explicit user action (Save button)',
+    )
+
     if (props.mode === 'edit' && editingSpec.value) {
       console.log(
         '💾 Processing edits for feature spec:',
@@ -147,7 +151,8 @@ const handleSubmit = async (data: FeatureSpecFormData) => {
       await createSpecAsync(data)
     }
 
-    // Navigate back to dashboard
+    // Navigate back to dashboard only after explicit form submission
+    console.log('✅ Form submission completed - navigating to dashboard')
     router.push('/dashboard')
   } catch (error) {
     console.error('Error submitting form:', error)
