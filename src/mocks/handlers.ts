@@ -736,11 +736,61 @@ export const handlers = [
     const url = new URL(request.url)
     const select = url.searchParams.get('select')
 
-    // Return all feature specs with related data
+    // Check if this is a request for a specific spec by ID
+    const idFilter = url.searchParams.get('id')
+    if (idFilter && idFilter.startsWith('eq.')) {
+      const specId = idFilter.replace('eq.', '')
+      console.log('🔍 GET individual feature_spec called for ID:', specId)
+
+      const spec = mockData.featureSpecs.find((s) => s.id === specId)
+      if (!spec) {
+        return HttpResponse.json({ error: 'Feature spec not found' }, { status: 404 })
+      }
+
+      const transformedSpec = {
+        ...spec,
+        feature_name: spec.featureName,
+        feature_summary: spec.featureSummary,
+        success_criteria: spec.successCriteria,
+        reviewers: spec.reviewers,
+        target_users: spec.targetUsers,
+        user_goals: spec.userGoals,
+        use_cases: spec.useCases,
+        core_interactions: spec.coreInteractions,
+        loading_states: spec.loadingStates,
+        empty_states: spec.emptyStates,
+        error_states: spec.errorStates,
+        form_behavior: spec.formBehavior,
+        layout_structure: spec.layoutStructure,
+        visual_hierarchy: spec.visualHierarchy,
+        component_specs: spec.componentSpecs,
+        typography_content: spec.typographyContent,
+        accessibility_requirements: spec.accessibilityRequirements,
+        responsive_behavior: spec.responsiveBehavior,
+        animation_requirements: spec.animationRequirements,
+        edge_cases: spec.edgeCases,
+        technical_constraints: spec.technicalConstraints,
+        business_rules: spec.businessRules,
+        approvals: spec.approvals,
+        created_at: spec.date?.toISOString() || new Date().toISOString(),
+        updated_at: spec.date?.toISOString() || new Date().toISOString(),
+      }
+
+      console.log('📡 GET individual feature_spec returning:', {
+        id: transformedSpec.id,
+        feature_name: transformedSpec.feature_name,
+        author: transformedSpec.author,
+        status: transformedSpec.status,
+      })
+
+      return HttpResponse.json(transformedSpec)
+    }
+
+    // Return all feature specs with related data (existing logic)
     const specs = mockData.featureSpecs.map((spec) => ({
       ...spec,
-      feature_name: spec.featureName, // Map featureName to feature_name for API response
-      feature_summary: spec.featureSummary, // Map featureSummary to feature_summary
+      feature_name: spec.featureName,
+      feature_summary: spec.featureSummary,
       success_criteria: spec.successCriteria,
       reviewers: spec.reviewers,
       target_users: spec.targetUsers,
@@ -762,6 +812,8 @@ export const handlers = [
       technical_constraints: spec.technicalConstraints,
       business_rules: spec.businessRules,
       approvals: spec.approvals,
+      created_at: spec.date?.toISOString() || new Date().toISOString(),
+      updated_at: spec.date?.toISOString() || new Date().toISOString(),
     }))
 
     console.log(
@@ -1417,5 +1469,10 @@ export const handlers = [
     const featureSpecId = url.searchParams.get('feature_spec_id')?.replace('eq.', '')
 
     return HttpResponse.json({ success: true })
+  }),
+
+  // Handle dashboard route (SPA routing)
+  http.get('/dashboard', () => {
+    return HttpResponse.json({ message: 'Dashboard route handled by SPA' })
   }),
 ]

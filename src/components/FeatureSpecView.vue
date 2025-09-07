@@ -14,15 +14,15 @@
     <div v-else>
       <div class="spec-header">
         <div class="spec-title">
-          <h1>{{ spec.featureName }}</h1>
+          <h1>{{ spec?.featureName || 'Loading...' }}</h1>
           <div class="spec-meta">
-            <span class="spec-author">By {{ spec.author }}</span>
-            <span class="spec-date">{{ formatDate(spec.date) }}</span>
+            <span class="spec-author">By {{ spec?.author || 'Unknown' }}</span>
+            <span class="spec-date">{{ formatDate(spec?.date) }}</span>
             <span
               class="spec-status"
-              :class="`status-${spec.status.toLowerCase().replace(' ', '-')}`"
+              :class="`status-${spec?.status?.toLowerCase().replace(' ', '-') || 'unknown'}`"
             >
-              {{ spec.status }}
+              {{ spec?.status || 'Unknown' }}
             </span>
           </div>
         </div>
@@ -64,9 +64,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useFeatureSpecs } from '../composables/useFeatureSpecsSupabase'
+import { useFeatureSpec } from '../composables/useFeatureSpecsQuery'
 import MarkdownViewer from './MarkdownViewer.vue'
 import Button from './ui/Button.vue'
 import { MarkdownService } from '../services/markdownService'
@@ -74,36 +74,14 @@ import type { FrontendFeatureSpec } from '../types/feature'
 
 const route = useRoute()
 const router = useRouter()
-const { fetchFeatureSpecs } = useFeatureSpecs()
 
 const markdownService = new MarkdownService()
 const viewMode = ref<'rendered' | 'markdown'>('rendered')
-const spec = ref<FrontendFeatureSpec | null>(null)
-const loading = ref(true)
 
-// Load spec data
-onMounted(async () => {
-  try {
-    console.log('🔍 FeatureSpecView: Loading spec with ID:', route.params.id)
-    const specs = await fetchFeatureSpecs()
-    console.log(
-      '📊 FeatureSpecView: Fetched specs:',
-      specs.map((s) => ({ id: s.id, name: s.featureName })),
-    )
+// Use TanStack Query to fetch the specific feature spec
+const { featureSpec: spec, isLoading: loading } = useFeatureSpec(route.params.id as string)
 
-    const foundSpec = specs.find((s: FrontendFeatureSpec) => s.id === route.params.id)
-    console.log(
-      '🎯 FeatureSpecView: Found spec:',
-      foundSpec ? { id: foundSpec.id, name: foundSpec.featureName } : 'null',
-    )
-
-    spec.value = foundSpec || null
-  } catch (error) {
-    console.error('❌ FeatureSpecView: Error loading spec:', error)
-  } finally {
-    loading.value = false
-  }
-})
+// TanStack Query will automatically fetch the spec data when needed
 
 // Computed property for markdown source
 const markdownSource = computed(() => {

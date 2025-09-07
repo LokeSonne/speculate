@@ -19,7 +19,7 @@
       <Button @click="fetchFeatureSpecs" variant="primary">Retry</Button>
     </div>
 
-    <div v-else-if="featureSpecs.length === 0" class="card text-center py-16">
+    <div v-else-if="!featureSpecs || featureSpecs.length === 0" class="card text-center py-16">
       <h3 class="text-2xl font-semibold text-primary mb-4">No feature specs yet</h3>
       <p class="text-secondary mb-8 text-lg">
         Create your first feature specification to get started.
@@ -29,7 +29,7 @@
 
     <div v-else class="specs-list">
       <h3 class="text-xl font-semibold text-primary mb-6">
-        Feature Specifications ({{ featureSpecs.length }})
+        Feature Specifications ({{ featureSpecs?.length || 0 }})
       </h3>
       <div class="specs-grid">
         <div v-for="spec in featureSpecs" :key="spec.id" class="card spec-card">
@@ -62,12 +62,12 @@
       <h4 class="font-semibold mb-2">Debug Info:</h4>
       <p><strong>Loading:</strong> {{ loading }}</p>
       <p><strong>Error:</strong> {{ error }}</p>
-      <p><strong>Feature Specs Count:</strong> {{ featureSpecs.length }}</p>
+      <p><strong>Feature Specs Count:</strong> {{ featureSpecs?.length || 0 }}</p>
       <p>
         <strong>Feature Specs:</strong>
         {{
           JSON.stringify(
-            featureSpecs.map((s) => ({ id: s.id, name: s.featureName })),
+            featureSpecs?.map((s) => ({ id: s.id, name: s.featureName })) || [],
             null,
             2,
           )
@@ -78,36 +78,21 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useFeatureSpecs } from '../composables/useFeatureSpecsSupabase'
+import { useFeatureSpecs } from '../composables/useFeatureSpecsQuery'
 import Button from './ui/Button.vue'
 import type { FrontendFeatureSpec } from '../types/feature'
 
 const router = useRouter()
 
-const { featureSpecs, loading, error, fetchFeatureSpecs, deleteFeatureSpec } = useFeatureSpecs()
-
-// Load feature specs when component mounts
-onMounted(async () => {
-  console.log('📊 Dashboard mounted, fetching feature specs...')
-  console.log('🔍 Environment check:', {
-    VITE_USE_MOCK_API: import.meta.env.VITE_USE_MOCK_API,
-    NODE_ENV: import.meta.env.NODE_ENV,
-    DEV: import.meta.env.DEV,
-  })
-
-  try {
-    await fetchFeatureSpecs()
-    console.log('📊 After fetchFeatureSpecs:', {
-      featureSpecs: featureSpecs.value,
-      loading: loading.value,
-      error: error.value,
-    })
-  } catch (err) {
-    console.error('❌ Error in Dashboard onMounted:', err)
-  }
-})
+const {
+  featureSpecs,
+  isLoading: loading,
+  error,
+  refetch: fetchFeatureSpecs,
+  deleteSpec: deleteFeatureSpec,
+  isDeleting,
+} = useFeatureSpecs()
 
 const handleCreateSpec = () => {
   router.push('/specs/create')
@@ -124,8 +109,7 @@ const handleEditSpec = (spec: FrontendFeatureSpec) => {
 const handleDeleteSpec = async (id: string) => {
   if (confirm('Are you sure you want to delete this feature specification?')) {
     await deleteFeatureSpec(id)
-    // Refresh the list after deletion
-    fetchFeatureSpecs()
+    // TanStack Query will automatically invalidate and refetch the data
   }
 }
 

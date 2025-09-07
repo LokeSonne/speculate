@@ -31,48 +31,52 @@ export class MarkdownService {
    * Generate the overview section
    */
   private generateOverview(spec: FrontendFeatureSpec): string {
-    const reviewers = spec.reviewers.map((r) => r.name).join(', ')
-    const successCriteria = spec.successCriteria
-      .map((sc) => `- ${sc.type.toLowerCase()} goal: ${sc.description}`)
-      .join('\n')
+    const reviewers = spec.reviewers?.map((r) => r.name).join(', ') || 'None assigned'
+    const successCriteria =
+      spec.successCriteria
+        ?.map((sc) => `- ${sc.type.toLowerCase()} goal: ${sc.description}`)
+        .join('\n') || 'No success criteria defined'
 
     return `## Overview
 **Author:** ${spec.author}  
 **Date:** ${this.formatDate(spec.date)}  
 **Status:** ${spec.status}  
-**Reviewers:** ${reviewers || 'None assigned'}
+**Reviewers:** ${reviewers}
 
 ### Feature Summary
 ${spec.featureSummary}
 
 ### Success Criteria
-${successCriteria || 'No success criteria defined'}`
+${successCriteria}`
   }
 
   /**
    * Generate the user requirements section
    */
   private generateUserRequirements(spec: FrontendFeatureSpec): string {
-    const targetUsers = spec.targetUsers
-      .map((user) => `- **${user.type}:** ${user.description}`)
-      .join('\n')
+    const targetUsers =
+      spec.targetUsers?.map((user) => `- **${user.type}:** ${user.description}`).join('\n') ||
+      'No target users defined'
 
-    const userGoals = spec.userGoals
-      .map((goal, index) => `- **Goal ${index + 1}:** ${goal.description}`)
-      .join('\n')
+    const userGoals =
+      spec.userGoals
+        ?.map((goal, index) => `- **Goal ${index + 1}:** ${goal.description}`)
+        .join('\n') || 'No user goals defined'
 
-    const useCases = spec.useCases.map((useCase) => this.generateUseCase(useCase)).join('\n\n')
+    const useCases =
+      spec.useCases?.map((useCase) => this.generateUseCase(useCase)).join('\n\n') ||
+      'No use cases defined'
 
     return `## User Requirements
 
 ### Target Users
-${targetUsers || 'No target users defined'}
+${targetUsers}
 
 ### User Goals
-${userGoals || 'No user goals defined'}
+${userGoals}
 
 ### Use Cases
-${useCases || 'No use cases defined'}`
+${useCases}`
   }
 
   /**
@@ -218,9 +222,9 @@ ${
   private generateVisualDesignRequirements(spec: FrontendFeatureSpec): string {
     const layoutStructure = this.generateLayoutStructure(spec.layoutStructure)
     const visualHierarchy = this.generateVisualHierarchy(spec.visualHierarchy)
-    const componentSpecs = spec.componentSpecs
-      .map((spec) => this.generateComponentSpec(spec))
-      .join('\n\n')
+    const componentSpecs =
+      spec.componentSpecs?.map((spec) => this.generateComponentSpec(spec)).join('\n\n') ||
+      'No component specifications defined'
     const typographyContent = this.generateTypographyContent(spec.typographyContent)
     const accessibilityRequirements = this.generateAccessibilityRequirements(
       spec.accessibilityRequirements,
@@ -235,7 +239,7 @@ ${layoutStructure}
 ${visualHierarchy}
 
 ### Component Specifications
-${componentSpecs || 'No component specifications defined'}
+${componentSpecs}
 
 ### Typography & Content
 ${typographyContent}
@@ -248,170 +252,209 @@ ${accessibilityRequirements}`
    * Generate layout structure
    */
   private generateLayoutStructure(layoutStructure: any): string {
+    if (!layoutStructure) {
+      return 'Layout structure not defined'
+    }
+
+    const desktop = layoutStructure.desktop?.description || 'Not specified'
+    const tablet = layoutStructure.tablet?.description || 'Not specified'
+    const mobile = layoutStructure.mobile?.description || 'Not specified'
+
     return `#### Desktop Layout (>1200px)
-${layoutStructure.desktop.description}
+${desktop}
 
 #### Tablet Layout (768-1199px)  
-${layoutStructure.tablet.description}
+${tablet}
 
 #### Mobile Layout (<768px)
-${layoutStructure.mobile.description}`
+${mobile}`
   }
 
   /**
    * Generate visual hierarchy
    */
   private generateVisualHierarchy(hierarchy: any): string {
-    const primary = hierarchy.primaryElements.map((el) => `- ${el}`).join('\n')
-    const secondary = hierarchy.secondaryElements.map((el) => `- ${el}`).join('\n')
-    const tertiary = hierarchy.tertiaryElements.map((el) => `- ${el}`).join('\n')
+    if (!hierarchy) {
+      return 'Visual hierarchy not defined'
+    }
+
+    const primary = hierarchy.primaryElements?.map((el) => `- ${el}`).join('\n') || 'None defined'
+    const secondary =
+      hierarchy.secondaryElements?.map((el) => `- ${el}`).join('\n') || 'None defined'
+    const tertiary = hierarchy.tertiaryElements?.map((el) => `- ${el}`).join('\n') || 'None defined'
 
     return `**Primary Elements:** 
-${primary || 'None defined'}
+${primary}
 
 **Secondary Elements:** 
-${secondary || 'None defined'}
+${secondary}
 
 **Tertiary Elements:** 
-${tertiary || 'None defined'}`
+${tertiary}`
   }
 
   /**
    * Generate component specification
    */
   private generateComponentSpec(spec: any): string {
-    const states = spec.states.map((state) => `- ${state.name}: ${state.description}`).join('\n')
+    if (!spec) {
+      return 'Component specification not defined'
+    }
 
-    const text = spec.contentRequirements.text.map((t) => `- ${t}`).join('\n')
-    const data = spec.contentRequirements.data
-      .map((d) => `- ${d.type}: ${d.format} (${d.display})`)
-      .join('\n')
+    const states =
+      spec.states?.map((state) => `- ${state.name}: ${state.description}`).join('\n') ||
+      'None defined'
 
-    return `#### ${spec.name}
-**Visual Description:** ${spec.visualDescription}  
+    const text = spec.contentRequirements?.text?.map((t) => `- ${t}`).join('\n') || 'None defined'
+    const data =
+      spec.contentRequirements?.data
+        ?.map((d) => `- ${d.type}: ${d.format} (${d.display})`)
+        .join('\n') || 'None defined'
+
+    return `#### ${spec.name || 'Unnamed Component'}
+**Visual Description:** ${spec.visualDescription || 'Not specified'}  
 **States:**
 ${states}
 
 **Content Requirements:**
 - **Text:** 
-${text || 'None defined'}
+${text}
 - **Data:** 
-${data || 'None defined'}`
+${data}`
   }
 
   /**
    * Generate typography content
    */
   private generateTypographyContent(content: any): string {
-    const headlines = content.headlines.map((h) => `- ${h}`).join('\n')
-    const bodyText = content.bodyText.map((t) => `- ${t}`).join('\n')
-    const labels = content.labels.map((l) => `- ${l}`).join('\n')
-    const errorMessages = content.errorMessages.map((e) => `- ${e}`).join('\n')
-    const successMessages = content.successMessages.map((s) => `- ${s}`).join('\n')
-    const emptyStateText = content.emptyStateText.map((e) => `- ${e}`).join('\n')
+    if (!content) {
+      return 'Typography content not defined'
+    }
+
+    const headlines = content.headlines?.map((h) => `- ${h}`).join('\n') || 'None defined'
+    const bodyText = content.bodyText?.map((t) => `- ${t}`).join('\n') || 'None defined'
+    const labels = content.labels?.map((l) => `- ${l}`).join('\n') || 'None defined'
+    const errorMessages = content.errorMessages?.map((e) => `- ${e}`).join('\n') || 'None defined'
+    const successMessages =
+      content.successMessages?.map((s) => `- ${s}`).join('\n') || 'None defined'
+    const emptyStateText = content.emptyStateText?.map((e) => `- ${e}`).join('\n') || 'None defined'
 
     return `#### Text Content
 **Headlines:** 
-${headlines || 'None defined'}
+${headlines}
 
 **Body Text:** 
-${bodyText || 'None defined'}
+${bodyText}
 
 **Labels:** 
-${labels || 'None defined'}
+${labels}
 
 **Error Messages:** 
-${errorMessages || 'None defined'}
+${errorMessages}
 
 **Success Messages:** 
-${successMessages || 'None defined'}
+${successMessages}
 
 **Empty State Text:** 
-${emptyStateText || 'None defined'}`
+${emptyStateText}`
   }
 
   /**
    * Generate accessibility requirements
    */
   private generateAccessibilityRequirements(requirements: any): string {
-    const tabOrder = requirements.keyboardNavigation.tabOrder
-      .map((order) => `- ${order}`)
-      .join('\n')
-    const shortcuts = requirements.keyboardNavigation.shortcuts
-      .map((shortcut) => `- ${shortcut}`)
-      .join('\n')
-    const focusManagement = requirements.keyboardNavigation.focusManagement
-      .map((focus) => `- ${focus}`)
-      .join('\n')
+    if (!requirements) {
+      return 'Accessibility requirements not defined'
+    }
 
-    const labels = requirements.screenReaderSupport.labels.map((label) => `- ${label}`).join('\n')
-    const announcements = requirements.screenReaderSupport.announcements
-      .map((announcement) => `- ${announcement}`)
-      .join('\n')
-    const structure = requirements.screenReaderSupport.structure
-      .map((struct) => `- ${struct}`)
-      .join('\n')
+    const tabOrder =
+      requirements.keyboardNavigation?.tabOrder?.map((order) => `- ${order}`).join('\n') ||
+      'None defined'
+    const shortcuts =
+      requirements.keyboardNavigation?.shortcuts?.map((shortcut) => `- ${shortcut}`).join('\n') ||
+      'None defined'
+    const focusManagement =
+      requirements.keyboardNavigation?.focusManagement?.map((focus) => `- ${focus}`).join('\n') ||
+      'None defined'
 
-    const colorRequirements = requirements.visualAccessibility.colorRequirements
-      .map((req) => `- ${req}`)
-      .join('\n')
-    const focusIndicators = requirements.visualAccessibility.focusIndicators
-      .map((indicator) => `- ${indicator}`)
-      .join('\n')
-    const textScaling = requirements.visualAccessibility.textScaling
-      .map((scaling) => `- ${scaling}`)
-      .join('\n')
+    const labels =
+      requirements.screenReaderSupport?.labels?.map((label) => `- ${label}`).join('\n') ||
+      'None defined'
+    const announcements =
+      requirements.screenReaderSupport?.announcements
+        ?.map((announcement) => `- ${announcement}`)
+        .join('\n') || 'None defined'
+    const structure =
+      requirements.screenReaderSupport?.structure?.map((struct) => `- ${struct}`).join('\n') ||
+      'None defined'
+
+    const colorRequirements =
+      requirements.visualAccessibility?.colorRequirements?.map((req) => `- ${req}`).join('\n') ||
+      'None defined'
+    const focusIndicators =
+      requirements.visualAccessibility?.focusIndicators
+        ?.map((indicator) => `- ${indicator}`)
+        .join('\n') || 'None defined'
+    const textScaling =
+      requirements.visualAccessibility?.textScaling?.map((scaling) => `- ${scaling}`).join('\n') ||
+      'None defined'
 
     return `#### Keyboard Navigation
 **Tab Order:** 
-${tabOrder || 'None defined'}
+${tabOrder}
 
 **Shortcuts:** 
-${shortcuts || 'None defined'}
+${shortcuts}
 
 **Focus Management:** 
-${focusManagement || 'None defined'}
+${focusManagement}
 
 #### Screen Reader Support
 **Labels:** 
-${labels || 'None defined'}
+${labels}
 
 **Announcements:** 
-${announcements || 'None defined'}
+${announcements}
 
 **Structure:** 
-${structure || 'None defined'}
+${structure}
 
 #### Visual Accessibility
 **Color Requirements:** 
-${colorRequirements || 'None defined'}
+${colorRequirements}
 
 **Focus Indicators:** 
-${focusIndicators || 'None defined'}
+${focusIndicators}
 
 **Text Scaling:** 
-${textScaling || 'None defined'}`
+${textScaling}`
   }
 
   /**
    * Generate responsive behavior section
    */
   private generateResponsiveBehavior(spec: FrontendFeatureSpec): string {
-    const breakpointTransitions = spec.responsiveBehavior.breakpointTransitions
-      .map((transition) => this.generateBreakpointTransition(transition))
-      .join('\n\n')
+    if (!spec.responsiveBehavior) {
+      return '## Responsive Behavior Details\n\nNo responsive behavior defined'
+    }
 
-    const touchInteractions = spec.responsiveBehavior.touchInteractions
-      .map((interaction) => this.generateTouchInteraction(interaction))
-      .join('\n\n')
+    const breakpointTransitions =
+      spec.responsiveBehavior.breakpointTransitions
+        ?.map((transition) => this.generateBreakpointTransition(transition))
+        .join('\n\n') || 'No breakpoint transitions defined'
+
+    const touchInteractions =
+      spec.responsiveBehavior.touchInteractions
+        ?.map((interaction) => this.generateTouchInteraction(interaction))
+        .join('\n\n') || 'No touch interactions defined'
 
     return `## Responsive Behavior Details
 
 ### Breakpoint Transitions
-${breakpointTransitions || 'No breakpoint transitions defined'}
+${breakpointTransitions}
 
 ### Touch vs Mouse Interactions
-${touchInteractions || 'No touch interactions defined'}`
+${touchInteractions}`
   }
 
   /**
@@ -447,14 +490,15 @@ ${hoverEquivalents || 'None defined'}`
    * Generate animation and motion section
    */
   private generateAnimationMotion(spec: FrontendFeatureSpec): string {
-    const animations = spec.animationRequirements
-      .map((animation) => this.generateAnimationRequirement(animation))
-      .join('\n\n')
+    const animations =
+      spec.animationRequirements
+        ?.map((animation) => this.generateAnimationRequirement(animation))
+        .join('\n\n') || 'No animation requirements defined'
 
     return `## Animation & Motion Requirements
 
 ### Micro-interactions
-${animations || 'No animation requirements defined'}
+${animations}
 
 ### Performance Requirements
 **Animation Performance:** Frame rate requirements  
@@ -476,26 +520,29 @@ ${animation.performanceRequirements ? `- **Performance:** ${animation.performanc
    * Generate edge cases and constraints section
    */
   private generateEdgeCasesConstraints(spec: FrontendFeatureSpec): string {
-    const edgeCases = spec.edgeCases.map((edgeCase) => this.generateEdgeCase(edgeCase)).join('\n\n')
+    const edgeCases =
+      spec.edgeCases?.map((edgeCase) => this.generateEdgeCase(edgeCase)).join('\n\n') ||
+      'No content edge cases defined'
 
-    const technicalConstraints = spec.technicalConstraints
-      .map((constraint) => this.generateTechnicalConstraint(constraint))
-      .join('\n\n')
+    const technicalConstraints =
+      spec.technicalConstraints
+        ?.map((constraint) => this.generateTechnicalConstraint(constraint))
+        .join('\n\n') || 'No technical constraints defined'
 
-    const businessRules = spec.businessRules
-      .map((rule) => this.generateBusinessRule(rule))
-      .join('\n\n')
+    const businessRules =
+      spec.businessRules?.map((rule) => this.generateBusinessRule(rule)).join('\n\n') ||
+      'No business rules defined'
 
     return `## Edge Cases & Constraints
 
 ### Content Edge Cases
-${edgeCases || 'No content edge cases defined'}
+${edgeCases}
 
 ### Technical Constraints
-${technicalConstraints || 'No technical constraints defined'}
+${technicalConstraints}
 
 ### Business Rules
-${businessRules || 'No business rules defined'}`
+${businessRules}`
   }
 
   /**
@@ -527,7 +574,9 @@ ${constraint.workaround ? `- **Workaround:** ${constraint.workaround}` : ''}`
    * Generate approval and sign-off section
    */
   private generateApprovalSignoff(spec: FrontendFeatureSpec): string {
-    const approvals = spec.approvals.map((approval) => this.generateApproval(approval)).join('\n')
+    const approvals =
+      spec.approvals?.map((approval) => this.generateApproval(approval)).join('\n') ||
+      'No approvals recorded'
 
     return `## Approval & Sign-off
 
@@ -548,7 +597,7 @@ ${constraint.workaround ? `- **Workaround:** ${constraint.workaround}` : ''}`
 - [ ] Timeline confirmed
 
 ### Current Approvals
-${approvals || 'No approvals recorded'}`
+${approvals}`
   }
 
   /**
@@ -593,11 +642,16 @@ ${approval.comments ? `  - Comments: ${approval.comments}` : ''}`
    * Export a single spec to markdown file
    */
   exportSpec(spec: FrontendFeatureSpec): { filename: string; content: string } {
+    const featureName = spec.featureName || ''
+    const sanitizedName = featureName
+      .replace(/[^a-zA-Z0-9]+/g, '-')
+      .replace(/^-|-$/g, '')
+      .toLowerCase()
+
+    const filename = sanitizedName ? `${sanitizedName}-spec.md` : 'spec.md'
+
     return {
-      filename: `${spec.featureName
-        .replace(/[^a-zA-Z0-9]+/g, '-')
-        .replace(/^-|-$/g, '')
-        .toLowerCase()}-spec.md`,
+      filename,
       content: this.generateSpec(spec),
     }
   }

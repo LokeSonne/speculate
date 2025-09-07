@@ -65,7 +65,15 @@ const router = useRouter()
 
 // Format date for display
 const formatDate = (date: Date | string) => {
+  if (!date) return 'No date'
+
   const dateObj = typeof date === 'string' ? new Date(date) : date
+
+  // Check if the date is valid
+  if (isNaN(dateObj.getTime())) {
+    return 'Invalid date'
+  }
+
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',
     day: 'numeric',

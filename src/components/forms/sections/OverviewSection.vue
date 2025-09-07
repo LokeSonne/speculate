@@ -90,8 +90,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
-import { useFieldChanges } from '../../../composables/useFieldChanges'
+import { computed } from 'vue'
+import { useFieldChanges } from '../../../composables/useFieldChangesQuery'
 import FieldChangeHistory from '../../FieldChangeHistory.vue'
 import type { FieldChangeStatus } from '../../../types/feature'
 
@@ -119,33 +119,23 @@ const emit = defineEmits<Emits>()
 // Field changes functionality
 const {
   fieldChanges,
-  loading,
+  isLoading: loading,
   getFieldChanges,
   updateFieldChangeStatus,
   isOwner,
   ownershipLoading,
-  fetchFieldChanges,
 } = props.featureSpecId
   ? useFieldChanges(props.featureSpecId)
   : {
       fieldChanges: computed(() => []),
-      loading: computed(() => false),
+      isLoading: computed(() => false),
       getFieldChanges: () => computed(() => []),
       updateFieldChangeStatus: async () => {},
       isOwner: computed(() => false),
       ownershipLoading: computed(() => false),
-      fetchFieldChanges: async () => {},
     }
 
-// Load field changes when component mounts
-onMounted(() => {
-  if (props.featureSpecId) {
-    console.log('🚀 OverviewSection mounted with featureSpecId:', props.featureSpecId)
-    fetchFieldChanges()
-  } else {
-    console.log('⚠️ OverviewSection mounted without featureSpecId')
-  }
-})
+// TanStack Query will automatically fetch field changes when needed
 
 const updateField = (field: string, value: string) => {
   emit('update', field, value)

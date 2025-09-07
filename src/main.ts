@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import { VueQueryPlugin } from '@tanstack/vue-query'
 // import App from './App.vue'
 import App from './App.vue'
 import router from './router'
@@ -15,6 +16,23 @@ if (import.meta.env.DEV) {
 }
 
 const app = createApp(App)
+
+// Configure TanStack Query
+app.use(VueQueryPlugin, {
+  queryClientConfig: {
+    defaultOptions: {
+      queries: {
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+        retry: 3,
+        refetchOnWindowFocus: false,
+      },
+      mutations: {
+        retry: 1,
+      },
+    },
+  },
+})
 
 app.use(router)
 

@@ -8,10 +8,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useFeatureSpecs } from '../composables/useFeatureSpecsSupabase'
-import { useFieldChanges } from '../composables/useFieldChanges'
+import { useFeatureSpecs, useFeatureSpec } from '../composables/useFeatureSpecsQuery'
+import { useFieldChanges } from '../composables/useFieldChangesQuery'
 import { useAuth } from '../composables/useAuth'
 import FeatureSpecForm from './forms/FeatureSpecForm.vue'
 import type { FrontendFeatureSpec, FeatureSpecFormData } from '../types/feature'
@@ -24,28 +24,14 @@ const props = defineProps<Props>()
 const route = useRoute()
 const router = useRouter()
 const { user } = useAuth()
-const { createFeatureSpec, updateFeatureSpec, fetchFeatureSpecs } = useFeatureSpecs()
 
-const editingSpec = ref<FrontendFeatureSpec | null>(null)
-const loading = ref(false)
+// Use TanStack Query composables
+const { createSpecAsync, updateSpecAsync } = useFeatureSpecs()
+const { featureSpec: editingSpec, isLoading: specLoading } = useFeatureSpec(
+  props.mode === 'edit' ? (route.params.id as string) : '',
+)
 
-// Load spec data for edit mode
-onMounted(async () => {
-  if (props.mode === 'edit' && route.params.id) {
-    loading.value = true
-    try {
-      await fetchFeatureSpecs()
-      // Find the spec by ID from the fetched specs
-      const specs = await fetchFeatureSpecs()
-      editingSpec.value =
-        specs.find((spec: FrontendFeatureSpec) => spec.id === route.params.id) || null
-    } catch (error) {
-      console.error('Error loading spec:', error)
-    } finally {
-      loading.value = false
-    }
-  }
-})
+// TanStack Query will automatically fetch the spec data when needed
 
 // Function to create field changes from form data
 const createFieldChangesFromFormData = async (
@@ -134,14 +120,14 @@ const handleSubmit = async (data: FeatureSpecFormData) => {
 
       if (isOwner) {
         console.log('👑 Owner editing - updating directly')
-        await updateFeatureSpec(editingSpec.value.id, data)
+        await updateSpecAsync({ id: editingSpec.value.id, data })
       } else {
         console.log('👤 Non-owner editing - creating field changes')
         await createFieldChangesFromFormData(editingSpec.value.id, data)
       }
     } else {
       console.log('➕ Creating new feature spec with data:', data.featureName)
-      await createFeatureSpec(data)
+      await createSpecAsync(data)
     }
 
     // Navigate back to dashboard

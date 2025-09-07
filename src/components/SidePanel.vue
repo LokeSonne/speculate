@@ -63,7 +63,7 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
-import { useFeatureSpecs } from '../composables/useFeatureSpecsSupabase'
+import { useFeatureSpecs } from '../composables/useFeatureSpecsQuery'
 import SpecListItem from './SpecListItem.vue'
 import Button from './ui/Button.vue'
 import type { FrontendFeatureSpec } from '../types/feature'
@@ -75,7 +75,7 @@ const { featureSpecs } = useFeatureSpecs()
 
 // Filter specifications based on ownership and review status
 const ownedSpecs = computed(() => {
-  if (!user.value) return []
+  if (!user.value || !featureSpecs.value) return []
 
   return featureSpecs.value.filter((spec: FrontendFeatureSpec) => {
     // Check if current user is the owner (author)
@@ -84,7 +84,7 @@ const ownedSpecs = computed(() => {
 })
 
 const reviewSpecs = computed(() => {
-  if (!user.value) return []
+  if (!user.value || !featureSpecs.value) return []
 
   return featureSpecs.value.filter((spec: FrontendFeatureSpec) => {
     // Check if current user is a reviewer for this spec
