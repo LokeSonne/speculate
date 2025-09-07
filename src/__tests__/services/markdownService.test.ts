@@ -76,12 +76,28 @@ describe('MarkdownService', () => {
       spec.coreInteractions = [
         {
           id: '1',
-          name: 'Button Click',
+          actionName: 'Button Click',
           trigger: 'User clicks button',
           behavior: 'Button animates and triggers action',
           visualFeedback: 'Button changes color',
           endState: 'Action completed',
-          errorScenarios: ['Network error', 'Validation error'],
+          loadingState: 'Show loading spinner',
+          emptyState: 'Show empty message',
+          errorStates: [
+            {
+              id: '1',
+              type: 'Network Error',
+              message: 'Network error occurred',
+              recovery: 'Retry connection',
+            },
+            {
+              id: '2',
+              type: 'Validation Error',
+              message: 'Validation error occurred',
+              recovery: 'Fix input and retry',
+            },
+          ],
+          businessRules: [],
         },
       ]
       spec.loadingStates = [
@@ -101,6 +117,14 @@ describe('MarkdownService', () => {
       expect(result).toContain('### Core Interactions')
       expect(result).toContain('#### Interaction: Button Click')
       expect(result).toContain('**Trigger:** User clicks button')
+      expect(result).toContain('**Behavior:** Button animates and triggers action')
+      expect(result).toContain('**Visual Feedback:** Button changes color')
+      expect(result).toContain('**End State:** Action completed')
+      expect(result).toContain('**Loading State:** Show loading spinner')
+      expect(result).toContain('**Empty State:** Show empty message')
+      expect(result).toContain('**Error States:**')
+      expect(result).toContain('- Network Error: Network error occurred')
+      expect(result).toContain('- Validation Error: Validation error occurred')
       expect(result).toContain('### Loading & Empty States')
       expect(result).toContain('#### Initial Load')
       expect(result).toContain('**Behavior:** Show loading spinner')

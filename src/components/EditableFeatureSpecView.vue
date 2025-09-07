@@ -159,13 +159,14 @@
                   class="target-user-item"
                 >
                   <div v-if="isEditing" class="editable-target-user">
-                    <input
-                      v-model="editableSpec.targetUsers[index].userType"
-                      type="text"
-                      placeholder="User type"
-                      class="editable-input"
-                      @blur="trackTargetUserChange(index, 'userType')"
-                    />
+                    <select
+                      v-model="editableSpec.targetUsers[index].type"
+                      class="editable-select"
+                      @change="trackTargetUserChange(index, 'type')"
+                    >
+                      <option value="Primary">Primary</option>
+                      <option value="Secondary">Secondary</option>
+                    </select>
                     <textarea
                       v-model="editableSpec.targetUsers[index].description"
                       placeholder="Description"
@@ -178,7 +179,7 @@
                     </button>
                   </div>
                   <div v-else class="target-user-display">
-                    <strong>{{ user.userType }}:</strong> {{ user.description }}
+                    <strong>{{ user.type }}:</strong> {{ user.description }}
                   </div>
                 </div>
               </div>
@@ -206,15 +207,15 @@
                       <option value="Low">Low</option>
                     </select>
                     <input
-                      v-model="editableSpec.userGoals[index].goal"
+                      v-model="editableSpec.userGoals[index].description"
                       type="text"
                       class="editable-input"
-                      @blur="trackUserGoalChange(index, 'goal')"
+                      @blur="trackUserGoalChange(index, 'description')"
                     />
                     <button @click="removeUserGoal(index)" class="btn-remove btn-sm">Remove</button>
                   </div>
                   <div v-else class="user-goal-display">
-                    <strong>{{ goal.priority }}:</strong> {{ goal.goal }}
+                    <strong>{{ goal.priority }}:</strong> {{ goal.description }}
                   </div>
                 </div>
               </div>
@@ -231,18 +232,25 @@
                 >
                   <div v-if="isEditing" class="editable-use-case">
                     <input
-                      v-model="editableSpec.useCases[index].title"
+                      v-model="editableSpec.useCases[index].name"
                       type="text"
-                      placeholder="Use case title"
+                      placeholder="Use case name"
                       class="editable-input"
-                      @blur="trackUseCaseChange(index, 'title')"
+                      @blur="trackUseCaseChange(index, 'name')"
                     />
                     <textarea
-                      v-model="editableSpec.useCases[index].description"
-                      placeholder="Description"
+                      v-model="editableSpec.useCases[index].context"
+                      placeholder="Context"
                       class="editable-textarea"
                       rows="2"
-                      @blur="trackUseCaseChange(index, 'description')"
+                      @blur="trackUseCaseChange(index, 'context')"
+                    />
+                    <textarea
+                      v-model="editableSpec.useCases[index].userAction"
+                      placeholder="User action"
+                      class="editable-textarea"
+                      rows="2"
+                      @blur="trackUseCaseChange(index, 'userAction')"
                     />
                     <textarea
                       v-model="editableSpec.useCases[index].expectedOutcome"
@@ -254,14 +262,9 @@
                     <button @click="removeUseCase(index)" class="btn-remove btn-sm">Remove</button>
                   </div>
                   <div v-else class="use-case-display">
-                    <h4>{{ useCase.title }}</h4>
-                    <p>{{ useCase.description }}</p>
-                    <div v-if="useCase.steps && useCase.steps.length" class="use-case-steps">
-                      <h5>Steps:</h5>
-                      <ol>
-                        <li v-for="step in useCase.steps" :key="step">{{ step }}</li>
-                      </ol>
-                    </div>
+                    <h4>{{ useCase.name }}</h4>
+                    <p><strong>Context:</strong> {{ useCase.context }}</p>
+                    <p><strong>User Action:</strong> {{ useCase.userAction }}</p>
                     <div class="use-case-outcome">
                       <strong>Expected Outcome:</strong> {{ useCase.expectedOutcome }}
                     </div>
@@ -290,26 +293,34 @@
                 >
                   <div v-if="isEditing" class="editable-interaction">
                     <input
-                      v-model="editableSpec.coreInteractions[index].interactionType"
+                      v-model="editableSpec.coreInteractions[index].actionName"
                       type="text"
-                      placeholder="Interaction type"
+                      placeholder="Action name"
                       class="editable-input"
-                      @blur="trackInteractionChange(index, 'interactionType')"
+                      @blur="trackInteractionChange(index, 'actionName')"
                     />
                     <textarea
-                      v-model="editableSpec.coreInteractions[index].description"
-                      placeholder="Description"
+                      v-model="editableSpec.coreInteractions[index].trigger"
+                      placeholder="Trigger"
                       class="editable-textarea"
                       rows="2"
-                      @blur="trackInteractionChange(index, 'description')"
+                      @blur="trackInteractionChange(index, 'trigger')"
+                    />
+                    <textarea
+                      v-model="editableSpec.coreInteractions[index].behavior"
+                      placeholder="Behavior"
+                      class="editable-textarea"
+                      rows="2"
+                      @blur="trackInteractionChange(index, 'behavior')"
                     />
                     <button @click="removeInteraction(index)" class="btn-remove btn-sm">
                       Remove
                     </button>
                   </div>
                   <div v-else class="interaction-display">
-                    <strong>{{ interaction.interactionType }}:</strong>
-                    {{ interaction.description }}
+                    <strong>{{ interaction.actionName }}:</strong>
+                    <p><strong>Trigger:</strong> {{ interaction.trigger }}</p>
+                    <p><strong>Behavior:</strong> {{ interaction.behavior }}</p>
                   </div>
                 </div>
               </div>
@@ -359,7 +370,9 @@
 
         <div v-else-if="error" class="error-state">
           <p>{{ error }}</p>
-          <button @click="fetchChangeRequests" class="btn-primary btn-sm">Retry</button>
+          <button @click="() => fetchChangeRequests(props.spec.id)" class="btn-primary btn-sm">
+            Retry
+          </button>
         </div>
 
         <div v-else-if="changeRequests.length === 0" class="empty-state">
@@ -387,7 +400,7 @@ import { useChangeRequests } from '../composables/useChangeRequests'
 import { useFeatureSpecs } from '../composables/useFeatureSpecsSupabase'
 import { MarkdownService } from '../services/markdownService'
 import ChangeRequestCard from './ChangeRequestCard.vue'
-import type { FrontendFeatureSpec, ChangeRequest, FeatureSpecFormData } from '../types/feature'
+import type { FrontendFeatureSpec, FeatureSpecFormData } from '../types/feature'
 
 interface Props {
   spec: FrontendFeatureSpec
@@ -463,11 +476,11 @@ const changeCount = computed(() => pendingChanges.value.length)
 const hasChanges = computed(() => pendingChanges.value.length > 0)
 
 // Change tracking
-const trackChange = (field: string, oldValue: any, newValue: any, section?: string) => {
+const trackChange = (field: string, oldValue: unknown, newValue: unknown, section?: string) => {
   if (oldValue !== newValue) {
     const existingChange = pendingChanges.value.find((c) => c.field === field)
     if (existingChange) {
-      existingChange.newValue = newValue
+      existingChange.newValue = String(newValue)
     } else {
       pendingChanges.value.push({
         field,
@@ -592,7 +605,11 @@ const saveChanges = async () => {
     }
 
     // Update local spec and exit editing mode
-    localSpec.value = { ...localSpec.value, ...editableSpec }
+    localSpec.value = {
+      ...localSpec.value,
+      ...editableSpec,
+      status: editableSpec.status as 'Draft' | 'In Review' | 'Approved' | 'Locked',
+    }
     isEditing.value = false
     pendingChanges.value = []
 
@@ -634,8 +651,9 @@ const removeReviewer = (index: number) => {
 const addTargetUser = () => {
   editableSpec.targetUsers.push({
     id: crypto.randomUUID(),
-    userType: '',
+    type: 'Primary',
     description: '',
+    characteristics: [],
   })
 }
 
@@ -646,8 +664,8 @@ const removeTargetUser = (index: number) => {
 const addUserGoal = () => {
   editableSpec.userGoals.push({
     id: crypto.randomUUID(),
-    priority: 'High',
-    goal: '',
+    description: '',
+    priority: 1,
   })
 }
 
@@ -658,10 +676,12 @@ const removeUserGoal = (index: number) => {
 const addUseCase = () => {
   editableSpec.useCases.push({
     id: crypto.randomUUID(),
-    title: '',
-    description: '',
-    steps: [],
+    name: '',
+    type: 'Primary',
+    context: '',
+    userAction: '',
     expectedOutcome: '',
+    successCondition: '',
   })
 }
 
@@ -672,8 +692,15 @@ const removeUseCase = (index: number) => {
 const addInteraction = () => {
   editableSpec.coreInteractions.push({
     id: crypto.randomUUID(),
-    interactionType: '',
-    description: '',
+    actionName: '',
+    trigger: '',
+    behavior: '',
+    visualFeedback: '',
+    endState: '',
+    loadingState: '',
+    emptyState: '',
+    errorStates: [],
+    businessRules: [],
   })
 }
 

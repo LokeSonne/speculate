@@ -1,4 +1,24 @@
-import type { FrontendFeatureSpec } from '../types/feature'
+import type {
+  FrontendFeatureSpec,
+  UseCase,
+  CoreInteraction,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  FormBehavior,
+  LayoutStructure,
+  VisualHierarchy,
+  ComponentSpec,
+  TypographyContent,
+  AccessibilityRequirements,
+  BreakpointTransition,
+  TouchInteraction,
+  AnimationRequirement,
+  EdgeCase,
+  TechnicalConstraint,
+  BusinessRule,
+  Approval,
+} from '../types/feature'
 
 export class MarkdownService {
   /**
@@ -82,7 +102,7 @@ ${useCases}`
   /**
    * Generate a single use case
    */
-  private generateUseCase(useCase: any): string {
+  private generateUseCase(useCase: UseCase): string {
     return `#### ${useCase.type} Use Case: ${useCase.name}
 **Context:** ${useCase.context}  
 **User Action:** ${useCase.userAction}  
@@ -138,24 +158,30 @@ ${formBehavior}`
   /**
    * Generate a core interaction
    */
-  private generateCoreInteraction(interaction: any): string {
-    const errorScenarios = (interaction.errorScenarios || [])
-      .map((scenario: string) => `- ${scenario}`)
+  private generateCoreInteraction(interaction: CoreInteraction): string {
+    const errorStates = (interaction.errorStates || [])
+      .map((state) => `- ${state.type}: ${state.message}`)
       .join('\n')
 
-    return `#### Interaction: ${interaction.name}
+    const businessRules = (interaction.businessRules || [])
+      .map((rule) => `- ${rule.rule}`)
+      .join('\n')
+
+    return `#### Interaction: ${interaction.actionName}
 **Trigger:** ${interaction.trigger}  
 **Behavior:** ${interaction.behavior}  
 **Visual Feedback:** ${interaction.visualFeedback}  
 **End State:** ${interaction.endState}  
-**Error Scenarios:** 
-${errorScenarios || 'None defined'}`
+**Loading State:** ${interaction.loadingState}
+**Empty State:** ${interaction.emptyState}
+${errorStates ? `**Error States:**\n${errorStates}` : ''}
+${businessRules ? `**Business Rules:**\n${businessRules}` : ''}`
   }
 
   /**
    * Generate a loading state
    */
-  private generateLoadingState(state: any): string {
+  private generateLoadingState(state: LoadingState): string {
     return `#### ${state.type}
 **Behavior:** ${state.behavior}  
 ${state.duration ? `**Duration:** ${state.duration}` : ''}  
@@ -166,7 +192,7 @@ ${state.timeoutHandling ? `**Timeout Handling:** ${state.timeoutHandling}` : ''}
   /**
    * Generate an empty state
    */
-  private generateEmptyState(state: any): string {
+  private generateEmptyState(state: EmptyState): string {
     const actions = (state.actions || []).map((action) => `- ${action}`).join('\n')
     return `**Scenario:** ${state.scenario}  
 - **Message:** ${state.message}  
@@ -178,7 +204,7 @@ ${actions}`
   /**
    * Generate an error state
    */
-  private generateErrorState(state: any): string {
+  private generateErrorState(state: ErrorState): string {
     return `**${state.type}:**  
 - **Message:** ${state.message}  
 - **Recovery:** ${state.recovery}  
@@ -188,7 +214,7 @@ ${state.fallback ? `- **Fallback:** ${state.fallback}` : ''}`
   /**
    * Generate form behavior section
    */
-  private generateFormBehavior(formBehavior: any): string {
+  private generateFormBehavior(formBehavior: FormBehavior): string {
     const realTimeValidation = formBehavior.inputValidation.realTimeValidation
       .map((rule) => `- **${rule.field}:** ${rule.rules.join(', ')} (${rule.timing})`)
       .join('\n')
@@ -251,7 +277,7 @@ ${accessibilityRequirements}`
   /**
    * Generate layout structure
    */
-  private generateLayoutStructure(layoutStructure: any): string {
+  private generateLayoutStructure(layoutStructure: LayoutStructure): string {
     if (!layoutStructure) {
       return 'Layout structure not defined'
     }
@@ -273,7 +299,7 @@ ${mobile}`
   /**
    * Generate visual hierarchy
    */
-  private generateVisualHierarchy(hierarchy: any): string {
+  private generateVisualHierarchy(hierarchy: VisualHierarchy): string {
     if (!hierarchy) {
       return 'Visual hierarchy not defined'
     }
@@ -296,7 +322,7 @@ ${tertiary}`
   /**
    * Generate component specification
    */
-  private generateComponentSpec(spec: any): string {
+  private generateComponentSpec(spec: ComponentSpec): string {
     if (!spec) {
       return 'Component specification not defined'
     }
@@ -326,7 +352,7 @@ ${data}`
   /**
    * Generate typography content
    */
-  private generateTypographyContent(content: any): string {
+  private generateTypographyContent(content: TypographyContent): string {
     if (!content) {
       return 'Typography content not defined'
     }
@@ -362,7 +388,7 @@ ${emptyStateText}`
   /**
    * Generate accessibility requirements
    */
-  private generateAccessibilityRequirements(requirements: any): string {
+  private generateAccessibilityRequirements(requirements: AccessibilityRequirements): string {
     if (!requirements) {
       return 'Accessibility requirements not defined'
     }
@@ -460,7 +486,7 @@ ${touchInteractions}`
   /**
    * Generate breakpoint transition
    */
-  private generateBreakpointTransition(transition: any): string {
+  private generateBreakpointTransition(transition: BreakpointTransition): string {
     const changes = transition.changes.map((change) => `- ${change}`).join('\n')
     return `**${transition.from} → ${transition.to}:**  
 ${changes}`
@@ -469,7 +495,7 @@ ${changes}`
   /**
    * Generate touch interaction
    */
-  private generateTouchInteraction(interaction: any): string {
+  private generateTouchInteraction(interaction: TouchInteraction): string {
     const touchTargets = interaction.touchTargets.map((target) => `- ${target}`).join('\n')
     const gestures = interaction.gestures.map((gesture) => `- ${gesture}`).join('\n')
     const hoverEquivalents = interaction.hoverEquivalents
@@ -508,7 +534,7 @@ ${animations}
   /**
    * Generate animation requirement
    */
-  private generateAnimationRequirement(animation: any): string {
+  private generateAnimationRequirement(animation: AnimationRequirement): string {
     return `**${animation.name}:**  
 - **Type:** ${animation.type}
 - **Description:** ${animation.description}
@@ -548,7 +574,7 @@ ${businessRules}`
   /**
    * Generate edge case
    */
-  private generateEdgeCase(edgeCase: any): string {
+  private generateEdgeCase(edgeCase: EdgeCase): string {
     return `**${edgeCase.type}:** ${edgeCase.scenario}  
 - **Behavior:** ${edgeCase.behavior}`
   }
@@ -556,7 +582,7 @@ ${businessRules}`
   /**
    * Generate technical constraint
    */
-  private generateTechnicalConstraint(constraint: any): string {
+  private generateTechnicalConstraint(constraint: TechnicalConstraint): string {
     return `**${constraint.constraint}:**  
 - **Impact:** ${constraint.impact}  
 ${constraint.workaround ? `- **Workaround:** ${constraint.workaround}` : ''}`
@@ -565,7 +591,7 @@ ${constraint.workaround ? `- **Workaround:** ${constraint.workaround}` : ''}`
   /**
    * Generate business rule
    */
-  private generateBusinessRule(rule: any): string {
+  private generateBusinessRule(rule: BusinessRule): string {
     return `**${rule.rule}:**  
 - **Impact:** ${rule.impact}`
   }
@@ -603,7 +629,7 @@ ${approvals}`
   /**
    * Generate approval
    */
-  private generateApproval(approval: any): string {
+  private generateApproval(approval: Approval): string {
     const status =
       approval.status === 'approved' ? '✅' : approval.status === 'rejected' ? '❌' : '⏳'
     const approvedAt = approval.approvedAt ? ` (${this.formatDate(approval.approvedAt)})` : ''

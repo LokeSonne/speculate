@@ -8,13 +8,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useFeatureSpecs, useFeatureSpec } from '../composables/useFeatureSpecsQuery'
 import { useFieldChanges } from '../composables/useFieldChangesQuery'
 import { useAuth } from '../composables/useAuth'
 import FeatureSpecForm from './forms/FeatureSpecForm.vue'
-import type { FrontendFeatureSpec, FeatureSpecFormData } from '../types/feature'
+import type { FeatureSpecFormData } from '../types/feature'
 
 interface Props {
   mode: 'create' | 'edit'
@@ -27,7 +26,7 @@ const { user } = useAuth()
 
 // Use TanStack Query composables
 const { createSpecAsync, updateSpecAsync } = useFeatureSpecs()
-const { featureSpec: editingSpec, isLoading: specLoading } = useFeatureSpec(
+const { featureSpec: editingSpec } = useFeatureSpec(
   props.mode === 'edit' ? (route.params.id as string) : '',
 )
 
