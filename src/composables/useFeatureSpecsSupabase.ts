@@ -120,7 +120,7 @@ export function useFeatureSpecs() {
           supabase.from('target_users').insert(
             formData.targetUsers.map((user) => ({
               feature_spec_id: specId,
-              user_type: user.userType,
+              user_type: user.type,
               description: user.description,
             })),
           ),
@@ -133,7 +133,7 @@ export function useFeatureSpecs() {
           supabase.from('user_goals').insert(
             formData.userGoals.map((goal) => ({
               feature_spec_id: specId,
-              goal: goal.goal,
+              goal: goal.description,
               priority: goal.priority,
             })),
           ),
@@ -146,9 +146,9 @@ export function useFeatureSpecs() {
           supabase.from('use_cases').insert(
             formData.useCases.map((useCase) => ({
               feature_spec_id: specId,
-              title: useCase.title,
-              description: useCase.description,
-              steps: useCase.steps,
+              title: useCase.name,
+              description: useCase.context,
+              steps: useCase.userAction,
               expected_outcome: useCase.expectedOutcome,
             })),
           ),
@@ -161,8 +161,8 @@ export function useFeatureSpecs() {
           supabase.from('core_interactions').insert(
             formData.coreInteractions.map((interaction) => ({
               feature_spec_id: specId,
-              interaction_type: interaction.interactionType,
-              description: interaction.description,
+              interaction_type: interaction.actionName,
+              description: interaction.behavior,
             })),
           ),
         )
@@ -463,5 +463,8 @@ function transformDbToFrontend(dbSpec: any): FrontendFeatureSpec {
     technicalConstraints: [],
     businessRules: [],
     approvals: [],
+    createdAt: new Date(dbSpec.created_at || dbSpec.date),
+    updatedAt: new Date(dbSpec.updated_at || dbSpec.created_at || dbSpec.date),
+    version: dbSpec.version || '1.0.0',
   }
 }

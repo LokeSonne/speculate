@@ -47,7 +47,7 @@
       <FieldChangeHistory
         v-if="featureSpecId && isEditing"
         :changes="getFieldChanges('successCriteria').value"
-        :is-owner="isOwner"
+        :is-owner="isOwner ?? false"
         :loading="loading"
         @accept="acceptChange"
         @reject="rejectChange"
@@ -93,7 +93,7 @@ const acceptChange = async (changeId: string) => {
     // Find the change being accepted
     const change = getFieldChanges('successCriteria').value.find((c) => c.id === changeId)
 
-    await updateFieldChangeStatus(changeId, 'accepted')
+    await updateFieldChangeStatus({ changeId, status: 'accepted' })
 
     // Apply the accepted change to the form field
     if (change && change.newValue !== undefined) {
@@ -105,7 +105,7 @@ const acceptChange = async (changeId: string) => {
 }
 
 const rejectChange = async (changeId: string) => {
-  await updateFieldChangeStatus(changeId, 'rejected')
+  await updateFieldChangeStatus({ changeId, status: 'rejected' })
 }
 
 // Success Criteria management

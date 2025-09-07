@@ -8,11 +8,24 @@ import type {
   CreateChangeRequestCommentData,
   FieldChange,
   CreateFieldChangeData,
-  User,
 } from '../types/feature'
 
+interface MockUser {
+  id: string
+  email: string
+  user_metadata: { full_name: string }
+  created_at: string
+}
+
 // Mock data storage
-const mockData = {
+const mockData: {
+  users: MockUser[]
+  sessions: Map<string, any>
+  featureSpecs: FrontendFeatureSpec[]
+  changeRequests: ChangeRequest[]
+  changeRequestComments: any[]
+  fieldChanges: FieldChange[]
+} = {
   users: [
     {
       id: 'mock-user-1',
@@ -67,7 +80,18 @@ const mockData = {
         },
       ],
       coreInteractions: [
-        { id: 'int-1', interactionType: 'Click', description: 'Click on widget to expand details' },
+        {
+          id: 'int-1',
+          actionName: 'Click',
+          trigger: 'User clicks widget',
+          behavior: 'Expand details',
+          visualFeedback: 'Widget expands',
+          endState: 'Details visible',
+          loadingState: 'Loading...',
+          emptyState: 'No data',
+          errorStates: [],
+          businessRules: [],
+        },
       ],
       loadingStates: [],
       emptyStates: [],
@@ -106,6 +130,9 @@ const mockData = {
       technicalConstraints: [],
       businessRules: [],
       approvals: [],
+      createdAt: new Date('2024-01-15'),
+      updatedAt: new Date('2024-01-15'),
+      version: '1.0.0',
     },
     {
       id: 'mock-spec-2',
@@ -168,9 +195,42 @@ const mockData = {
         },
       ],
       coreInteractions: [
-        { id: 'int-2', interactionType: 'Form Input', description: 'Fill out profile form fields' },
-        { id: 'int-3', interactionType: 'Button Click', description: 'Save profile changes' },
-        { id: 'int-4', interactionType: 'File Upload', description: 'Upload profile picture' },
+        {
+          id: 'int-2',
+          actionName: 'Form Input',
+          trigger: 'User focuses field',
+          behavior: 'Enable input',
+          visualFeedback: 'Field highlights',
+          endState: 'Ready for input',
+          loadingState: 'Validating...',
+          emptyState: 'No data',
+          errorStates: [],
+          businessRules: [],
+        },
+        {
+          id: 'int-3',
+          actionName: 'Button Click',
+          trigger: 'User clicks save',
+          behavior: 'Save changes',
+          visualFeedback: 'Button pressed',
+          endState: 'Changes saved',
+          loadingState: 'Saving...',
+          emptyState: 'No data',
+          errorStates: [],
+          businessRules: [],
+        },
+        {
+          id: 'int-4',
+          actionName: 'File Upload',
+          trigger: 'User selects file',
+          behavior: 'Upload file',
+          visualFeedback: 'Progress bar',
+          endState: 'File uploaded',
+          loadingState: 'Uploading...',
+          emptyState: 'No file',
+          errorStates: [],
+          businessRules: [],
+        },
       ],
       loadingStates: [],
       emptyStates: [],
@@ -209,6 +269,9 @@ const mockData = {
       technicalConstraints: [],
       businessRules: [],
       approvals: [],
+      createdAt: new Date('2024-01-15'),
+      updatedAt: new Date('2024-01-15'),
+      version: '1.0.0',
     },
     {
       id: 'mock-spec-3',
@@ -271,9 +334,42 @@ const mockData = {
         },
       ],
       coreInteractions: [
-        { id: 'int-5', interactionType: 'Text Input', description: 'Type search query' },
-        { id: 'int-6', interactionType: 'Dropdown', description: 'Select filter options' },
-        { id: 'int-7', interactionType: 'Button Click', description: 'Clear all filters' },
+        {
+          id: 'int-5',
+          actionName: 'Text Input',
+          trigger: 'User types',
+          behavior: 'Process input',
+          visualFeedback: 'Text appears',
+          endState: 'Query ready',
+          loadingState: 'Processing...',
+          emptyState: 'No results',
+          errorStates: [],
+          businessRules: [],
+        },
+        {
+          id: 'int-6',
+          actionName: 'Dropdown',
+          trigger: 'User selects option',
+          behavior: 'Filter results',
+          visualFeedback: 'Option selected',
+          endState: 'Results filtered',
+          loadingState: 'Filtering...',
+          emptyState: 'No matches',
+          errorStates: [],
+          businessRules: [],
+        },
+        {
+          id: 'int-7',
+          actionName: 'Button Click',
+          trigger: 'User clicks clear',
+          behavior: 'Reset filters',
+          visualFeedback: 'Button pressed',
+          endState: 'Filters cleared',
+          loadingState: 'Clearing...',
+          emptyState: 'No data',
+          errorStates: [],
+          businessRules: [],
+        },
       ],
       loadingStates: [],
       emptyStates: [],
@@ -312,6 +408,9 @@ const mockData = {
       technicalConstraints: [],
       businessRules: [],
       approvals: [],
+      createdAt: new Date('2024-01-15'),
+      updatedAt: new Date('2024-01-15'),
+      version: '1.0.0',
     },
   ],
   changeRequests: [
@@ -512,7 +611,7 @@ const clearSessionFromStorage = () => {
   }
 }
 
-const createSession = (user: User) => {
+const createSession = (user: MockUser) => {
   const session = {
     access_token: `mock-token-${Date.now()}`,
     refresh_token: `mock-refresh-${Date.now()}`,
@@ -586,7 +685,7 @@ export const handlers = [
       return HttpResponse.json({ error: 'User already registered' }, { status: 400 })
     }
 
-    const user: User = {
+    const user: MockUser = {
       id: `mock-user-${Date.now()}`,
       email: body.email,
       user_metadata: { full_name: body.data?.full_name || body.email.split('@')[0] },
@@ -863,6 +962,9 @@ export const handlers = [
       technicalConstraints: body.technical_constraints || [],
       businessRules: body.business_rules || [],
       approvals: body.approvals || [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      version: body.version || '1.0.0',
     }
 
     mockData.featureSpecs.push(spec)
@@ -971,7 +1073,7 @@ export const handlers = [
       type: cr.type,
       status: cr.status,
       section: cr.section,
-      section_id: cr.sectionId,
+      section_id: cr.section,
       suggested_change: cr.suggestedChange,
       created_at: cr.createdAt,
       updated_at: cr.updatedAt,
@@ -991,7 +1093,7 @@ export const handlers = [
       id: `cr-${Date.now()}`,
       featureSpecId: body.feature_spec_id,
       userId: body.user_id,
-      userEmail: body.user_email,
+      userEmail: body.user_email || '',
       userName: body.user_name,
       title: body.title,
       description: body.description,
@@ -1068,7 +1170,7 @@ export const handlers = [
       id: `comment-${Date.now()}`,
       changeRequestId: body.change_request_id,
       userId: body.user_id,
-      userEmail: body.user_email,
+      userEmail: body.user_email || '',
       userName: body.user_name,
       content: body.content,
       createdAt: new Date(),
@@ -1116,7 +1218,7 @@ export const handlers = [
       fieldType: body.field_type,
       oldValue: body.old_value,
       newValue: body.new_value,
-      changeDescription: body.change_description,
+      changeDescription: body.change_description || '',
       authorId: body.author_id,
       authorEmail: body.author_email,
       status: 'pending',
@@ -1177,7 +1279,7 @@ export const handlers = [
     const url = new URL(request.url)
     const featureSpecId = url.searchParams.get('feature_spec_id')
 
-    let reviewers = []
+    let reviewers: any[] = []
     if (featureSpecId) {
       const spec = mockData.featureSpecs.find((s) => s.id === featureSpecId)
       reviewers = spec?.reviewers || []
@@ -1217,7 +1319,7 @@ export const handlers = [
     const url = new URL(request.url)
     const featureSpecId = url.searchParams.get('feature_spec_id')
 
-    let criteria = []
+    let criteria: any[] = []
     if (featureSpecId) {
       const spec = mockData.featureSpecs.find((s) => s.id === featureSpecId)
       criteria = spec?.successCriteria || []
@@ -1254,7 +1356,7 @@ export const handlers = [
     const url = new URL(request.url)
     const featureSpecId = url.searchParams.get('feature_spec_id')
 
-    let users = []
+    let users: any[] = []
     if (featureSpecId) {
       const spec = mockData.featureSpecs.find((s) => s.id === featureSpecId)
       users = spec?.targetUsers || []
@@ -1292,7 +1394,7 @@ export const handlers = [
     const url = new URL(request.url)
     const featureSpecId = url.searchParams.get('feature_spec_id')
 
-    let goals = []
+    let goals: any[] = []
     if (featureSpecId) {
       const spec = mockData.featureSpecs.find((s) => s.id === featureSpecId)
       goals = spec?.userGoals || []
@@ -1329,7 +1431,7 @@ export const handlers = [
     const url = new URL(request.url)
     const featureSpecId = url.searchParams.get('feature_spec_id')
 
-    let useCases = []
+    let useCases: any[] = []
     if (featureSpecId) {
       const spec = mockData.featureSpecs.find((s) => s.id === featureSpecId)
       useCases = spec?.useCases || []
@@ -1370,7 +1472,7 @@ export const handlers = [
     const url = new URL(request.url)
     const featureSpecId = url.searchParams.get('feature_spec_id')
 
-    let interactions = []
+    let interactions: any[] = []
     if (featureSpecId) {
       const spec = mockData.featureSpecs.find((s) => s.id === featureSpecId)
       interactions = spec?.coreInteractions || []

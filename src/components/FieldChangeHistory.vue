@@ -73,7 +73,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { FieldChange, FieldChangeStatus } from '../../types/feature'
+import type { FieldChange, FieldChangeStatus } from '../types/feature'
 
 interface Props {
   changes: FieldChange[]

@@ -243,11 +243,11 @@ export function useChangeRequests(featureSpecId: string) {
 
   // Computed properties
   const pendingRequests = computed(
-    () => changeRequests.value?.filter((req) => req.status === 'pending') || [],
+    () => changeRequests.value?.filter((req) => req.status === 'open') || [],
   )
 
   const approvedRequests = computed(
-    () => changeRequests.value?.filter((req) => req.status === 'approved') || [],
+    () => changeRequests.value?.filter((req) => req.status === 'accepted') || [],
   )
 
   const rejectedRequests = computed(

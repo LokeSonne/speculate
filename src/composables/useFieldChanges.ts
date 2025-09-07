@@ -15,12 +15,12 @@ export function useFieldChanges(featureSpecId: string) {
 
       // In test environment, return mock data instead of making real requests
       if (import.meta.env.MODE === 'test') {
-        const mockFieldChanges = [
+        const mockFieldChanges: FieldChange[] = [
           {
             id: 'fc-5',
             featureSpecId: 'mock-spec-2',
             fieldPath: 'featureName',
-            fieldType: 'string',
+            fieldType: 'string' as const,
             oldValue: 'User Profile Management',
             newValue: 'Advanced User Profile Management',
             changeDescription: 'Added "Advanced" to better describe the feature capabilities',
@@ -34,7 +34,7 @@ export function useFieldChanges(featureSpecId: string) {
             id: 'fc-6',
             featureSpecId: 'mock-spec-2',
             fieldPath: 'successCriteria.0.description',
-            fieldType: 'string',
+            fieldType: 'string' as const,
             oldValue: 'Users can update their profile information',
             newValue: 'Users can update their profile information with real-time validation',
             changeDescription: 'Added real-time validation requirement',

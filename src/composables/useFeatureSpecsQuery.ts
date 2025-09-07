@@ -28,8 +28,58 @@ const transformDbToFrontend = (dbData: any): FrontendFeatureSpec => {
     reviewers: dbData.reviewers || [],
     targetUsers: dbData.target_users || [],
     coreInteractions: dbData.core_interactions || [],
+    loadingStates: [],
+    emptyStates: [],
+    errorStates: [],
+    formBehavior: undefined,
+    layoutStructure: {
+      desktop: { breakpoint: '>1200px', description: '' },
+      tablet: { breakpoint: '768px-1200px', description: '' },
+      mobile: { breakpoint: '<768px', description: '' },
+    },
+    visualHierarchy: {
+      primaryElements: [],
+      secondaryElements: [],
+      tertiaryElements: [],
+    },
+    componentSpecs: [],
+    typographyContent: {
+      headlines: [],
+      bodyText: [],
+      labels: [],
+      errorMessages: [],
+      successMessages: [],
+      emptyStateText: [],
+    },
+    accessibilityRequirements: {
+      keyboardNavigation: {
+        tabOrder: [],
+        shortcuts: [],
+        focusManagement: [],
+      },
+      screenReaderSupport: {
+        labels: [],
+        announcements: [],
+        structure: [],
+      },
+      visualAccessibility: {
+        colorRequirements: [],
+        focusIndicators: [],
+        textScaling: [],
+      },
+    },
+    responsiveBehavior: {
+      breakpointTransitions: [],
+      touchInteractions: [],
+    },
+    animationRequirements: [],
+    edgeCases: [],
+    technicalConstraints: [],
+    businessRules: [],
+    approvals: [],
     createdAt: new Date(dbData.created_at || dbData.date || new Date()),
     updatedAt: new Date(dbData.updated_at || dbData.created_at || dbData.date || new Date()),
+    version: dbData.version || '1.0.0',
   }
 }
 

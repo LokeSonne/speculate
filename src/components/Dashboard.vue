@@ -87,10 +87,14 @@ const {
   featureSpecs,
   isLoading: loading,
   error,
-  refetch: fetchFeatureSpecs,
+  refetch,
   deleteSpec: deleteFeatureSpec,
   isDeleting,
 } = useFeatureSpecs()
+
+const fetchFeatureSpecs = () => {
+  refetch()
+}
 
 const handleCreateSpec = () => {
   router.push('/specs/create')

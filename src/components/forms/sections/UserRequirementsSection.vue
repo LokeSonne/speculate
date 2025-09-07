@@ -170,7 +170,7 @@ const acceptChange = async (changeId: string) => {
       getFieldChanges('userGoals').value.find((c) => c.id === changeId) ||
       getFieldChanges('useCases').value.find((c) => c.id === changeId)
 
-    await updateFieldChangeStatus(changeId, 'accepted')
+    await updateFieldChangeStatus({ changeId, status: 'accepted' })
 
     // Apply the accepted change to the form field
     if (change && change.newValue !== undefined) {
@@ -183,7 +183,7 @@ const acceptChange = async (changeId: string) => {
 
 const rejectChange = async (changeId: string) => {
   try {
-    await updateFieldChangeStatus(changeId, 'rejected')
+    await updateFieldChangeStatus({ changeId, status: 'rejected' })
   } catch (error) {
     console.error('Failed to reject change:', error)
   }
@@ -194,6 +194,7 @@ const addGoal = () => {
   const newGoal: UserGoal = {
     id: crypto.randomUUID(),
     description: '',
+    priority: 1,
   }
   const updatedGoals = [...props.data.userGoals, newGoal]
   emit('update', 'userGoals', updatedGoals)
@@ -219,6 +220,7 @@ const addUseCase = () => {
   const newUseCase: UseCase = {
     id: crypto.randomUUID(),
     name: '',
+    type: 'Primary',
     context: '',
     userAction: '',
     expectedOutcome: '',

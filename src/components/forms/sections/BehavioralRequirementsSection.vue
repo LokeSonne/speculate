@@ -240,12 +240,12 @@
               <div class="form-row">
                 <div class="form-group flex-1">
                   <textarea
-                    :value="rule.description"
+                    :value="rule.rule"
                     @input="
                       updateInteractionBusinessRule(
                         index,
                         ruleIndex,
-                        'description',
+                        'rule',
                         ($event.target as HTMLTextAreaElement).value,
                       )
                     "
@@ -283,7 +283,7 @@
 </template>
 
 <script setup lang="ts">
-import type { CoreInteraction } from '../../../types/feature'
+import type { CoreInteraction, ErrorState, BusinessRule } from '../../../types/feature'
 import Button from '../../ui/Button.vue'
 import DeleteIcon from '../../../icons/DeleteIcon.vue'
 
@@ -331,9 +331,9 @@ const updateInteraction = (index: number, field: keyof CoreInteraction, value: s
 
 // Interaction Error States management
 const addInteractionErrorState = (interactionIndex: number) => {
-  const newErrorState = {
+  const newErrorState: ErrorState = {
     id: crypto.randomUUID(),
-    type: '',
+    type: 'Network Error',
     trigger: '',
     message: '',
     recovery: '',
@@ -366,9 +366,10 @@ const updateInteractionErrorState = (
 
 // Interaction Business Rules management
 const addInteractionBusinessRule = (interactionIndex: number) => {
-  const newBusinessRule = {
+  const newBusinessRule: BusinessRule = {
     id: crypto.randomUUID(),
-    description: '',
+    rule: '',
+    impact: '',
   }
   const updatedInteractions = [...props.data.coreInteractions]
   updatedInteractions[interactionIndex].businessRules.push(newBusinessRule)
