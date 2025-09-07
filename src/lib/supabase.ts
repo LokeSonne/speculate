@@ -28,6 +28,9 @@ export const supabase = createClient(finalSupabaseUrl, finalSupabaseAnonKey, {
     persistSession: true,
     detectSessionInUrl: true,
   },
+  global: {
+    fetch: globalThis.fetch, // Use global fetch for MSW interception
+  },
 })
 
 // Database types will be generated here later

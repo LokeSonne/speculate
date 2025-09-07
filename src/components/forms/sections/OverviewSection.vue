@@ -25,7 +25,7 @@
         {{ errors.featureName }}
       </div>
       <FieldChangeHistory
-        v-if="featureSpecId"
+        v-if="featureSpecId && isEditing"
         :changes="getFieldChanges('featureName').value"
         :is-owner="true"
         :loading="loading"
@@ -53,7 +53,7 @@
         {{ errors.status }}
       </div>
       <FieldChangeHistory
-        v-if="featureSpecId"
+        v-if="featureSpecId && isEditing"
         :changes="getFieldChanges('status').value"
         :is-owner="true"
         :loading="loading"
@@ -78,7 +78,7 @@
         {{ errors.featureSummary }}
       </div>
       <FieldChangeHistory
-        v-if="featureSpecId"
+        v-if="featureSpecId && isEditing"
         :changes="getFieldChanges('featureSummary').value"
         :is-owner="true"
         :loading="loading"

@@ -23,7 +23,7 @@
       </div>
       <Button type="button" @click="addGoal" variant="secondary" size="sm">+ Add User Goal</Button>
       <FieldChangeHistory
-        v-if="featureSpecId"
+        v-if="featureSpecId && isEditing"
         :changes="getFieldChanges('userGoals').value"
         :is-owner="isOwner"
         :loading="loading"
@@ -113,7 +113,7 @@
         >+ Add Use Case</Button
       >
       <FieldChangeHistory
-        v-if="featureSpecId"
+        v-if="featureSpecId && isEditing"
         :changes="getFieldChanges('useCases').value"
         :is-owner="isOwner"
         :loading="loading"
@@ -138,6 +138,7 @@ interface Props {
   }
   featureSpecId?: string
   isOwner?: boolean
+  isEditing?: boolean
 }
 
 interface Emits {
@@ -147,6 +148,7 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
   isOwner: true,
+  isEditing: false,
 })
 
 const emit = defineEmits<Emits>()

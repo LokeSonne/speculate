@@ -44,6 +44,14 @@
       <Button type="button" @click="addSuccessCriteria" variant="secondary" size="sm">
         + Add Success Criteria
       </Button>
+      <FieldChangeHistory
+        v-if="featureSpecId && isEditing"
+        :changes="getFieldChanges('successCriteria').value"
+        :is-owner="isOwner"
+        :loading="loading"
+        @accept="acceptChange"
+        @reject="rejectChange"
+      />
     </div>
   </div>
 </template>
@@ -51,11 +59,17 @@
 <script setup lang="ts">
 import type { SuccessCriteria } from '../../../types/feature'
 import Button from '../../ui/Button.vue'
+import FieldChangeHistory from '../../FieldChangeHistory.vue'
+import { useFieldChanges } from '../../../composables/useFieldChanges'
+import { computed } from 'vue'
 
 interface Props {
   data: {
     successCriteria: SuccessCriteria[]
   }
+  featureSpecId?: string
+  isEditing?: boolean
+  isOwner?: boolean
 }
 
 interface Emits {
@@ -64,6 +78,27 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+
+// Field changes functionality
+const {
+  isLoading: loading,
+  getFieldChanges,
+  updateFieldChangeStatus,
+} = props.featureSpecId
+  ? useFieldChanges(props.featureSpecId)
+  : {
+      isLoading: computed(() => false),
+      getFieldChanges: () => computed(() => []),
+      updateFieldChangeStatus: async () => {},
+    }
+
+const acceptChange = async (changeId: string) => {
+  await updateFieldChangeStatus(changeId, 'accepted')
+}
+
+const rejectChange = async (changeId: string) => {
+  await updateFieldChangeStatus(changeId, 'rejected')
+}
 
 // Success Criteria management
 const addSuccessCriteria = () => {

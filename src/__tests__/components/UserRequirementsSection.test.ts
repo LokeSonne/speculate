@@ -93,6 +93,7 @@ describe('UserRequirementsSection', () => {
     },
     featureSpecId: 'spec-1',
     isOwner: true,
+    isEditing: true,
   }
 
   beforeEach(async () => {

@@ -1142,6 +1142,7 @@ export const handlers = [
     const fieldPath = url.searchParams.get('field_path')
 
     console.log('🔍 Mock API: Field changes request', { featureSpecId, fieldPath })
+    console.log('🔍 Mock API: Request URL:', request.url)
     console.log('🔍 Mock API: All field changes', mockData.fieldChanges)
 
     // Log all field paths in the data

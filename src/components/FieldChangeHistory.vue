@@ -25,6 +25,10 @@
               <span class="change-label">Previous:</span>
               <span class="change-text old-value">{{ formatValue(change?.oldValue) }}</span>
             </div>
+            <div v-if="change?.changeDescription" class="change-description">
+              <span class="change-label">Description:</span>
+              <span class="change-text">{{ change.changeDescription }}</span>
+            </div>
           </div>
 
           <!-- Owner controls -->
@@ -175,7 +179,8 @@ const formatDate = (dateString: string): string => {
 }
 
 .change-value,
-.change-old {
+.change-old,
+.change-description {
   margin-bottom: var(--spacing-1);
 }
 

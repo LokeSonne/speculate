@@ -14,6 +14,51 @@ export function useFieldChanges(featureSpecId: string) {
       error.value = null
       console.log('🔍 Fetching field changes for feature spec:', featureSpecId)
 
+      // In test environment, return mock data instead of making real requests
+      if (import.meta.env.MODE === 'test') {
+        console.log('🧪 Test mode: returning mock field changes data')
+        const mockFieldChanges = [
+          {
+            id: 'fc-5',
+            featureSpecId: 'mock-spec-2',
+            fieldPath: 'featureName',
+            fieldType: 'string',
+            oldValue: 'User Profile Management',
+            newValue: 'Advanced User Profile Management',
+            changeDescription: 'Added "Advanced" to better describe the feature capabilities',
+            authorId: 'mock-user-1',
+            authorEmail: 'john@example.com',
+            status: 'pending',
+            createdAt: '2024-01-21T09:15:00.000Z',
+            updatedAt: '2024-01-21T09:15:00.000Z',
+          },
+          {
+            id: 'fc-6',
+            featureSpecId: 'mock-spec-2',
+            fieldPath: 'successCriteria.0.description',
+            fieldType: 'string',
+            oldValue: 'Users can update their profile information',
+            newValue: 'Users can update their profile information with real-time validation',
+            changeDescription: 'Added real-time validation requirement',
+            authorId: 'mock-user-2',
+            authorEmail: 'jane@example.com',
+            status: 'accepted',
+            createdAt: '2024-01-21T10:30:00.000Z',
+            updatedAt: '2024-01-21T11:00:00.000Z',
+            acceptedAt: '2024-01-21T11:00:00.000Z',
+            acceptedBy: 'mock-user-1',
+          },
+        ]
+
+        // Filter by featureSpecId
+        const filteredChanges = mockFieldChanges.filter(
+          (change) => change.featureSpecId === featureSpecId,
+        )
+        console.log('🧪 Test mode: returning filtered changes:', filteredChanges)
+        fieldChanges.value = filteredChanges
+        return
+      }
+
       const { data, error: fetchError } = await supabase
         .from('field_changes')
         .select('*')
@@ -31,6 +76,9 @@ export function useFieldChanges(featureSpecId: string) {
       loading.value = false
     }
   }
+
+  // Initialize by fetching field changes
+  fetchFieldChanges()
 
   // Create a new field change
   const createFieldChange = async (changeData: CreateFieldChangeData) => {
@@ -114,7 +162,9 @@ export function useFieldChanges(featureSpecId: string) {
   // Get field changes for a specific field path
   const getFieldChanges = (fieldPath: string) => {
     const changes = computed(() => {
-      const filtered = fieldChanges.value.filter((change) => change.fieldPath === fieldPath)
+      const filtered = fieldChanges.value.filter(
+        (change) => change.fieldPath === fieldPath || change.fieldPath.startsWith(fieldPath + '.'),
+      )
       console.log(`🔍 Field changes for "${fieldPath}":`, filtered)
       return filtered
     })

@@ -12,8 +12,8 @@ const isMockMode = import.meta.env.VITE_USE_MOCK_API === 'true'
 
 // Initialize auth state
 if (isMockMode) {
-  // In mock mode, try to get session with a delay to allow MSW to initialize
-  setTimeout(async () => {
+  // In mock mode, try to get session immediately
+  const initializeAuth = async () => {
     try {
       console.log('🔍 useAuth: Getting initial session...')
       const {
@@ -45,7 +45,14 @@ if (isMockMode) {
       console.warn('Failed to initialize auth in mock mode:', error)
       loading.value = false
     }
-  }, 100)
+  }
+
+  // In test environment, run immediately. In dev, use a small delay for MSW
+  if (import.meta.env.MODE === 'test') {
+    initializeAuth()
+  } else {
+    setTimeout(initializeAuth, 100)
+  }
 } else {
   // Real Supabase mode
   supabase.auth.getSession().then(({ data: { session: initialSession } }) => {

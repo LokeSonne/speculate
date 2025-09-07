@@ -346,7 +346,7 @@ describe('OverviewSection with Field Changes', () => {
       expect(summaryTextarea.attributes('readonly')).toBeUndefined()
     })
 
-    it('shows field changes in read-only mode', () => {
+    it('does NOT show field changes in read-only mode', () => {
       const propsReadOnly = {
         ...defaultProps,
         isEditing: false,
@@ -357,7 +357,7 @@ describe('OverviewSection with Field Changes', () => {
       })
 
       const fieldChangeHistory = wrapper.findComponent(FieldChangeHistory)
-      expect(fieldChangeHistory.exists()).toBe(true)
+      expect(fieldChangeHistory.exists()).toBe(false)
     })
   })
 

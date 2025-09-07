@@ -25,6 +25,7 @@
         }"
         :feature-spec-id="props.initialData.id"
         :is-owner="true"
+        :is-editing="props.isEditing"
         @update="updateFormField"
         @field-change="handleFieldChange"
       />
@@ -42,6 +43,9 @@
         :data="{
           successCriteria: formData.successCriteria,
         }"
+        :feature-spec-id="props.initialData.id"
+        :is-owner="true"
+        :is-editing="props.isEditing"
         @update="updateFormField"
       />
 
