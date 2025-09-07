@@ -115,12 +115,6 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-console.log('🔍 OverviewSection props:', {
-  featureSpecId: props.featureSpecId,
-  isEditing: props.isEditing,
-  data: props.data,
-})
-
 // Field changes functionality
 const {
   isLoading: loading,
@@ -144,7 +138,6 @@ const updateField = (field: string, value: string) => {
 
 // Apply accepted field change without triggering field-change event
 const applyAcceptedChange = (field: string, value: string) => {
-  console.log('🎯 applyAcceptedChange called:', { field, value })
   console.trace('Call stack for applyAcceptedChange')
   emit('apply-accepted-change', field, value)
   // Note: Do not emit 'field-change' event for accepted changes to prevent form submission
@@ -158,22 +151,12 @@ const acceptChange = async (changeId: string) => {
       getFieldChanges('status').value.find((c) => c.id === changeId) ||
       getFieldChanges('featureSummary').value.find((c) => c.id === changeId)
 
-    console.log('🔄 Accepting change:', { changeId, change })
-
     await updateFieldChangeStatus({ changeId, status: 'accepted' })
 
     // Apply the accepted change to the form field
     if (change && change.newValue !== undefined) {
-      console.log(
-        '✅ Applying accepted change to form field:',
-        change.fieldPath,
-        '=',
-        change.newValue,
-      )
       applyAcceptedChange(change.fieldPath, change.newValue)
     }
-
-    console.log('✅ Change accepted and applied to form field - no navigation should occur')
   } catch (error) {
     console.error('Failed to accept change:', error)
   }

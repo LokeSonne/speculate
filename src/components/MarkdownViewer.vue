@@ -28,13 +28,8 @@ const markdownService = new MarkdownService()
 
 const markdownHtml = computed(() => {
   try {
-    console.log('🔍 MarkdownViewer: Generating markdown for spec:', props.spec?.featureName)
-
     // Generate markdown content from the spec
     const { content } = markdownService.exportSpec(props.spec)
-
-    console.log('📝 MarkdownViewer: Generated content length:', content?.length || 0)
-    console.log('📝 MarkdownViewer: Content preview:', content?.substring(0, 200) || 'No content')
 
     if (!content) {
       console.error('❌ MarkdownViewer: No content generated')

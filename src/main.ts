@@ -11,7 +11,6 @@ if (import.meta.env.DEV) {
   await startMockServiceWorker()
 
   // Initialize mock authentication helper in development
-  console.log('🔧 Initializing mock auth in development mode')
   await import('./lib/mockAuth')
 }
 

@@ -145,7 +145,6 @@ const { formData, errors, isSubmitting, isValid, updateField } = useFeatureSpecF
 const handleSubmit = async () => {
   // Don't submit if we're applying an accepted change
   if (isApplyingAcceptedChange.value) {
-    console.log('🚫 Preventing form submission - applying accepted change')
     return
   }
 
@@ -161,14 +160,12 @@ const handleCancel = () => {
 
 // Generic form field update handler
 const updateFormField = (field: string, value: unknown) => {
-  console.log('🔄 updateFormField called:', { field, value })
   console.trace('Call stack for updateFormField')
   updateField(field, value)
 }
 
 // Handle field changes for collaborative editing
 const handleFieldChange = async (fieldPath: string, oldValue: unknown, newValue: unknown) => {
-  console.log('🚨 handleFieldChange called:', { fieldPath, oldValue, newValue })
   console.trace('Call stack for handleFieldChange')
 
   if (!props.isEditing || !props.initialData.id) return
@@ -182,7 +179,6 @@ const handleFieldChange = async (fieldPath: string, oldValue: unknown, newValue:
       newValue,
       changeDescription: `Changed ${fieldPath} from "${oldValue}" to "${newValue}"`,
     })
-    console.log('✅ Created new field change for:', fieldPath)
   } catch (error) {
     console.error('Failed to create field change:', error)
   }
@@ -196,7 +192,6 @@ watch(
   formData,
   () => {
     if (isApplyingAcceptedChange.value) {
-      console.log('🔄 Form data changed, resetting apply accepted change flag')
       isApplyingAcceptedChange.value = false
     }
   },
@@ -205,7 +200,6 @@ watch(
 
 // Special handler for applying accepted changes without triggering form submission
 const applyAcceptedChange = (field: string, value: unknown) => {
-  console.log('🎯 applyAcceptedChange called:', { field, value })
   isApplyingAcceptedChange.value = true
   updateField(field, value)
 }

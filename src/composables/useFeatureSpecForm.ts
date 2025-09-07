@@ -117,8 +117,6 @@ export function useFeatureSpecForm(initialData?: Partial<FeatureSpecFormData>) {
 
   // Helper function to update form fields
   const updateField = (fieldPath: string, value: unknown) => {
-    console.log('🔄 updateField called:', { fieldPath, value })
-
     // Handle nested field updates (e.g., 'approvals.design.visualDesign')
     if (fieldPath.includes('.')) {
       const keys = fieldPath.split('.')

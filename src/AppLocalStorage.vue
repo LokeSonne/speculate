@@ -13,7 +13,6 @@ const handleCreateSpec = () => {
 const handleFormSubmit = (data: FeatureSpecFormData) => {
   featureSpecs.value.push(data)
   showForm.value = false
-  console.log('Feature spec created:', data)
 }
 
 const handleFormCancel = () => {

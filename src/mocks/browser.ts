@@ -12,14 +12,12 @@ export const startMockServiceWorker = async () => {
     import.meta.env.MODE === 'test' ||
     !import.meta.env.VITE_SUPABASE_URL
   ) {
-    console.log('🚀 Starting Mock Service Worker...')
     await worker.start({
       onUnhandledRequest: 'warn',
       serviceWorker: {
         url: '/mockServiceWorker.js',
       },
     })
-    console.log('✅ Mock Service Worker started')
   }
 }
 

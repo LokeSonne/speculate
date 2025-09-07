@@ -193,7 +193,6 @@ describe('Real-World Edit Suggestions Integration', () => {
 
       // This should FAIL - FieldChangeHistory should NOT be found
       const overviewFieldChangeHistories = overviewSection.findAllComponents(FieldChangeHistory)
-      console.log('🔍 Overview FieldChangeHistory count:', overviewFieldChangeHistories.length)
 
       // This assertion should FAIL because edit suggestions are not displaying
       expect(overviewFieldChangeHistories.length).toBe(0) // Should be 0, not > 0
@@ -207,10 +206,6 @@ describe('Real-World Edit Suggestions Integration', () => {
       // This should FAIL - FieldChangeHistory should NOT be found
       const userReqFieldChangeHistories =
         userRequirementsSection.findAllComponents(FieldChangeHistory)
-      console.log(
-        '🔍 UserRequirements FieldChangeHistory count:',
-        userReqFieldChangeHistories.length,
-      )
 
       // This assertion should FAIL because edit suggestions are not displaying
       expect(userReqFieldChangeHistories.length).toBe(0) // Should be 0, not > 0
@@ -237,15 +232,12 @@ describe('Real-World Edit Suggestions Integration', () => {
 
       // This should PASS - FieldChangeHistory should be found
       const overviewFieldChangeHistories = overviewSection.findAllComponents(FieldChangeHistory)
-      console.log('🔍 Overview FieldChangeHistory count:', overviewFieldChangeHistories.length)
 
       // This assertion should PASS if edit suggestions are working
       expect(overviewFieldChangeHistories.length).toBeGreaterThan(0)
 
       // Check that the FieldChangeHistory components are actually visible
       overviewFieldChangeHistories.forEach((fch, index) => {
-        console.log(`🔍 Overview FCH ${index} exists:`, fch.exists())
-        console.log(`🔍 Overview FCH ${index} visible:`, fch.isVisible())
         expect(fch.exists()).toBe(true)
         expect(fch.isVisible()).toBe(true)
       })
@@ -337,8 +329,6 @@ describe('Real-World Edit Suggestions Integration', () => {
       expect(overviewSection.exists()).toBe(true)
 
       // Log the component's state for debugging
-      console.log('🔍 OverviewSection props:', overviewSection.props())
-      console.log('🔍 OverviewSection HTML:', overviewSection.html())
     })
   })
 })

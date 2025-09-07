@@ -88,9 +88,6 @@ interface Emits {
 
 const props = defineProps<Props>()
 
-console.log('🔍 FieldChangeHistory received changes:', props.changes)
-console.log('🔍 FieldChangeHistory isOwner:', props.isOwner)
-console.log('🔍 FieldChangeHistory loading:', props.loading)
 const emit = defineEmits<Emits>()
 
 const acceptChange = (changeId: string) => {

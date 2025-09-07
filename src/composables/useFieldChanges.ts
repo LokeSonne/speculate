@@ -12,11 +12,9 @@ export function useFieldChanges(featureSpecId: string) {
     try {
       loading.value = true
       error.value = null
-      console.log('🔍 Fetching field changes for feature spec:', featureSpecId)
 
       // In test environment, return mock data instead of making real requests
       if (import.meta.env.MODE === 'test') {
-        console.log('🧪 Test mode: returning mock field changes data')
         const mockFieldChanges = [
           {
             id: 'fc-5',
@@ -54,7 +52,6 @@ export function useFieldChanges(featureSpecId: string) {
         const filteredChanges = mockFieldChanges.filter(
           (change) => change.featureSpecId === featureSpecId,
         )
-        console.log('🧪 Test mode: returning filtered changes:', filteredChanges)
         fieldChanges.value = filteredChanges
         return
       }
@@ -67,7 +64,6 @@ export function useFieldChanges(featureSpecId: string) {
 
       if (fetchError) throw fetchError
 
-      console.log('📊 Field changes fetched:', data)
       fieldChanges.value = data || []
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch field changes'
@@ -165,7 +161,6 @@ export function useFieldChanges(featureSpecId: string) {
       const filtered = fieldChanges.value.filter(
         (change) => change.fieldPath === fieldPath || change.fieldPath.startsWith(fieldPath + '.'),
       )
-      console.log(`🔍 Field changes for "${fieldPath}":`, filtered)
       return filtered
     })
     return changes

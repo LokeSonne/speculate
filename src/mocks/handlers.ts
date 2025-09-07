@@ -563,7 +563,6 @@ const authenticateRequest = (request: Request) => {
 const initializeSessions = () => {
   const storedSession = getSessionFromStorage()
   if (storedSession) {
-    console.log('🔄 Restoring session from localStorage:', storedSession.user.email)
     mockData.sessions.set(storedSession.user.id, storedSession)
   }
 }
@@ -612,17 +611,12 @@ export const handlers = [
     await delay(500)
     const body = (await request.json()) as { email: string; password: string }
 
-    console.log('🔐 Sign-in attempt for:', body.email)
-
     const user = mockData.users.find((u) => u.email === body.email)
     if (!user) {
-      console.log('❌ User not found:', body.email)
       return HttpResponse.json({ error: 'Invalid credentials' }, { status: 400 })
     }
 
     const session = createSession(user)
-    console.log('✅ Sign-in successful, created session:', session.access_token)
-    console.log('📤 Returning response:', { user, session })
 
     // Return the response in the exact format Supabase expects
     return HttpResponse.json({
@@ -668,7 +662,6 @@ export const handlers = [
   http.post('*/auth/v1/recover', async ({ request }) => {
     await delay(500)
     const body = (await request.json()) as { email: string }
-    console.log(`Password reset email sent to ${body.email}`)
     return HttpResponse.json({})
   }),
 
@@ -677,11 +670,9 @@ export const handlers = [
 
     const session = authenticateRequest(request)
     if (!session) {
-      console.log('❌ Auth failed: Invalid token')
       return HttpResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
-    console.log('✅ Auth successful for user:', session.user.email)
     return HttpResponse.json({ user: session.user })
   }),
 
@@ -690,17 +681,14 @@ export const handlers = [
     await delay(100)
 
     const url = new URL(request.url)
-    console.log('🔍 Auth GET request to:', url.pathname)
 
     // Handle getSession specifically
     if (url.pathname.includes('/auth/v1/session') || url.pathname.endsWith('/auth/v1/')) {
       const session = authenticateRequest(request)
       if (!session) {
-        console.log('🔍 getSession: No valid session found')
         return HttpResponse.json({ session: null })
       }
 
-      console.log('🔍 getSession: Returning session for user:', session.user.email)
       return HttpResponse.json({ session })
     }
 
@@ -740,7 +728,6 @@ export const handlers = [
     const idFilter = url.searchParams.get('id')
     if (idFilter && idFilter.startsWith('eq.')) {
       const specId = idFilter.replace('eq.', '')
-      console.log('🔍 GET individual feature_spec called for ID:', specId)
 
       const spec = mockData.featureSpecs.find((s) => s.id === specId)
       if (!spec) {
@@ -776,13 +763,6 @@ export const handlers = [
         updated_at: spec.date?.toISOString() || new Date().toISOString(),
       }
 
-      console.log('📡 GET individual feature_spec returning:', {
-        id: transformedSpec.id,
-        feature_name: transformedSpec.feature_name,
-        author: transformedSpec.author,
-        status: transformedSpec.status,
-      })
-
       return HttpResponse.json(transformedSpec)
     }
 
@@ -816,19 +796,8 @@ export const handlers = [
       updated_at: spec.date?.toISOString() || new Date().toISOString(),
     }))
 
-    console.log(
-      '📡 GET feature_specs called, returning:',
-      specs.map((s) => ({ id: s.id, name: s.feature_name })),
-    )
-
     // Log the first spec in detail to see the structure
     if (specs.length > 0) {
-      console.log('🔍 First spec detail:', {
-        id: specs[0].id,
-        feature_name: specs[0].feature_name,
-        author: specs[0].author,
-        status: specs[0].status,
-      })
     }
 
     return HttpResponse.json(specs)
@@ -916,28 +885,10 @@ export const handlers = [
     // Use queryId if it exists and is not the table name, otherwise use pathId
     const finalId = queryId && queryId !== 'feature_specs' ? queryId : pathId
 
-    console.log('🔧 PATCH feature_specs called:', {
-      url: url.pathname,
-      pathId: pathId,
-      queryId,
-      finalId,
-      body,
-    })
-
     const index = mockData.featureSpecs.findIndex((spec) => spec.id === finalId)
     if (index === -1) {
-      console.log('❌ Feature spec not found:', finalId)
       return HttpResponse.json({ error: 'Feature spec not found' }, { status: 404 })
     }
-
-    console.log(
-      '📝 Updating feature spec at index:',
-      index,
-      'from:',
-      mockData.featureSpecs[index].featureName,
-      'to:',
-      body.feature_name,
-    )
 
     // Update the spec
     const updatedSpec = {
@@ -978,12 +929,6 @@ export const handlers = [
     }
 
     mockData.featureSpecs[index] = updatedSpec
-
-    console.log('✅ Feature spec updated successfully:', updatedSpec.featureName)
-    console.log(
-      '📊 Current mock data:',
-      mockData.featureSpecs.map((s) => ({ id: s.id, name: s.featureName })),
-    )
 
     return HttpResponse.json([updatedSpec])
   }),
@@ -1141,40 +1086,28 @@ export const handlers = [
     const featureSpecId = url.searchParams.get('feature_spec_id')?.replace('eq.', '')
     const fieldPath = url.searchParams.get('field_path')
 
-    console.log('🔍 Mock API: Field changes request', { featureSpecId, fieldPath })
-    console.log('🔍 Mock API: Request URL:', request.url)
-    console.log('🔍 Mock API: All field changes', mockData.fieldChanges)
-
     // Log all field paths in the data
     const allFieldPaths = mockData.fieldChanges.map((c) => c.fieldPath)
-    console.log('🔍 Mock API: All field paths in data:', allFieldPaths)
 
     let changes = mockData.fieldChanges
 
     if (featureSpecId) {
       changes = changes.filter((change) => change.featureSpecId === featureSpecId)
-      console.log('🔍 Mock API: Filtered by featureSpecId', changes)
 
       // Log field paths for this specific feature spec
       const specFieldPaths = changes.map((c) => c.fieldPath)
-      console.log('🔍 Mock API: Field paths for this spec:', specFieldPaths)
     }
 
     if (fieldPath) {
-      console.log('🔍 Mock API: Searching for fieldPath:', fieldPath)
       changes = changes.filter((change) => change.fieldPath === fieldPath)
-      console.log('🔍 Mock API: Filtered by fieldPath', changes)
     }
 
-    console.log('🔍 Mock API: Returning field changes', changes)
     return HttpResponse.json(changes)
   }),
 
   http.post('*/rest/v1/field_changes', async ({ request }) => {
     await delay(300)
     const body = (await request.json()) as any
-
-    console.log('🔧 POST field_changes called with body:', body)
 
     const change: FieldChange = {
       id: `fc-${Date.now()}`,
@@ -1193,9 +1126,6 @@ export const handlers = [
 
     mockData.fieldChanges.push(change)
 
-    console.log('✅ Field change created:', change)
-    console.log('📊 Total field changes now:', mockData.fieldChanges.length)
-
     return HttpResponse.json(change)
   }),
 
@@ -1205,23 +1135,14 @@ export const handlers = [
     const idParam = url.searchParams.get('id')
     const body = (await request.json()) as any
 
-    console.log('🔧 PATCH field_changes called:', { idParam, body })
-
     // Handle Supabase query format: id=eq.{value}
     let changeId = idParam
     if (idParam?.startsWith('eq.')) {
       changeId = idParam.replace('eq.', '')
     }
 
-    console.log('🔍 Looking for field change with ID:', changeId)
-
     const changeIndex = mockData.fieldChanges.findIndex((change) => change.id === changeId)
     if (changeIndex === -1) {
-      console.log('❌ Field change not found:', changeId)
-      console.log(
-        '🔍 Available field changes:',
-        mockData.fieldChanges.map((c) => c.id),
-      )
       return HttpResponse.json({ error: 'Field change not found' }, { status: 404 })
     }
 
@@ -1233,7 +1154,6 @@ export const handlers = [
     }
 
     mockData.fieldChanges[changeIndex] = updatedChange
-    console.log('✅ Field change updated:', updatedChange)
     return HttpResponse.json(updatedChange)
   }),
 

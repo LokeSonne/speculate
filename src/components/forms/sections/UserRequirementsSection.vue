@@ -165,8 +165,6 @@ const {
 // Handle field change acceptance/rejection
 const acceptChange = async (changeId: string) => {
   try {
-    console.log('🔄 UserRequirements: Accepting change:', changeId)
-
     // Find the change being accepted
     const change =
       getFieldChanges('userGoals').value.find((c) => c.id === changeId) ||
@@ -176,18 +174,8 @@ const acceptChange = async (changeId: string) => {
 
     // Apply the accepted change to the form field
     if (change && change.newValue !== undefined) {
-      console.log(
-        '✅ UserRequirements: Applying accepted change to form field:',
-        change.fieldPath,
-        '=',
-        change.newValue,
-      )
       emit('apply-accepted-change', change.fieldPath, change.newValue)
     }
-
-    console.log(
-      '✅ UserRequirements: Change accepted and applied to form field - no navigation should occur',
-    )
   } catch (error) {
     console.error('Failed to accept change:', error)
   }

@@ -170,19 +170,15 @@ describe('Real-World Edit Suggestions - SHOULD FAIL', () => {
 
       // Get all FieldChangeHistory components
       const overviewFieldChangeHistories = overviewSection.findAllComponents(FieldChangeHistory)
-      console.log('🔍 Overview FieldChangeHistory count:', overviewFieldChangeHistories.length)
 
       // Check if any FieldChangeHistory components actually show field changes
       let hasFieldChanges = false
       overviewFieldChangeHistories.forEach((fch, index) => {
         const changes = fch.props('changes')
-        console.log(`🔍 Overview FCH ${index} changes:`, changes)
         if (changes && changes.length > 0) {
           hasFieldChanges = true
         }
       })
-
-      console.log('🔍 Overview hasFieldChanges:', hasFieldChanges)
 
       // This assertion SHOULD PASS because edit suggestions are now displaying
       expect(hasFieldChanges).toBe(true) // This should be true and now is true!
@@ -195,16 +191,11 @@ describe('Real-World Edit Suggestions - SHOULD FAIL', () => {
 
       const successCriteriaFieldChangeHistories =
         successCriteriaSection.findAllComponents(FieldChangeHistory)
-      console.log(
-        '🔍 SuccessCriteria FieldChangeHistory count:',
-        successCriteriaFieldChangeHistories.length,
-      )
 
       // Check if any SuccessCriteria FieldChangeHistory components show field changes
       let successCriteriaHasFieldChanges = false
       successCriteriaFieldChangeHistories.forEach((fch, index) => {
         const changes = fch.props('changes')
-        console.log(`🔍 SuccessCriteria FCH ${index} changes:`, changes)
         if (changes && changes.length > 0) {
           successCriteriaHasFieldChanges = true
         }
@@ -348,14 +339,10 @@ describe('Real-World Edit Suggestions - SHOULD FAIL', () => {
 
       // Log the component's state for debugging
       const overviewSection = wrapper.findComponent(OverviewSection)
-      console.log('🔍 OverviewSection props:', overviewSection.props())
 
       // Check if the component is making API calls
       const fieldChangeHistories = overviewSection.findAllComponents(FieldChangeHistory)
-      fieldChangeHistories.forEach((fch, index) => {
-        console.log(`🔍 FCH ${index} props:`, fch.props())
-        console.log(`🔍 FCH ${index} HTML:`, fch.html())
-      })
+      fieldChangeHistories.forEach((fch, index) => {})
     })
   })
 })

@@ -328,26 +328,14 @@ describe('Edit Suggestions Display Integration', () => {
       const overviewSection = wrapper.findComponent(OverviewSection)
       const userRequirementsSection = wrapper.findComponent(UserRequirementsSection)
 
-      console.log('OverviewSection props:', overviewSection.props())
-      console.log('UserRequirementsSection props:', userRequirementsSection.props())
-
       // Log the FieldChangeHistory components
       const overviewFieldChangeHistories = overviewSection.findAllComponents(FieldChangeHistory)
       const userReqFieldChangeHistories =
         userRequirementsSection.findAllComponents(FieldChangeHistory)
 
-      console.log('Overview FieldChangeHistory count:', overviewFieldChangeHistories.length)
-      console.log('UserRequirements FieldChangeHistory count:', userReqFieldChangeHistories.length)
+      overviewFieldChangeHistories.forEach((fch, index) => {})
 
-      overviewFieldChangeHistories.forEach((fch, index) => {
-        console.log(`Overview FCH ${index} props:`, fch.props())
-        console.log(`Overview FCH ${index} visible:`, fch.isVisible())
-      })
-
-      userReqFieldChangeHistories.forEach((fch, index) => {
-        console.log(`UserReq FCH ${index} props:`, fch.props())
-        console.log(`UserReq FCH ${index} visible:`, fch.isVisible())
-      })
+      userReqFieldChangeHistories.forEach((fch, index) => {})
 
       consoleSpy.mockRestore()
     })

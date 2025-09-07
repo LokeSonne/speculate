@@ -41,12 +41,8 @@ const transformFieldChange = (dbChange: Record<string, unknown>): FieldChange =>
 
 // API functions
 const fetchFieldChanges = async (featureSpecId: string): Promise<FieldChange[]> => {
-  console.log('🔍 fetchFieldChanges called with featureSpecId:', featureSpecId)
-  console.log('🔍 fetchFieldChanges mode:', import.meta.env.MODE)
-  console.log('🔍 fetchFieldChanges useMockApi:', import.meta.env.VITE_USE_MOCK_API)
   // In test environment, return mock data instead of making real requests
   if (import.meta.env.MODE === 'test') {
-    console.log('🧪 Test mode: returning mock field changes data')
     const mockFieldChanges: FieldChange[] = [
       {
         id: 'fc-5',
@@ -84,7 +80,6 @@ const fetchFieldChanges = async (featureSpecId: string): Promise<FieldChange[]> 
     const filteredChanges = mockFieldChanges.filter(
       (change) => change.featureSpecId === featureSpecId,
     )
-    console.log('🧪 Test mode: returning filtered changes:', filteredChanges)
     return filteredChanges
   }
 
@@ -95,15 +90,12 @@ const fetchFieldChanges = async (featureSpecId: string): Promise<FieldChange[]> 
       .eq('feature_spec_id', featureSpecId)
       .order('created_at', { ascending: false })
 
-    console.log('🔍 fetchFieldChanges response:', { data, error })
-
     if (error) {
       console.error('❌ fetchFieldChanges error:', error)
       throw error
     }
 
     const result = (data || []).map(transformFieldChange)
-    console.log('🔍 fetchFieldChanges transformed result:', result)
 
     // Debug: Check for any field changes with undefined fieldPath
     const invalidChanges = result.filter((change) => !change.fieldPath)
@@ -215,14 +207,6 @@ export function useFieldChanges(featureSpecId: string) {
           ? hasFeatureSpecId
           : Boolean(isAuthenticated.value && hasFeatureSpecId)
 
-      console.log('🔍 useFieldChangesQuery enabled check:', {
-        mode: import.meta.env.MODE,
-        featureSpecId,
-        hasFeatureSpecId,
-        isAuthenticated: isAuthenticated.value,
-        enabled,
-      })
-
       return enabled
     }),
   })
@@ -257,7 +241,6 @@ export function useFieldChanges(featureSpecId: string) {
   const getFieldChanges = (fieldPath: string) => {
     return computed(() => {
       if (!fieldChanges.value) {
-        console.log('🔍 getFieldChanges: no fieldChanges data for fieldPath:', fieldPath)
         return []
       }
 
@@ -266,12 +249,6 @@ export function useFieldChanges(featureSpecId: string) {
           change.fieldPath &&
           (change.fieldPath === fieldPath || change.fieldPath.startsWith(fieldPath + '.')),
       )
-
-      console.log('🔍 getFieldChanges:', {
-        fieldPath,
-        allFieldChanges: fieldChanges.value,
-        filteredChanges: filtered,
-      })
 
       return filtered
     })

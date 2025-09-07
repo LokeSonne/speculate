@@ -15,13 +15,6 @@ if (!useMockApi && (!supabaseUrl || !supabaseAnonKey)) {
   throw new Error('Missing Supabase environment variables. Please check your .env file.')
 }
 
-console.log('🔧 Supabase config:', {
-  useMockApi,
-  finalSupabaseUrl,
-  hasAnonKey: !!finalSupabaseAnonKey,
-  DEV: import.meta.env.DEV,
-})
-
 export const supabase = createClient(finalSupabaseUrl, finalSupabaseAnonKey, {
   auth: {
     autoRefreshToken: true,

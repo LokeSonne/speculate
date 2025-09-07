@@ -35,7 +35,6 @@ export class MockAuthHelper {
         await supabase.auth.setSession(data.session)
       }
 
-      console.log('✅ Auto-logged in as:', data.user?.email)
       return true
     } catch (error) {
       console.warn('Auto-login error:', error)
@@ -58,7 +57,6 @@ export class MockAuthHelper {
     try {
       await supabase.auth.signOut()
       this.currentUser = null
-      console.log('✅ Logged out')
     } catch (error) {
       console.warn('Logout error:', error)
     }
@@ -82,7 +80,6 @@ export class MockAuthHelper {
         return false
       }
 
-      console.log('✅ Created test user:', data.user?.email)
       return true
     } catch (error) {
       console.warn('Create user error:', error)
@@ -105,5 +102,4 @@ export const mockAuth = MockAuthHelper.getInstance()
 // Auto-setup for development
 if (import.meta.env.DEV && import.meta.env.VITE_USE_MOCK_API === 'true') {
   // Auto-login is now handled in useAuth composable
-  console.log('🔐 Mock Auth Helper initialized')
 }

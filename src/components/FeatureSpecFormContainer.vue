@@ -42,13 +42,6 @@ const { createFieldChangeAsync } = useFieldChanges(
   props.mode === 'edit' ? (route.params.id as string) : '',
 )
 
-console.log('🔍 FeatureSpecFormContainer:', {
-  mode: props.mode,
-  routeId: route.params.id,
-  editingSpec: editingSpec.value,
-  hasInitialData: !!editingSpec.value,
-})
-
 // TanStack Query will automatically fetch the spec data when needed
 
 // Function to create field changes from form data
@@ -113,46 +106,28 @@ const createFieldChangesFromFormData = async (
   for (const change of changes) {
     try {
       await createFieldChange(change)
-      console.log('✅ Created field change:', change.fieldPath)
     } catch (error) {
       console.error('❌ Failed to create field change:', error)
     }
   }
-
-  console.log(`📝 Created ${changes.length} field changes`)
 }
 
 const handleSubmit = async (data: FeatureSpecFormData) => {
   try {
-    console.log(
-      '🔄 Form submission triggered - this should only happen from explicit user action (Save button)',
-    )
-
     if (props.mode === 'edit' && editingSpec.value) {
-      console.log(
-        '💾 Processing edits for feature spec:',
-        editingSpec.value.id,
-        'with data:',
-        data.featureName,
-      )
-
       // Check if user is the owner - if not, create field changes instead of direct updates
       const isOwner = editingSpec.value.author === user.value?.email
 
       if (isOwner) {
-        console.log('👑 Owner editing - updating directly')
         await updateSpecAsync({ id: editingSpec.value.id, data })
       } else {
-        console.log('👤 Non-owner editing - creating field changes')
         await createFieldChangesFromFormData(editingSpec.value.id, data, createFieldChangeAsync)
       }
     } else {
-      console.log('➕ Creating new feature spec with data:', data.featureName)
       await createSpecAsync(data)
     }
 
     // Navigate back to dashboard only after explicit form submission
-    console.log('✅ Form submission completed - navigating to dashboard')
     router.push('/dashboard')
   } catch (error) {
     console.error('Error submitting form:', error)

@@ -15,29 +15,24 @@ if (isMockMode) {
   // In mock mode, try to get session immediately
   const initializeAuth = async () => {
     try {
-      console.log('🔍 useAuth: Getting initial session...')
       const {
         data: { session: initialSession },
       } = await supabase.auth.getSession()
 
-      console.log('🔍 useAuth: Initial session:', initialSession)
       session.value = initialSession
       user.value = initialSession?.user ?? null
       loading.value = false
 
       // If no session found, try auto-login
       if (!initialSession) {
-        console.log('🔍 useAuth: No initial session, trying auto-login...')
         const { mockAuth } = await import('../lib/mockAuth')
         await mockAuth.autoLogin()
 
         // Get session again after auto-login
-        console.log('🔍 useAuth: Getting session after auto-login...')
         const {
           data: { session: newSession },
         } = await supabase.auth.getSession()
 
-        console.log('🔍 useAuth: Session after auto-login:', newSession)
         session.value = newSession
         user.value = newSession?.user ?? null
       }
@@ -64,7 +59,6 @@ if (isMockMode) {
 
 // Listen for auth changes
 supabase.auth.onAuthStateChange((event, newSession) => {
-  console.log('🔍 useAuth: Auth state change:', event, newSession)
   session.value = newSession
   user.value = newSession?.user ?? null
   loading.value = false
@@ -73,7 +67,6 @@ supabase.auth.onAuthStateChange((event, newSession) => {
 export function useAuth() {
   const isAuthenticated = computed(() => {
     const auth = !!user.value
-    console.log('🔍 useAuth: isAuthenticated computed:', auth, 'user:', user.value)
     return auth
   })
   const isAdmin = computed(() => user.value?.user_metadata?.role === 'admin')
@@ -90,16 +83,12 @@ export function useAuth() {
   }
 
   const signIn = async (email: string, password: string) => {
-    console.log('🔍 useAuth: signIn called for:', email)
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
 
-    console.log('🔍 useAuth: signIn result:', { data, error })
-
     if (data.session) {
-      console.log('🔍 useAuth: Session received, updating state...')
       session.value = data.session
       user.value = data.session.user
     }
