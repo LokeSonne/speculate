@@ -22,6 +22,14 @@
         </div>
       </div>
       <Button type="button" @click="addGoal" variant="secondary" size="sm">+ Add User Goal</Button>
+      <FieldChangeHistory
+        v-if="featureSpecId"
+        :changes="getFieldChanges('userGoals').value"
+        :is-owner="isOwner"
+        :loading="loading"
+        @accept="acceptChange"
+        @reject="rejectChange"
+      />
     </div>
 
     <!-- Use Cases -->
@@ -104,27 +112,74 @@
       <Button type="button" @click="addUseCase" variant="secondary" size="sm"
         >+ Add Use Case</Button
       >
+      <FieldChangeHistory
+        v-if="featureSpecId"
+        :changes="getFieldChanges('useCases').value"
+        :is-owner="isOwner"
+        :loading="loading"
+        @accept="acceptChange"
+        @reject="rejectChange"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { UserGoal, UseCase } from '../../../types/feature'
 import Button from '../../ui/Button.vue'
+import FieldChangeHistory from '../../FieldChangeHistory.vue'
+import { useFieldChanges } from '../../../composables/useFieldChangesQuery'
 
 interface Props {
   data: {
     userGoals: UserGoal[]
     useCases: UseCase[]
   }
+  featureSpecId?: string
+  isOwner?: boolean
 }
 
 interface Emits {
   (e: 'update', field: string, value: any): void
+  (e: 'field-change', fieldPath: string, oldValue: unknown, newValue: unknown): void
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  isOwner: true,
+})
+
 const emit = defineEmits<Emits>()
+
+// Field changes functionality
+const {
+  isLoading: loading,
+  getFieldChanges,
+  updateFieldChangeStatus,
+} = props.featureSpecId
+  ? useFieldChanges(props.featureSpecId)
+  : {
+      isLoading: computed(() => false),
+      getFieldChanges: () => computed(() => []),
+      updateFieldChangeStatus: async () => {},
+    }
+
+// Handle field change acceptance/rejection
+const acceptChange = async (changeId: string) => {
+  try {
+    await updateFieldChangeStatus(changeId, 'accepted')
+  } catch (error) {
+    console.error('Failed to accept change:', error)
+  }
+}
+
+const rejectChange = async (changeId: string) => {
+  try {
+    await updateFieldChangeStatus(changeId, 'rejected')
+  } catch (error) {
+    console.error('Failed to reject change:', error)
+  }
+}
 
 // User Goals management
 const addGoal = () => {
@@ -142,9 +197,13 @@ const removeGoal = (index: number) => {
 }
 
 const updateGoal = (index: number, field: keyof UserGoal, value: string) => {
+  const oldValue = props.data.userGoals[index][field]
   const updatedGoals = [...props.data.userGoals]
   updatedGoals[index] = { ...updatedGoals[index], [field]: value }
   emit('update', 'userGoals', updatedGoals)
+
+  // Emit field change event for collaborative editing
+  emit('field-change', `userGoals.${index}.${field}`, oldValue, value)
 }
 
 // Use Cases management
@@ -167,9 +226,13 @@ const removeUseCase = (index: number) => {
 }
 
 const updateUseCase = (index: number, field: keyof UseCase, value: string) => {
+  const oldValue = props.data.useCases[index][field]
   const updatedUseCases = [...props.data.useCases]
   updatedUseCases[index] = { ...updatedUseCases[index], [field]: value }
   emit('update', 'useCases', updatedUseCases)
+
+  // Emit field change event for collaborative editing
+  emit('field-change', `useCases.${index}.${field}`, oldValue, value)
 }
 </script>
 

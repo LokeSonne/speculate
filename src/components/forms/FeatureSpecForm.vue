@@ -23,7 +23,10 @@
           userGoals: formData.userGoals,
           useCases: formData.useCases,
         }"
+        :feature-spec-id="props.initialData.id"
+        :is-owner="true"
         @update="updateFormField"
+        @field-change="handleFieldChange"
       />
 
       <!-- Behavioral Requirements Section -->
