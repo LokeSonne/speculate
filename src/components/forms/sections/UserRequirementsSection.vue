@@ -143,9 +143,9 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update', field: string, value: any): void
+  (e: 'update', field: string, value: UserGoal[] | UseCase[]): void
   (e: 'field-change', fieldPath: string, oldValue: unknown, newValue: unknown): void
-  (e: 'apply-accepted-change', field: string, value: any): void
+  (e: 'apply-accepted-change', field: string, value: UserGoal[] | UseCase[]): void
 }
 
 const props = withDefaults(defineProps<Props>(), {

@@ -74,8 +74,8 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update', field: string, value: any): void
-  (e: 'apply-accepted-change', field: string, value: any): void
+  (e: 'update', field: string, value: SuccessCriteria[]): void
+  (e: 'apply-accepted-change', field: string, value: SuccessCriteria[]): void
 }
 
 const props = defineProps<Props>()

@@ -18,7 +18,7 @@ export interface OrganizationMembership {
   userId: string
   role: OrganizationRole
   invitedBy?: string
-  invitedAt: Date
+  invitedAt?: Date
   joinedAt?: Date
   createdAt: Date
   updatedAt: Date

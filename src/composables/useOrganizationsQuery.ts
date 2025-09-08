@@ -27,8 +27,51 @@ export const organizationKeys = {
     [...organizationKeys.all, 'userMemberships', userId] as const,
 }
 
+// Database data types (from Supabase)
+interface DbOrganization {
+  id: string
+  name: string
+  slug: string
+  description?: string
+  logo_url?: string
+  settings?: Record<string, unknown>
+  created_at: string
+  updated_at: string
+}
+
+interface DbMembership {
+  id: string
+  organization_id: string
+  user_id: string
+  role: OrganizationRole
+  invited_by?: string
+  invited_at?: string
+  joined_at?: string
+  created_at: string
+  updated_at: string
+}
+
+interface DbUser {
+  id: string
+  email: string
+  full_name?: string
+  avatar_url?: string
+  role: string
+  default_organization_id?: string
+  created_at: string
+  updated_at: string
+}
+
+interface DbMembershipWithUser extends DbMembership {
+  user: DbUser
+}
+
+interface DbOrganizationWithMembers extends DbOrganization {
+  members?: DbMembershipWithUser[]
+}
+
 // Transform database data to frontend format
-const transformDbToOrganization = (dbData: any): Organization => {
+const transformDbToOrganization = (dbData: DbOrganization): Organization => {
   return {
     id: dbData.id,
     name: dbData.name,
@@ -41,24 +84,26 @@ const transformDbToOrganization = (dbData: any): Organization => {
   }
 }
 
-const transformDbToMembership = (dbData: any): OrganizationMembership => {
+const transformDbToMembership = (dbData: DbMembership): OrganizationMembership => {
   return {
     id: dbData.id,
     organizationId: dbData.organization_id,
     userId: dbData.user_id,
     role: dbData.role,
     invitedBy: dbData.invited_by,
-    invitedAt: dbData.invited_at ? new Date(dbData.invited_at) : null,
+    invitedAt: dbData.invited_at ? new Date(dbData.invited_at) : undefined,
     joinedAt: dbData.joined_at ? new Date(dbData.joined_at) : undefined,
     createdAt: new Date(dbData.created_at),
     updatedAt: new Date(dbData.updated_at),
   }
 }
 
-const transformDbToOrganizationWithMembers = (dbData: any): OrganizationWithMembers => {
+const transformDbToOrganizationWithMembers = (
+  dbData: DbOrganizationWithMembers,
+): OrganizationWithMembers => {
   const organization = transformDbToOrganization(dbData)
   const members =
-    dbData.members?.map((member: any) => ({
+    dbData.members?.map((member: DbMembershipWithUser) => ({
       ...transformDbToMembership(member),
       user: {
         id: member.user.id,

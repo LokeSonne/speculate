@@ -49,7 +49,7 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update', field: string, value: any): void
+  (e: 'update', field: string, value: Reviewer[]): void
 }
 
 const props = defineProps<Props>()
