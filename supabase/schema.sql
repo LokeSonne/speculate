@@ -215,3 +215,180 @@ CREATE POLICY "Users can delete own change request comments" ON public.change_re
 CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 CREATE TRIGGER update_feature_specs_updated_at BEFORE UPDATE ON public.feature_specs FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 CREATE TRIGGER update_change_requests_updated_at BEFORE UPDATE ON public.change_requests FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+-- Organization support (from migration 004_add_organizations.sql)
+-- Create organization role enum
+CREATE TYPE organization_role AS ENUM ('owner', 'admin', 'member', 'viewer');
+
+-- Create organizations table
+CREATE TABLE public.organizations (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  description TEXT,
+  logo_url TEXT,
+  settings JSONB DEFAULT '{}',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create organization memberships table
+CREATE TABLE public.organization_memberships (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  organization_id UUID REFERENCES public.organizations(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  role organization_role DEFAULT 'member' NOT NULL,
+  invited_by UUID REFERENCES public.profiles(id),
+  invited_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  joined_at TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(organization_id, user_id)
+);
+
+-- Add organization_id to feature_specs table
+ALTER TABLE public.feature_specs 
+ADD COLUMN organization_id UUID REFERENCES public.organizations(id) ON DELETE CASCADE;
+
+-- Add organization_id to profiles table for default organization
+ALTER TABLE public.profiles 
+ADD COLUMN default_organization_id UUID REFERENCES public.organizations(id);
+
+-- Enable RLS on new tables
+ALTER TABLE public.organizations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.organization_memberships ENABLE ROW LEVEL SECURITY;
+
+-- Organizations policies
+CREATE POLICY "Users can view organizations they belong to" ON public.organizations 
+FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM public.organization_memberships 
+    WHERE organization_id = organizations.id 
+    AND user_id = auth.uid()
+  )
+);
+
+CREATE POLICY "Organization owners can update their organization" ON public.organizations 
+FOR UPDATE USING (
+  EXISTS (
+    SELECT 1 FROM public.organization_memberships 
+    WHERE organization_id = organizations.id 
+    AND user_id = auth.uid() 
+    AND role = 'owner'
+  )
+);
+
+CREATE POLICY "Organization owners can delete their organization" ON public.organizations 
+FOR DELETE USING (
+  EXISTS (
+    SELECT 1 FROM public.organization_memberships 
+    WHERE organization_id = organizations.id 
+    AND user_id = auth.uid() 
+    AND role = 'owner'
+  )
+);
+
+-- Organization memberships policies
+CREATE POLICY "Users can view memberships in organizations they belong to" ON public.organization_memberships 
+FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM public.organization_memberships om2 
+    WHERE om2.organization_id = organization_memberships.organization_id 
+    AND om2.user_id = auth.uid()
+  )
+);
+
+CREATE POLICY "Organization admins and owners can manage memberships" ON public.organization_memberships 
+FOR ALL USING (
+  EXISTS (
+    SELECT 1 FROM public.organization_memberships om2 
+    WHERE om2.organization_id = organization_memberships.organization_id 
+    AND om2.user_id = auth.uid() 
+    AND om2.role IN ('owner', 'admin')
+  )
+);
+
+CREATE POLICY "Users can update their own membership status" ON public.organization_memberships 
+FOR UPDATE USING (user_id = auth.uid());
+
+-- Function to create default organization for new users
+CREATE OR REPLACE FUNCTION public.create_default_organization_for_user()
+RETURNS TRIGGER AS $$
+DECLARE
+  new_org_id UUID;
+BEGIN
+  -- Create a personal organization for the user
+  INSERT INTO public.organizations (name, slug, description)
+  VALUES (
+    COALESCE(NEW.full_name, NEW.email) || '''s Organization',
+    'user-' || NEW.id,
+    'Personal organization for ' || COALESCE(NEW.full_name, NEW.email)
+  )
+  RETURNING id INTO new_org_id;
+  
+  -- Set as default organization
+  UPDATE public.profiles 
+  SET default_organization_id = new_org_id 
+  WHERE id = NEW.id;
+  
+  -- Add user as owner of the organization
+  INSERT INTO public.organization_memberships (organization_id, user_id, role, joined_at)
+  VALUES (new_org_id, NEW.id, 'owner', NOW());
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger to create default organization for new users
+CREATE TRIGGER on_profile_created_create_default_org
+  AFTER INSERT ON public.profiles
+  FOR EACH ROW EXECUTE FUNCTION public.create_default_organization_for_user();
+
+-- Function to generate organization slug
+CREATE OR REPLACE FUNCTION public.generate_organization_slug(org_name TEXT)
+RETURNS TEXT AS $$
+BEGIN
+  RETURN LOWER(
+    REGEXP_REPLACE(
+      REGEXP_REPLACE(org_name, '[^a-zA-Z0-9\s-]', '', 'g'),
+      '\s+', '-', 'g'
+    )
+  );
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to ensure unique organization slug
+CREATE OR REPLACE FUNCTION public.ensure_unique_organization_slug()
+RETURNS TRIGGER AS $$
+DECLARE
+  base_slug TEXT;
+  final_slug TEXT;
+  counter INTEGER := 0;
+BEGIN
+  base_slug := public.generate_organization_slug(NEW.name);
+  final_slug := base_slug;
+  
+  -- Check if slug exists and append counter if needed
+  WHILE EXISTS (SELECT 1 FROM public.organizations WHERE slug = final_slug AND id != COALESCE(NEW.id, '00000000-0000-0000-0000-000000000000'::UUID)) LOOP
+    counter := counter + 1;
+    final_slug := base_slug || '-' || counter;
+  END LOOP;
+  
+  NEW.slug := final_slug;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger to ensure unique organization slug
+CREATE TRIGGER ensure_unique_organization_slug_trigger
+  BEFORE INSERT OR UPDATE ON public.organizations
+  FOR EACH ROW EXECUTE FUNCTION public.ensure_unique_organization_slug();
+
+-- Add triggers for updated_at
+CREATE TRIGGER update_organizations_updated_at 
+  BEFORE UPDATE ON public.organizations 
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+CREATE TRIGGER update_organization_memberships_updated_at 
+  BEFORE UPDATE ON public.organization_memberships 
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();

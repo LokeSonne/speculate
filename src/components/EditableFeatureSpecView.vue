@@ -440,6 +440,7 @@ const isEditing = ref(false)
 const isSaving = ref(false)
 const localSpec = ref<FrontendFeatureSpec>({ ...props.spec })
 const editableSpec = reactive<FeatureSpecFormData>({
+  organizationId: props.spec.organizationId,
   featureName: props.spec.featureName,
   author: props.spec.author,
   date: props.spec.date,

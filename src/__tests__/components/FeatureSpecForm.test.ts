@@ -61,6 +61,7 @@ describe('FeatureSpecForm', () => {
   it('should initialize with provided initial data', () => {
     const initialData: FeatureSpecFormData = {
       id: 'test-id',
+      organizationId: 'test-org-123',
       featureName: 'Test Feature',
       author: 'Test Author',
       date: '2024-01-17',
@@ -84,6 +85,7 @@ describe('FeatureSpecForm', () => {
     expect(wrapper.vm.formData.featureName).toBe('Test Feature')
     expect(wrapper.vm.formData.author).toBe('Test Author')
     expect(wrapper.vm.formData.status).toBe('In Review')
+    expect(wrapper.vm.formData.organizationId).toBe('test-org-123')
   })
 
   it('should show validation errors for required fields', async () => {

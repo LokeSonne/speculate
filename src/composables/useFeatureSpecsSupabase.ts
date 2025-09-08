@@ -11,8 +11,8 @@ const error = ref<string | null>(null)
 export function useFeatureSpecs() {
   const { user, isAuthenticated } = useAuth()
 
-  // Fetch all feature specs
-  const fetchFeatureSpecs = async (): Promise<FrontendFeatureSpec[]> => {
+  // Fetch all feature specs for a specific organization
+  const fetchFeatureSpecs = async (organizationId?: string): Promise<FrontendFeatureSpec[]> => {
     if (!isAuthenticated.value) {
       return []
     }
@@ -21,7 +21,7 @@ export function useFeatureSpecs() {
     error.value = null
 
     try {
-      const { data, error: fetchError } = await supabase
+      let query = supabase
         .from('feature_specs')
         .select(
           `
@@ -36,15 +36,18 @@ export function useFeatureSpecs() {
         )
         .order('created_at', { ascending: false })
 
+      // Filter by organization if provided
+      if (organizationId) {
+        query = query.eq('organization_id', organizationId)
+      }
+
+      const { data, error: fetchError } = await query
+
       if (fetchError) throw fetchError
 
       // Transform the data to match our FrontendFeatureSpec interface
       const transformedData = data?.map(transformDbToFrontend) || []
       featureSpecs.value = transformedData
-
-      // Log the first spec in detail to see the transformation
-      if (transformedData.length > 0) {
-      }
 
       return transformedData
     } catch (err) {
@@ -71,6 +74,7 @@ export function useFeatureSpecs() {
         .from('feature_specs')
         .insert({
           user_id: user.value.id,
+          organization_id: formData.organizationId,
           feature_name: formData.featureName,
           author: formData.author,
           date: formData.date,
@@ -369,6 +373,7 @@ export function useFeatureSpecs() {
 function transformDbToFrontend(dbSpec: any): FrontendFeatureSpec {
   return {
     id: dbSpec.id,
+    organizationId: dbSpec.organization_id,
     featureName: dbSpec.feature_name,
     author: dbSpec.author,
     date: new Date(dbSpec.date),

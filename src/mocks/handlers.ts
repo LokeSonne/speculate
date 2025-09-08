@@ -44,6 +44,7 @@ const mockData: {
   featureSpecs: [
     {
       id: 'mock-spec-1',
+      organizationId: 'mock-org-1',
       featureName: 'User Dashboard',
       author: 'John Doe',
       date: new Date('2024-01-15'),
@@ -136,6 +137,7 @@ const mockData: {
     },
     {
       id: 'mock-spec-2',
+      organizationId: 'mock-org-1',
       featureName: 'User Profile Management',
       author: 'Jane Smith',
       date: new Date('2024-01-20'),
@@ -275,6 +277,7 @@ const mockData: {
     },
     {
       id: 'mock-spec-3',
+      organizationId: 'mock-org-1',
       featureName: 'Search and Filter',
       author: 'Bob Wilson',
       date: new Date('2024-01-25'),
@@ -914,6 +917,7 @@ export const handlers = [
 
     const spec: FrontendFeatureSpec = {
       id: `mock-spec-${Date.now()}`,
+      organizationId: body.organization_id || 'mock-org-1',
       featureName: body.feature_name,
       author: body.author,
       date: new Date(body.date),

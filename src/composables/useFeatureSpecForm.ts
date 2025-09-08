@@ -5,6 +5,7 @@ import type { FeatureSpecFormData } from '../types/feature'
 export function useFeatureSpecForm(initialData?: Partial<FeatureSpecFormData>) {
   const form = useForm({
     defaultValues: {
+      organizationId: initialData?.organizationId || '',
       featureName: initialData?.featureName || '',
       author: initialData?.author || '',
       date: initialData?.date

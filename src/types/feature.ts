@@ -1,6 +1,44 @@
+// Organization types
+export interface Organization {
+  id: string
+  name: string
+  slug: string
+  description?: string
+  logoUrl?: string
+  settings: Record<string, unknown>
+  createdAt: Date
+  updatedAt: Date
+}
+
+export type OrganizationRole = 'owner' | 'admin' | 'member' | 'viewer'
+
+export interface OrganizationMembership {
+  id: string
+  organizationId: string
+  userId: string
+  role: OrganizationRole
+  invitedBy?: string
+  invitedAt: Date
+  joinedAt?: Date
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface UserProfile {
+  id: string
+  email: string
+  fullName?: string
+  avatarUrl?: string
+  role: string
+  defaultOrganizationId?: string
+  createdAt: Date
+  updatedAt: Date
+}
+
 export interface FrontendFeatureSpec {
   id: string
   featureName: string
+  organizationId: string
 
   // Overview Section
   author: string
@@ -367,6 +405,7 @@ export interface CreateFieldChangeData {
 // Form field types for TanStack Forms
 export interface FeatureSpecFormData {
   id?: string
+  organizationId: string
   featureName: string
   author: string
   date: Date
@@ -396,8 +435,53 @@ export interface FeatureSpecFormData {
 }
 
 // Default values for creating new specs
-export const createDefaultFeatureSpec = (): FrontendFeatureSpec => ({
+// Organization management types
+export interface CreateOrganizationData {
+  name: string
+  description?: string
+  logoUrl?: string
+  settings?: Record<string, unknown>
+}
+
+export interface UpdateOrganizationData {
+  name?: string
+  description?: string
+  logoUrl?: string
+  settings?: Record<string, unknown>
+}
+
+export interface InviteUserToOrganizationData {
+  organizationId: string
+  email: string
+  role: OrganizationRole
+}
+
+export interface UpdateMembershipRoleData {
+  membershipId: string
+  role: OrganizationRole
+}
+
+export interface OrganizationWithMembers extends Organization {
+  members: Array<
+    OrganizationMembership & {
+      user: UserProfile
+    }
+  >
+  memberCount: number
+}
+
+export interface UserWithOrganizations extends UserProfile {
+  organizations: Array<
+    OrganizationMembership & {
+      organization: Organization
+    }
+  >
+}
+
+// Default values for creating new specs
+export const createDefaultFeatureSpec = (organizationId: string): FrontendFeatureSpec => ({
   id: crypto.randomUUID(),
+  organizationId,
   featureName: '',
   author: '',
   date: new Date(),

@@ -9,6 +9,8 @@ export const featureSpecKeys = {
   all: ['featureSpecs'] as const,
   lists: () => [...featureSpecKeys.all, 'list'] as const,
   list: (filters: Record<string, any>) => [...featureSpecKeys.lists(), { filters }] as const,
+  listByOrganization: (organizationId: string) =>
+    [...featureSpecKeys.lists(), { organizationId }] as const,
   details: () => [...featureSpecKeys.all, 'detail'] as const,
   detail: (id: string) => [...featureSpecKeys.details(), id] as const,
 }
@@ -17,6 +19,7 @@ export const featureSpecKeys = {
 const transformDbToFrontend = (dbData: any): FrontendFeatureSpec => {
   return {
     id: dbData.id,
+    organizationId: dbData.organization_id,
     featureName: dbData.feature_name,
     author: dbData.author,
     date: new Date(dbData.created_at || dbData.date || new Date()),
@@ -86,6 +89,7 @@ const transformDbToFrontend = (dbData: any): FrontendFeatureSpec => {
 // Transform frontend data to database format
 const transformFrontendToDb = (frontendData: FeatureSpecFormData, userId: string) => {
   return {
+    organization_id: frontendData.organizationId,
     feature_name: frontendData.featureName,
     author: frontendData.author,
     status: frontendData.status,
@@ -101,8 +105,8 @@ const transformFrontendToDb = (frontendData: FeatureSpecFormData, userId: string
 }
 
 // API functions
-const fetchFeatureSpecs = async (): Promise<FrontendFeatureSpec[]> => {
-  const { data, error } = await supabase
+const fetchFeatureSpecs = async (organizationId?: string): Promise<FrontendFeatureSpec[]> => {
+  let query = supabase
     .from('feature_specs')
     .select(
       `
@@ -116,6 +120,13 @@ const fetchFeatureSpecs = async (): Promise<FrontendFeatureSpec[]> => {
     `,
     )
     .order('created_at', { ascending: false })
+
+  // Filter by organization if provided
+  if (organizationId) {
+    query = query.eq('organization_id', organizationId)
+  }
+
+  const { data, error } = await query
 
   if (error) throw error
 
@@ -213,19 +224,19 @@ const deleteFeatureSpec = async (id: string): Promise<void> => {
 }
 
 // Composable
-export function useFeatureSpecs() {
+export function useFeatureSpecs(organizationId?: string) {
   const { isAuthenticated } = useAuth()
   const queryClient = useQueryClient()
 
-  // Query for fetching all feature specs
+  // Query for fetching feature specs
   const {
     data: featureSpecs,
     isLoading,
     error,
     refetch,
   } = useQuery({
-    queryKey: featureSpecKeys.lists(),
-    queryFn: fetchFeatureSpecs,
+    queryKey: featureSpecKeys.list({ organizationId }),
+    queryFn: () => fetchFeatureSpecs(organizationId),
     enabled: computed(() => isAuthenticated.value),
   })
 
