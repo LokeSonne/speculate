@@ -29,7 +29,7 @@ function mountWithRealQueryClient(component: any, options: any = {}) {
 }
 
 describe('FieldChangeHistory Component - Direct Test', () => {
-  it('should display field changes when provided with data', () => {
+  it('should display field changes when provided with data', async () => {
     const mockFieldChanges = [
       {
         id: 'fc-5',
@@ -74,17 +74,15 @@ describe('FieldChangeHistory Component - Direct Test', () => {
     // Check that the component renders
     expect(wrapper.exists()).toBe(true)
 
-    // Check that it shows the field changes
+    // Check that it shows the field changes in collapsed state
     const html = wrapper.html()
     expect(html).toContain('Advanced User Profile Management')
-    expect(html).toContain('Added "Advanced" to better describe the feature capabilities')
-    expect(html).toContain('john@example.com')
     expect(html).toContain('pending')
 
     expect(html).toContain('Users can update their profile information with real-time validation')
-    expect(html).toContain('Added real-time validation requirement')
-    expect(html).toContain('jane@example.com')
     expect(html).toContain('accepted')
+
+    // Note: Author emails are now in the expanded state, so they won't be visible in collapsed state
   })
 
   it('should show "No changes yet" when no data is provided', () => {

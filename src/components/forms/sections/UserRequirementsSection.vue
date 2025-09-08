@@ -11,6 +11,8 @@
             <input
               :value="goal.description"
               @input="updateGoal(index, 'description', ($event.target as HTMLInputElement).value)"
+              @focus="$emit('field-focus', `userGoals[${index}].description`, $event)"
+              @blur="$emit('field-blur')"
               type="text"
               placeholder="What user wants to accomplish"
               class="form-input"
@@ -24,7 +26,7 @@
       <Button type="button" @click="addGoal" variant="secondary" size="sm">+ Add User Goal</Button>
       <FieldChangeHistory
         v-if="featureSpecId && isEditing"
-        :changes="getFieldChanges('userGoals').value"
+        :changes="getFieldChanges('userGoals').value || []"
         :is-owner="isOwner"
         :loading="loading"
         @accept="acceptChange"
@@ -40,6 +42,8 @@
           <input
             :value="useCase.name"
             @input="updateUseCase(index, 'name', ($event.target as HTMLInputElement).value)"
+            @focus="$emit('field-focus', `useCases[${index}].name`, $event)"
+            @blur="$emit('field-blur')"
             type="text"
             placeholder="Use Case Name"
             class="form-input use-case-name"
@@ -114,7 +118,7 @@
       >
       <FieldChangeHistory
         v-if="featureSpecId && isEditing"
-        :changes="getFieldChanges('useCases').value"
+        :changes="getFieldChanges('useCases').value || []"
         :is-owner="isOwner"
         :loading="loading"
         @accept="acceptChange"
@@ -146,6 +150,8 @@ interface Emits {
   (e: 'update', field: string, value: UserGoal[] | UseCase[]): void
   (e: 'field-change', fieldPath: string, oldValue: unknown, newValue: unknown): void
   (e: 'apply-accepted-change', field: string, value: UserGoal[] | UseCase[]): void
+  (e: 'field-focus', field: string, event: FocusEvent): void
+  (e: 'field-blur'): void
 }
 
 const props = withDefaults(defineProps<Props>(), {

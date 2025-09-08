@@ -46,7 +46,7 @@
       </Button>
       <FieldChangeHistory
         v-if="featureSpecId && isEditing"
-        :changes="getFieldChanges('successCriteria').value"
+        :changes="getFieldChanges('successCriteria').value || []"
         :is-owner="isOwner ?? false"
         :loading="loading"
         @accept="acceptChange"

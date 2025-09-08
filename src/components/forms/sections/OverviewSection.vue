@@ -15,6 +15,8 @@
         id="featureName"
         :value="data.featureName"
         @input="updateField('featureName', ($event.target as HTMLInputElement).value)"
+        @focus="$emit('field-focus', 'featureName', $event)"
+        @blur="$emit('field-blur')"
         type="text"
         required
         placeholder="Enter feature name"
@@ -26,7 +28,7 @@
       </div>
       <FieldChangeHistory
         v-if="featureSpecId && isEditing"
-        :changes="getFieldChanges('featureName').value"
+        :changes="getFieldChanges('featureName').value || []"
         :is-owner="true"
         :loading="loading"
         @accept="acceptChange"
@@ -40,6 +42,8 @@
         id="status"
         :value="data.status"
         @change="updateField('status', ($event.target as HTMLSelectElement).value)"
+        @focus="$emit('field-focus', 'status', $event)"
+        @blur="$emit('field-blur')"
         required
         class="form-select"
         :class="{ error: errors.status }"
@@ -54,7 +58,7 @@
       </div>
       <FieldChangeHistory
         v-if="featureSpecId && isEditing"
-        :changes="getFieldChanges('status').value"
+        :changes="getFieldChanges('status').value || []"
         :is-owner="true"
         :loading="loading"
         @accept="acceptChange"
@@ -68,6 +72,8 @@
         id="featureSummary"
         :value="data.featureSummary"
         @input="updateField('featureSummary', ($event.target as HTMLTextAreaElement).value)"
+        @focus="$emit('field-focus', 'featureSummary', $event)"
+        @blur="$emit('field-blur')"
         required
         placeholder="2-3 sentences describing what this feature does and its primary value"
         rows="3"
@@ -79,7 +85,7 @@
       </div>
       <FieldChangeHistory
         v-if="featureSpecId && isEditing"
-        :changes="getFieldChanges('featureSummary').value"
+        :changes="getFieldChanges('featureSummary').value || []"
         :is-owner="true"
         :loading="loading"
         @accept="acceptChange"
@@ -110,6 +116,8 @@ interface Emits {
   (e: 'update', field: string, value: string): void
   (e: 'field-change', fieldPath: string, oldValue: unknown, newValue: unknown): void
   (e: 'apply-accepted-change', field: string, value: string): void
+  (e: 'field-focus', field: string, event: FocusEvent): void
+  (e: 'field-blur'): void
 }
 
 const props = defineProps<Props>()

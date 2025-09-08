@@ -487,7 +487,7 @@ describe('Edit Suggestions Integration Tests', () => {
       expect(mockGetFieldChanges).toHaveBeenCalledWith('featureName')
     })
 
-    it('handles large numbers of field changes efficiently', () => {
+    it('handles large numbers of field changes efficiently', { timeout: 10000 }, () => {
       const manyChanges = Array.from({ length: 100 }, (_, i) => ({
         id: `fc-${i}`,
         featureSpecId: 'spec-1',

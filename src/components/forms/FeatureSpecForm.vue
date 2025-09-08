@@ -16,6 +16,8 @@
         @update="updateFormField"
         @field-change="handleFieldChange"
         @apply-accepted-change="applyAcceptedChange"
+        @field-focus="handleFieldFocus"
+        @field-blur="handleFieldBlur"
       />
 
       <!-- User Requirements Section -->
@@ -30,6 +32,8 @@
         @update="updateFormField"
         @field-change="handleFieldChange"
         @apply-accepted-change="applyAcceptedChange"
+        @field-focus="handleFieldFocus"
+        @field-blur="handleFieldBlur"
       />
 
       <!-- Behavioral Requirements Section -->
@@ -75,17 +79,34 @@
           {{ isSubmitting ? 'Saving...' : 'Save Feature Spec' }}
         </Button>
       </div>
+
+      <!-- Floating Add Suggestions Button -->
+      <div
+        v-if="props.isEditing && hasPendingChanges && focusedField"
+        class="floating-add-suggestions"
+        :style="buttonPosition"
+      >
+        <Button
+          type="button"
+          @click="addSuggestions"
+          variant="primary"
+          size="sm"
+          :disabled="isSubmitting"
+        >
+          Add Suggestions ({{ pendingChanges.length }})
+        </Button>
+      </div>
     </form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, reactive } from 'vue'
 import { useAuth } from '../../composables/useAuth'
 import { useFieldChanges } from '../../composables/useFieldChangesQuery'
 import { useFeatureSpecForm } from '../../composables/useFeatureSpecForm'
 import Button from '../ui/Button.vue'
-import type { FeatureSpecFormData } from '../../types/feature'
+import type { FeatureSpecFormData, CreateFieldChangeData } from '../../types/feature'
 import OverviewSection from './sections/OverviewSection.vue'
 import UserRequirementsSection from './sections/UserRequirementsSection.vue'
 import BehavioralRequirementsSection from './sections/BehavioralRequirementsSection.vue'
@@ -141,6 +162,23 @@ const { formData, errors, isSubmitting, isValid, updateField } = useFeatureSpecF
   initialFormData.value,
 )
 
+// Track pending changes for suggestions
+interface PendingChange {
+  field: string
+  oldValue: unknown
+  newValue: unknown
+}
+
+const pendingChanges = ref<PendingChange[]>([])
+const originalData = reactive<Partial<FeatureSpecFormData>>({ ...props.initialData })
+
+// Track focused field for floating button
+const focusedField = ref<string | null>(null)
+const buttonPosition = ref({ top: '0px', left: '0px' })
+
+// Computed properties
+const hasPendingChanges = computed(() => pendingChanges.value.length > 0)
+
 // Form handlers
 const handleSubmit = async () => {
   // Don't submit if we're applying an accepted change
@@ -164,23 +202,89 @@ const updateFormField = (field: string, value: unknown) => {
   updateField(field, value)
 }
 
+// Handle focus events for floating button positioning
+const handleFieldFocus = (field: string, event: FocusEvent) => {
+  focusedField.value = field
+  updateButtonPosition(event.target as HTMLElement)
+}
+
+const handleFieldBlur = () => {
+  // Keep the button visible for a short time after blur
+  setTimeout(() => {
+    if (!hasPendingChanges.value) {
+      focusedField.value = null
+    }
+  }, 200)
+}
+
+const updateButtonPosition = (element: HTMLElement) => {
+  const rect = element.getBoundingClientRect()
+  const formContainer = element.closest('.form-container')
+  const formRect = formContainer?.getBoundingClientRect()
+
+  if (formRect) {
+    const relativeTop = rect.bottom - formRect.top + 8 // 8px below the field
+    const relativeLeft = rect.left - formRect.left
+
+    buttonPosition.value = {
+      top: `${relativeTop}px`,
+      left: `${relativeLeft}px`,
+    }
+  }
+}
+
 // Handle field changes for collaborative editing
+// Track changes instead of creating them immediately
 const handleFieldChange = async (fieldPath: string, oldValue: unknown, newValue: unknown) => {
   console.trace('Call stack for handleFieldChange')
 
   if (!props.isEditing || !props.initialData.id) return
 
-  try {
-    await createFieldChange({
-      featureSpecId: props.initialData.id,
-      fieldPath,
-      fieldType: typeof newValue === 'string' ? 'string' : 'object',
+  // Track the change instead of creating it immediately
+  const existingChange = pendingChanges.value.find((c) => c.field === fieldPath)
+  if (existingChange) {
+    existingChange.newValue = newValue
+  } else {
+    pendingChanges.value.push({
+      field: fieldPath,
       oldValue,
       newValue,
-      changeDescription: `Changed ${fieldPath} from "${oldValue}" to "${newValue}"`,
     })
+  }
+
+  console.log('Field change tracked for suggestions:', {
+    fieldPath,
+    oldValue,
+    newValue,
+    pendingChangesCount: pendingChanges.value.length,
+  })
+}
+
+// Add suggestions function
+const addSuggestions = async () => {
+  if (!hasPendingChanges.value || !props.initialData.id) return
+
+  try {
+    // Create field changes for each pending change
+    for (const change of pendingChanges.value) {
+      const fieldChangeData: CreateFieldChangeData = {
+        featureSpecId: props.initialData.id,
+        fieldPath: change.field,
+        fieldType: typeof change.newValue === 'string' ? 'string' : 'object',
+        oldValue: change.oldValue,
+        newValue: change.newValue,
+        changeDescription: `Changed ${change.field} from "${change.oldValue}" to "${change.newValue}"`,
+      }
+
+      await createFieldChange(fieldChangeData)
+    }
+
+    // Clear pending changes after creating suggestions
+    pendingChanges.value = []
+
+    console.log('Suggestions added successfully')
   } catch (error) {
-    console.error('Failed to create field change:', error)
+    console.error('Error adding suggestions:', error)
   }
 }
 
@@ -223,5 +327,29 @@ const applyAcceptedChange = (field: string, value: unknown) => {
   .form-actions {
     flex-direction: column;
   }
+}
+
+/* Floating Add Suggestions Button */
+.floating-add-suggestions {
+  position: absolute;
+  z-index: 1000;
+  pointer-events: auto;
+  animation: slideInFromTop 0.2s ease-out;
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.floating-add-suggestions button {
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-primary);
 }
 </style>

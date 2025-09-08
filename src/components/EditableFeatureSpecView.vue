@@ -29,6 +29,9 @@
           <button @click="saveChanges" :disabled="!hasChanges || isSaving" class="btn-primary">
             {{ isSaving ? 'Saving...' : `Save Changes (${changeCount})` }}
           </button>
+          <button @click="addSuggestions" :disabled="!hasChanges || isSaving" class="btn-secondary">
+            Add Suggestions
+          </button>
           <button @click="cancelEditing" class="btn-secondary">Cancel</button>
         </div>
         <button @click="handleExport" class="btn-secondary">Export</button>
@@ -397,6 +400,18 @@
             @deleted="handleChangeRequestDeleted"
           />
         </div>
+
+        <!-- Field Changes (Edit Suggestions) -->
+        <div class="field-changes-section">
+          <h4>Edit Suggestions</h4>
+          <FieldChangeHistory
+            :changes="fieldChanges"
+            :is-owner="isOwner"
+            :loading="isSaving"
+            @accept="handleAcceptFieldChange"
+            @reject="handleRejectFieldChange"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -406,10 +421,17 @@
 import { ref, computed, reactive, onMounted } from 'vue'
 import { useChangeRequests } from '../composables/useChangeRequests'
 import { useFeatureSpecs } from '../composables/useFeatureSpecsSupabase'
+import { useFieldChanges } from '../composables/useFieldChanges'
+import { useAuth } from '../composables/useAuth'
 import { MarkdownService } from '../services/markdownService'
 import ChangeRequestCard from './ChangeRequestCard.vue'
+import FieldChangeHistory from './FieldChangeHistory.vue'
 import DeleteIcon from '../icons/DeleteIcon.vue'
-import type { FrontendFeatureSpec, FeatureSpecFormData } from '../types/feature'
+import type {
+  FrontendFeatureSpec,
+  FeatureSpecFormData,
+  CreateFieldChangeData,
+} from '../types/feature'
 
 interface Props {
   spec: FrontendFeatureSpec
@@ -433,6 +455,9 @@ const { changeRequests, loading, error, fetchChangeRequests, createChangeRequest
   useChangeRequests()
 
 const { updateFeatureSpec } = useFeatureSpecs()
+const { createFieldChange, updateFieldChangeStatus, fieldChanges, fetchFieldChanges } =
+  useFieldChanges(props.spec.id)
+const { user } = useAuth()
 const markdownService = new MarkdownService()
 
 // Editing state
@@ -484,6 +509,8 @@ const totalRequests = computed(() => changeRequests.value.length)
 const changeCount = computed(() => pendingChanges.value.length)
 
 const hasChanges = computed(() => pendingChanges.value.length > 0)
+
+const isOwner = computed(() => localSpec.value.author === user.value?.email)
 
 // Change tracking
 const trackChange = (field: string, oldValue: unknown, newValue: unknown, section?: string) => {
@@ -599,20 +626,8 @@ const saveChanges = async () => {
   isSaving.value = true
 
   try {
-    // Update the feature spec
+    // Update the feature spec directly without creating field changes
     await updateFeatureSpec(props.spec.id, editableSpec)
-
-    // Create change requests for each change
-    for (const change of pendingChanges.value) {
-      await createChangeRequest({
-        featureSpecId: props.spec.id,
-        title: `Updated ${change.field}`,
-        description: `Changed ${change.field} from "${change.oldValue}" to "${change.newValue}"`,
-        type: 'improvement',
-        section: change.section,
-        suggestedChange: change.newValue,
-      })
-    }
 
     // Update local spec and exit editing mode
     localSpec.value = {
@@ -627,6 +642,47 @@ const saveChanges = async () => {
     await fetchChangeRequests(props.spec.id)
   } catch (error) {
     console.error('Error saving changes:', error)
+  } finally {
+    isSaving.value = false
+  }
+}
+
+const addSuggestions = async () => {
+  if (!hasChanges.value) return
+
+  isSaving.value = true
+
+  try {
+    // Create field changes for each pending change
+    for (const change of pendingChanges.value) {
+      const fieldChangeData: CreateFieldChangeData = {
+        featureSpecId: props.spec.id,
+        fieldPath: change.field,
+        fieldType: typeof change.newValue === 'string' ? 'string' : 'object',
+        oldValue: change.oldValue,
+        newValue: change.newValue,
+        changeDescription: `Changed ${change.field} from "${change.oldValue}" to "${change.newValue}"`,
+      }
+
+      await createFieldChange(fieldChangeData)
+    }
+
+    // Update the feature spec
+    await updateFeatureSpec(props.spec.id, editableSpec)
+
+    // Update local spec and exit editing mode
+    localSpec.value = {
+      ...localSpec.value,
+      ...editableSpec,
+      status: editableSpec.status as 'Draft' | 'In Review' | 'Approved' | 'Locked',
+    }
+    isEditing.value = false
+    pendingChanges.value = []
+
+    // Refresh change requests
+    await fetchChangeRequests(props.spec.id)
+  } catch (error) {
+    console.error('Error adding suggestions:', error)
   } finally {
     isSaving.value = false
   }
@@ -748,6 +804,26 @@ const handleChangeRequestStatusChanged = () => {
 const handleChangeRequestDeleted = () => {
   // Refresh the change requests list
   fetchChangeRequests(props.spec.id)
+}
+
+const handleAcceptFieldChange = async (changeId: string) => {
+  try {
+    await updateFieldChangeStatus(changeId, 'accepted')
+    // Refresh field changes
+    await fetchFieldChanges()
+  } catch (error) {
+    console.error('Failed to accept field change:', error)
+  }
+}
+
+const handleRejectFieldChange = async (changeId: string) => {
+  try {
+    await updateFieldChangeStatus(changeId, 'rejected')
+    // Refresh field changes
+    await fetchFieldChanges()
+  } catch (error) {
+    console.error('Failed to reject field change:', error)
+  }
 }
 
 const formatDate = (date: Date) => {
@@ -1240,6 +1316,19 @@ const formatDate = (date: Date) => {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-4);
+}
+
+.field-changes-section {
+  margin-top: var(--spacing-6);
+  padding-top: var(--spacing-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.field-changes-section h4 {
+  margin: 0 0 var(--spacing-3) 0;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
 }
 
 .btn-primary,
