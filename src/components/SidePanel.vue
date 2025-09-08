@@ -1,10 +1,9 @@
 <template>
   <div class="side-panel">
     <div class="side-panel-header">
-      <h3>Specifications</h3>
-      <Button @click="handleCreateSpec" variant="text" size="sm">
+      <BaseButton @click="handleCreateSpec" variant="text" size="sm">
         <PlusIcon :size="16" />
-      </Button>
+      </BaseButton>
     </div>
 
     <ScrollAreaRoot class="side-panel-scroll-area">
@@ -72,7 +71,7 @@ import { ScrollAreaRoot, ScrollAreaViewport, ScrollAreaScrollbar, ScrollAreaThum
 import { useAuth } from '../composables/useAuth'
 import { useFeatureSpecs } from '../composables/useFeatureSpecsQuery'
 import SpecListItem from './SpecListItem.vue'
-import Button from './ui/Button.vue'
+import BaseButton from './ui/BaseButton.vue'
 import PlusIcon from '../icons/PlusIcon.vue'
 import type { FrontendFeatureSpec } from '../types/feature'
 
@@ -124,7 +123,7 @@ const handleCreateSpec = () => {
 <style scoped>
 .side-panel {
   width: 300px;
-  height: calc(100vh - 60px); /* Subtract header height */
+  height: calc(100vh); /* Subtract header height */
   background: var(--color-background-card);
   border-right: 1px solid var(--color-border);
   display: flex;
@@ -132,18 +131,16 @@ const handleCreateSpec = () => {
   overflow: hidden;
   flex-shrink: 0;
   position: fixed;
-  top: 60px; /* Start below the header */
   left: 0;
   z-index: 10;
+  padding-top: var(--spacing-4);
 }
 
 .side-panel-header {
   padding: var(--spacing-1);
-  border-bottom: 1px solid var(--color-border);
   display: flex;
-  justify-content: space-between;
+  justify-content: end;
   align-items: center;
-  background: var(--color-background);
   flex-shrink: 0;
 }
 

@@ -8,7 +8,7 @@
     <div v-else-if="!spec" class="error-state">
       <h2>Specification not found</h2>
       <p>The requested specification could not be found.</p>
-      <Button @click="handleBack" variant="primary">Back to Dashboard</Button>
+      <BaseButton @click="handleBack" variant="primary">Back to Dashboard</BaseButton>
     </div>
 
     <div v-else>
@@ -28,7 +28,7 @@
         </div>
         <div class="spec-actions">
           <div class="view-toggle">
-            <Button
+            <BaseButton
               @click="viewMode = 'rendered'"
               :class="{ active: viewMode === 'rendered' }"
               variant="ghost"
@@ -36,8 +36,8 @@
               class="btn-toggle"
             >
               Rendered View
-            </Button>
-            <Button
+            </BaseButton>
+            <BaseButton
               @click="viewMode = 'markdown'"
               :class="{ active: viewMode === 'markdown' }"
               variant="ghost"
@@ -45,11 +45,11 @@
               class="btn-toggle"
             >
               Markdown Source
-            </Button>
+            </BaseButton>
           </div>
-          <Button @click="handleEdit" variant="secondary">Edit</Button>
-          <Button @click="handleExport" variant="primary">Export</Button>
-          <Button @click="handleBack" variant="secondary">← Back</Button>
+          <BaseButton @click="handleEdit" variant="secondary">Edit</BaseButton>
+          <BaseButton @click="handleExport" variant="primary">Export</BaseButton>
+          <BaseButton @click="handleBack" variant="secondary">← Back</BaseButton>
         </div>
       </div>
 
@@ -68,7 +68,7 @@ import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useFeatureSpec } from '../composables/useFeatureSpecsQuery'
 import MarkdownViewer from './MarkdownViewer.vue'
-import Button from './ui/Button.vue'
+import BaseButton from './ui/BaseButton.vue'
 import { MarkdownService } from '../services/markdownService'
 import type { FrontendFeatureSpec } from '../types/feature'
 

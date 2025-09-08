@@ -4,7 +4,7 @@
   </button>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" name="BaseButton">
 import { computed } from 'vue'
 
 interface Props {

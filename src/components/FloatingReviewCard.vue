@@ -1,26 +1,13 @@
 <template>
   <div class="review-sidepanel">
-    <div class="review-sidepanel-header">
-      <h3>Reviewers</h3>
-      <button
-        @click="toggleExpanded"
-        class="toggle-button"
-        :class="{ expanded: isExpanded }"
-        aria-label="Toggle review panel"
-      >
-        <ChevronDownIcon :size="16" />
-      </button>
-    </div>
-
-    <div v-if="isExpanded" class="review-sidepanel-content">
-      <!-- Add Reviewers Section -->
+    <div class="review-sidepanel-content">
       <div class="add-reviewers-section">
+        <span class="section-label">Current Reviewers </span>
         <PopoverRoot v-model:open="isPopoverOpen">
           <PopoverTrigger as-child>
-            <button class="add-reviewer-button" variant="text">
+            <BaseButton variant="text" size="sm">
               <PlusIcon :size="16" />
-              Add Reviewer
-            </button>
+            </BaseButton>
           </PopoverTrigger>
           <PopoverContent class="popover-content">
             <Combobox
@@ -41,37 +28,32 @@
           </PopoverContent>
         </PopoverRoot>
       </div>
-
-      <!-- Current Reviewers List -->
-      <div class="current-reviewers-section">
-        <label class="section-label">Current Reviewers</label>
-        <div v-if="reviewers.length === 0" class="empty-state">
-          <p>No reviewers assigned</p>
-        </div>
-        <div v-else class="reviewers-list">
-          <div v-for="reviewer in reviewers" :key="reviewer.id" class="reviewer-item">
-            <div class="reviewer-info">
-              <AvatarRoot class="reviewer-avatar">
-                <AvatarImage v-if="reviewer.avatar" :src="reviewer.avatar" :alt="reviewer.name" />
-                <AvatarFallback>{{ getInitials(reviewer.name) }}</AvatarFallback>
-              </AvatarRoot>
-              <div class="reviewer-details">
-                <span class="reviewer-name">{{ reviewer.name }}</span>
-                <span class="reviewer-role">{{ reviewer.role }}</span>
-              </div>
+      <div v-if="reviewers.length === 0" class="empty-state">
+        <p>No reviewers assigned</p>
+      </div>
+      <div v-else class="reviewers-list">
+        <div v-for="reviewer in reviewers" :key="reviewer.id" class="reviewer-item">
+          <div class="reviewer-info">
+            <AvatarRoot class="reviewer-avatar">
+              <AvatarImage v-if="reviewer.avatar" :src="reviewer.avatar" :alt="reviewer.name" />
+              <AvatarFallback>{{ getInitials(reviewer.name) }}</AvatarFallback>
+            </AvatarRoot>
+            <div class="reviewer-details">
+              <span class="reviewer-name">{{ reviewer.name }}</span>
+              <span class="reviewer-role">{{ reviewer.role }}</span>
             </div>
-            <div class="reviewer-status">
-              <span class="status-badge" :class="`status-${reviewer.status}`">
-                {{ reviewer.status }}
-              </span>
-              <button
-                @click="removeReviewer(reviewer.id)"
-                class="remove-button"
-                aria-label="Remove reviewer"
-              >
-                <DeleteIcon :size="14" />
-              </button>
-            </div>
+          </div>
+          <div class="reviewer-status">
+            <span class="status-badge" :class="`status-${reviewer.status}`">
+              {{ reviewer.status }}
+            </span>
+            <button
+              @click="removeReviewer(reviewer.id)"
+              class="remove-button"
+              aria-label="Remove reviewer"
+            >
+              <DeleteIcon :size="14" />
+            </button>
           </div>
         </div>
       </div>
@@ -93,6 +75,7 @@ import {
 import type { Reviewer } from '../types/feature'
 import DeleteIcon from '../icons/DeleteIcon.vue'
 import PlusIcon from '../icons/PlusIcon.vue'
+import BaseButton from './ui/BaseButton.vue'
 
 interface User {
   id: string
@@ -117,7 +100,6 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 
 // Component state
-const isExpanded = ref(true)
 const selectedUsers = ref<string[]>([])
 const isPopoverOpen = ref(false)
 
@@ -156,11 +138,6 @@ const availableUsers = computed(() => {
     (user) => !reviewerUserIds.includes(user.id),
   )
 })
-
-// Methods
-const toggleExpanded = () => {
-  isExpanded.value = !isExpanded.value
-}
 
 const getInitials = (name: string): string => {
   return name
@@ -222,43 +199,8 @@ watch(selectedUsers, (newSelection) => {
   width: 100%;
   height: 100%;
   background: white;
-  border-left: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
-}
-
-.review-sidepanel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--spacing-4);
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-gray-50);
-  flex-shrink: 0;
-}
-
-.review-sidepanel-header h3 {
-  margin: 0;
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-gray-900);
-}
-
-.toggle-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: var(--spacing-2);
-  border-radius: var(--radius-sm);
-  transition: transform 0.2s ease;
-}
-
-.toggle-button:hover {
-  background: var(--color-gray-100);
-}
-
-.toggle-button.expanded {
-  transform: rotate(180deg);
 }
 
 .review-sidepanel-content {
@@ -268,26 +210,11 @@ watch(selectedUsers, (newSelection) => {
 }
 
 .add-reviewers-section {
-  margin-bottom: var(--spacing-6);
-}
-
-.add-reviewer-button {
   display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
-  gap: var(--spacing-2);
-  padding: var(--spacing-2) var(--spacing-3);
-  background: none;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  color: var(--color-gray-700);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.add-reviewer-button:hover {
-  background: var(--color-gray-50);
-  border-color: var(--color-gray-300);
+  padding-bottom: var(--spacing-2);
 }
 
 .popover-content {
@@ -322,7 +249,6 @@ watch(selectedUsers, (newSelection) => {
 
 .section-label {
   display: block;
-  margin-bottom: var(--spacing-3);
   font-weight: var(--font-weight-medium);
   color: var(--color-gray-700);
   font-size: var(--font-size-sm);
@@ -330,11 +256,6 @@ watch(selectedUsers, (newSelection) => {
 
 .reviewer-combobox {
   margin-bottom: var(--spacing-3);
-}
-
-.current-reviewers-section {
-  border-top: 1px solid var(--color-border);
-  padding-top: var(--spacing-4);
 }
 
 .empty-state {
@@ -354,7 +275,7 @@ watch(selectedUsers, (newSelection) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-3);
+  padding: var(--spacing-1) var(--spacing-3);
   background: var(--color-gray-50);
   border-radius: var(--radius-md);
 }

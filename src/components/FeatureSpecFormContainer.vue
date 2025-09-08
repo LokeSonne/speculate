@@ -159,6 +159,8 @@ const handleCancel = () => {
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   overflow: hidden;
+  position: fixed;
+  margin-right: var(--spacing-6);
 }
 
 .form-header {

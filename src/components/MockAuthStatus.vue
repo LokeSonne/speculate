@@ -9,22 +9,24 @@
       </div>
       <div v-else class="not-logged-in">
         <p>Not logged in</p>
-        <Button @click="loginAsJohn" variant="primary" size="sm">Login as John</Button>
-        <Button @click="loginAsJane" variant="secondary" size="sm">Login as Jane</Button>
+        <BaseButton @click="loginAsJohn" variant="primary" size="sm">Login as John</BaseButton>
+        <BaseButton @click="loginAsJane" variant="secondary" size="sm">Login as Jane</BaseButton>
       </div>
       <div class="auth-actions">
-        <Button v-if="user" @click="logout" variant="secondary" size="sm">Logout</Button>
-        <Button @click="createTestUser" variant="secondary" size="sm">Create Test User</Button>
+        <BaseButton v-if="user" @click="logout" variant="secondary" size="sm">Logout</BaseButton>
+        <BaseButton @click="createTestUser" variant="secondary" size="sm"
+          >Create Test User</BaseButton
+        >
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useAuth } from '../composables/useAuth'
 import { mockAuth } from '../lib/mockAuth'
-import Button from './ui/Button.vue'
+import BaseButton from './ui/BaseButton.vue'
 
 const { user, signOut } = useAuth()
 
@@ -58,9 +60,9 @@ const createTestUser = async () => {
 <style scoped>
 .auth-status {
   position: fixed;
-  top: 20px;
+  bottom: 20px;
   right: 20px;
-  z-index: 1000;
+  z-index: 2000;
   background: var(--color-background-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);

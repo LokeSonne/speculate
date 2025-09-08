@@ -2,10 +2,10 @@
   <div class="dashboard">
     <div class="dashboard-header">
       <h2 class="text-3xl font-semibold text-primary">Dashboard</h2>
-      <Button @click="handleCreateSpec" variant="primary">
+      <BaseButton @click="handleCreateSpec" variant="primary">
         <span class="mr-2">+</span>
         Create New Feature Spec
-      </Button>
+      </BaseButton>
     </div>
 
     <div v-if="loading" class="card text-center py-16">
@@ -16,7 +16,7 @@
     <div v-else-if="error" class="alert alert-error">
       <h3 class="font-semibold mb-2">Error</h3>
       <p class="mb-4">{{ error }}</p>
-      <Button @click="fetchFeatureSpecs" variant="primary">Retry</Button>
+      <BaseButton @click="fetchFeatureSpecs" variant="primary">Retry</BaseButton>
     </div>
 
     <div v-else-if="!featureSpecs || featureSpecs.length === 0" class="card text-center py-16">
@@ -24,7 +24,7 @@
       <p class="text-secondary mb-8 text-lg">
         Create your first feature specification to get started.
       </p>
-      <Button @click="handleCreateSpec" variant="primary">Create Feature Spec</Button>
+      <BaseButton @click="handleCreateSpec" variant="primary">Create Feature Spec</BaseButton>
     </div>
 
     <div v-else class="specs-list">
@@ -46,9 +46,15 @@
               }}</span>
             </div>
             <div class="spec-actions">
-              <Button @click="handleViewSpec(spec)" variant="primary" size="sm">View</Button>
-              <Button @click="handleEditSpec(spec)" variant="secondary" size="sm">Edit</Button>
-              <Button @click="handleDeleteSpec(spec.id)" variant="text" size="sm"> Delete </Button>
+              <BaseButton @click="handleViewSpec(spec)" variant="primary" size="sm"
+                >View</BaseButton
+              >
+              <BaseButton @click="handleEditSpec(spec)" variant="secondary" size="sm"
+                >Edit</BaseButton
+              >
+              <BaseButton @click="handleDeleteSpec(spec.id)" variant="text" size="sm">
+                Delete
+              </BaseButton>
             </div>
           </div>
         </div>
@@ -78,7 +84,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { useFeatureSpecs } from '../composables/useFeatureSpecsQuery'
-import Button from './ui/Button.vue'
+import BaseButton from './ui/BaseButton.vue'
 import type { FrontendFeatureSpec } from '../types/feature'
 
 const router = useRouter()

@@ -16,12 +16,14 @@
               class="form-input"
             />
           </div>
-          <Button type="button" @click="removeGoal(index)" variant="text" size="sm">
+          <BaseButton type="button" @click="removeGoal(index)" variant="text" size="sm">
             <DeleteIcon :size="16" />
-          </Button>
+          </BaseButton>
         </div>
       </div>
-      <Button type="button" @click="addGoal" variant="secondary" size="sm">+ Add User Goal</Button>
+      <BaseButton type="button" @click="addGoal" variant="secondary" size="sm"
+        >+ Add User Goal</BaseButton
+      >
       <FieldChangeHistory
         v-if="featureSpecId && isEditing"
         :changes="getFieldChanges('userGoals').value || []"
@@ -44,9 +46,9 @@
             placeholder="Use Case Name"
             class="form-input use-case-name"
           />
-          <Button type="button" @click="removeUseCase(index)" variant="text" size="sm">
+          <BaseButton type="button" @click="removeUseCase(index)" variant="text" size="sm">
             <DeleteIcon :size="16" />
-          </Button>
+          </BaseButton>
         </div>
 
         <div class="use-case-fields">
@@ -109,9 +111,9 @@
           </div>
         </div>
       </div>
-      <Button type="button" @click="addUseCase" variant="secondary" size="sm"
-        >+ Add Use Case</Button
-      >
+      <BaseButton type="button" @click="addUseCase" variant="secondary" size="sm"
+        >+ Add Use Case
+      </BaseButton>
       <FieldChangeHistory
         v-if="featureSpecId && isEditing"
         :changes="getFieldChanges('useCases').value || []"
@@ -125,9 +127,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import type { UserGoal, UseCase } from '../../../types/feature'
-import Button from '../../ui/Button.vue'
+import BaseButton from '../../ui/BaseButton.vue'
 import DeleteIcon from '../../../icons/DeleteIcon.vue'
 import FieldChangeHistory from '../../FieldChangeHistory.vue'
 import { useFieldChanges } from '../../../composables/useFieldChangesQuery'

@@ -42,18 +42,6 @@
             @update="updateFormField"
           />
 
-          <!-- Success Criteria Section -->
-          <SuccessCriteriaSection
-            :data="{
-              successCriteria: formData.successCriteria,
-            }"
-            :feature-spec-id="props.initialData.id"
-            :is-owner="true"
-            :is-editing="props.isEditing"
-            @update="updateFormField"
-            @apply-accepted-change="applyAcceptedChange"
-          />
-
           <!-- Approval Section -->
           <ApprovalSection
             :data="{
@@ -64,14 +52,14 @@
 
           <!-- Form Actions -->
           <div class="form-actions">
-            <Button type="button" @click="handleCancel" variant="secondary">Cancel</Button>
-            <Button
+            <BaseButton type="button" @click="handleCancel" variant="secondary">Cancel</BaseButton>
+            <BaseButton
               type="submit"
               :disabled="isSubmitting || isSubmittingSuggestions"
               variant="primary"
             >
               {{ isSubmitting || isSubmittingSuggestions ? 'Saving...' : 'Save Feature Spec' }}
-            </Button>
+            </BaseButton>
           </div>
         </form>
       </div>
@@ -88,16 +76,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, reactive, nextTick } from 'vue'
+import { computed, ref, watch, nextTick } from 'vue'
 import { useAuth } from '../../composables/useAuth'
 import { useFieldChanges } from '../../composables/useFieldChangesQuery'
 import { useFeatureSpecForm } from '../../composables/useFeatureSpecForm'
-import Button from '../ui/Button.vue'
+import BaseButton from '../ui/BaseButton.vue'
 import type { FeatureSpecFormData, CreateFieldChangeData } from '../../types/feature'
 import OverviewSection from './sections/OverviewSection.vue'
 import UserRequirementsSection from './sections/UserRequirementsSection.vue'
 import BehavioralRequirementsSection from './sections/BehavioralRequirementsSection.vue'
-import SuccessCriteriaSection from './sections/SuccessCriteriaSection.vue'
 import ApprovalSection from './sections/ApprovalSection.vue'
 import FloatingReviewCard from '../FloatingReviewCard.vue'
 
@@ -157,7 +144,6 @@ interface PendingChange {
 }
 
 const pendingChanges = ref<PendingChange[]>([])
-const originalData = reactive<Partial<FeatureSpecFormData>>({ ...props.initialData })
 
 // Local submitting state for suggestions
 const isSubmittingSuggestions = ref(false)
@@ -304,7 +290,7 @@ const applyAcceptedChange = async (field: string, value: unknown) => {
 }
 
 .form-sidepanel {
-  width: 400px;
+  width: 300px;
   flex-shrink: 0;
   height: 100%;
   background: var(--color-gray-50);

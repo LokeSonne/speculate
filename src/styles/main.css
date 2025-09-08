@@ -105,7 +105,7 @@ body {
 .form-container {
   max-width: var(--max-width-lg);
   margin: 0 auto;
-  padding: var(--spacing-4);
+  padding: var(--spacing-1);
   background: var(--color-background-card);
   border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-lg);

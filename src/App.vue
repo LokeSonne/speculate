@@ -17,9 +17,9 @@
       <header class="app-header">
         <div class="header-content">
           <div class="user-info">
-            <span class="user-email">Welcome, {{ user?.email }}</span>
-            <Button @click="handleSignOut" variant="secondary" size="sm">Sign Out</Button>
+            <span class="user-email">{{ user?.email }}</span>
           </div>
+          <BaseButton @click="handleSignOut" variant="text" size="sm">Sign Out</BaseButton>
         </div>
       </header>
 
@@ -38,7 +38,7 @@ import { useAuth } from './composables/useAuth'
 import AuthForm from './components/auth/AuthForm.vue'
 import MockAuthStatus from './components/MockAuthStatus.vue'
 import SidePanel from './components/SidePanel.vue'
-import Button from './components/ui/Button.vue'
+import BaseButton from './components/ui/BaseButton.vue'
 
 const { user, isAuthenticated, loading: authLoading, signOut } = useAuth()
 
@@ -48,6 +48,9 @@ const handleSignOut = async () => {
 </script>
 
 <style scoped>
+:root {
+  --app-header-height: 2rem;
+}
 .app {
   min-height: 100vh;
   background: var(--color-background);
@@ -89,10 +92,11 @@ const handleSignOut = async () => {
 .app-header {
   background: var(--color-background-card);
   border-bottom: 1px solid var(--color-border-light);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-xs);
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
+  height: var(--app-header-height);
 }
 
 .header-content {
@@ -151,7 +155,6 @@ const handleSignOut = async () => {
 .app-body {
   display: flex;
   flex: 1;
-  height: calc(100vh - 60px); /* Subtract header height */
   overflow: hidden;
   margin-left: 300px; /* Account for fixed sidebar */
 }
@@ -181,7 +184,7 @@ const handleSignOut = async () => {
 
   .app-body {
     flex-direction: column;
-    height: calc(100vh - 80px); /* Adjust for mobile header height */
+    height: calc(100vh - var(var(--app-header-height))); /* Adjust for mobile header height */
     margin-left: 0; /* Remove sidebar margin on mobile */
   }
 

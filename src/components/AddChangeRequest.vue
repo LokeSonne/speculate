@@ -222,6 +222,7 @@ const resetForm = () => {
 .form-row {
   display: flex;
   gap: var(--spacing-4);
+  align-items: center;
 }
 
 .form-row .form-group {

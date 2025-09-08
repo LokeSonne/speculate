@@ -49,20 +49,26 @@
           {{ successMessage }}
         </div>
 
-        <Button type="submit" :disabled="loading" variant="primary" size="lg" class="auth-submit">
+        <BaseButton
+          type="submit"
+          :disabled="loading"
+          variant="primary"
+          size="lg"
+          class="auth-submit"
+        >
           {{ loading ? 'Please wait...' : isSignUp ? 'Create Account' : 'Sign In' }}
-        </Button>
+        </BaseButton>
       </form>
 
       <div class="auth-footer">
         <p>
           {{ isSignUp ? 'Already have an account?' : "Don't have an account?" }}
-          <Button type="button" @click="toggleMode" variant="ghost" size="sm" class="btn-link">
+          <BaseButton type="button" @click="toggleMode" variant="ghost" size="sm" class="btn-link">
             {{ isSignUp ? 'Sign In' : 'Create Account' }}
-          </Button>
+          </BaseButton>
         </p>
 
-        <Button
+        <BaseButton
           v-if="!isSignUp"
           type="button"
           @click="handleForgotPassword"
@@ -71,7 +77,7 @@
           class="btn-link"
         >
           Forgot your password?
-        </Button>
+        </BaseButton>
       </div>
     </div>
   </div>
@@ -81,7 +87,7 @@
 import { ref, reactive } from 'vue'
 import { useAuth } from '../../composables/useAuth'
 import { useRouter } from 'vue-router'
-import Button from '../ui/Button.vue'
+import BaseButton from '../ui/BaseButton.vue'
 
 const router = useRouter()
 const { signUp, signIn, resetPassword } = useAuth()

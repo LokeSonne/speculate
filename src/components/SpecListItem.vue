@@ -19,10 +19,16 @@
       </p>
     </div>
     <div class="spec-actions">
-      <Button v-if="showEditButton" @click.stop="handleEdit" variant="text" size="sm" title="Edit">
+      <BaseButton
+        v-if="showEditButton"
+        @click.stop="handleEdit"
+        variant="text"
+        size="sm"
+        title="Edit"
+      >
         <EditIcon />
-      </Button>
-      <Button
+      </BaseButton>
+      <BaseButton
         v-if="showReviewButton"
         @click.stop="handleReview"
         variant="ghost"
@@ -30,15 +36,14 @@
         title="Review"
       >
         👁️
-      </Button>
+      </BaseButton>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import Button from './ui/Button.vue'
+import { useRouter } from 'vue-router'
+import BaseButton from './ui/BaseButton.vue'
 import type { FrontendFeatureSpec } from '../types/feature'
 import { EditIcon } from '@/icons'
 
@@ -61,7 +66,6 @@ const props = withDefaults(defineProps<Props>(), {
   showReviewButton: false,
 })
 
-const route = useRoute()
 const router = useRouter()
 
 // Format date for display
