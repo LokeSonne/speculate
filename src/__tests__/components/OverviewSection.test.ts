@@ -8,7 +8,11 @@ import { queryClient } from '../setup'
 
 // Mock the composables before importing components
 vi.mock('../../composables/useFieldChangesQuery', () => ({
-  useFieldChanges: vi.fn(),
+  useFieldChanges: vi.fn(() => ({
+    isLoading: ref(false),
+    getFieldChanges: vi.fn(() => ref([])),
+    updateFieldChangeStatus: vi.fn(),
+  })),
 }))
 
 vi.mock('../../composables/useAuth', () => ({
