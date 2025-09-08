@@ -19,8 +19,8 @@
       </p>
     </div>
     <div class="spec-actions">
-      <Button v-if="showEditButton" @click.stop="handleEdit" variant="ghost" size="sm" title="Edit">
-        ✏️
+      <Button v-if="showEditButton" @click.stop="handleEdit" variant="text" size="sm" title="Edit">
+        <EditIcon />
       </Button>
       <Button
         v-if="showReviewButton"
@@ -40,6 +40,7 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Button from './ui/Button.vue'
 import type { FrontendFeatureSpec } from '../types/feature'
+import { EditIcon } from '@/icons'
 
 interface Props {
   spec: FrontendFeatureSpec
