@@ -90,6 +90,8 @@ export interface FrontendFeatureSpec {
 export interface Reviewer {
   id: string
   name: string
+  email?: string
+  avatar?: string
   role: 'Product' | 'Design' | 'Engineering'
   status: 'pending' | 'approved' | 'rejected'
   comments?: string

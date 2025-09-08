@@ -1,81 +1,89 @@
 <template>
   <div class="form-container">
-    <form @submit.prevent="handleSubmit" class="space-y-8">
-      <!-- Overview Section -->
-      <OverviewSection
-        :data="{
-          featureName: formData.featureName,
-          author: formData.author,
-          date: formData.date,
-          status: formData.status,
-          featureSummary: formData.featureSummary,
-        }"
-        :errors="errors || {}"
-        :is-editing="props.isEditing"
-        :feature-spec-id="props.initialData.id"
-        @update="updateFormField"
-        @field-change="handleFieldChange"
-        @apply-accepted-change="applyAcceptedChange"
-      />
+    <div class="form-layout">
+      <div class="form-main">
+        <form @submit.prevent="handleSubmit" class="space-y-8">
+          <!-- Overview Section -->
+          <OverviewSection
+            :data="{
+              featureName: formData.featureName,
+              author: formData.author,
+              date: formData.date,
+              status: formData.status,
+              featureSummary: formData.featureSummary,
+            }"
+            :errors="errors || {}"
+            :is-editing="props.isEditing"
+            :feature-spec-id="props.initialData.id"
+            @update="updateFormField"
+            @field-change="handleFieldChange"
+            @apply-accepted-change="applyAcceptedChange"
+          />
 
-      <!-- User Requirements Section -->
-      <UserRequirementsSection
-        :data="{
-          userGoals: formData.userGoals,
-          useCases: formData.useCases,
-        }"
-        :feature-spec-id="props.initialData.id"
-        :is-owner="true"
-        :is-editing="props.isEditing"
-        @update="updateFormField"
-        @field-change="handleFieldChange"
-        @apply-accepted-change="applyAcceptedChange"
-      />
+          <!-- User Requirements Section -->
+          <UserRequirementsSection
+            :data="{
+              userGoals: formData.userGoals,
+              useCases: formData.useCases,
+            }"
+            :feature-spec-id="props.initialData.id"
+            :is-owner="true"
+            :is-editing="props.isEditing"
+            @update="updateFormField"
+            @field-change="handleFieldChange"
+            @apply-accepted-change="applyAcceptedChange"
+          />
 
-      <!-- Behavioral Requirements Section -->
-      <BehavioralRequirementsSection
-        :data="{
-          coreInteractions: formData.coreInteractions,
-        }"
-        @update="updateFormField"
-      />
+          <!-- Behavioral Requirements Section -->
+          <BehavioralRequirementsSection
+            :data="{
+              coreInteractions: formData.coreInteractions,
+            }"
+            @update="updateFormField"
+          />
 
-      <!-- Success Criteria Section -->
-      <SuccessCriteriaSection
-        :data="{
-          successCriteria: formData.successCriteria,
-        }"
-        :feature-spec-id="props.initialData.id"
-        :is-owner="true"
-        :is-editing="props.isEditing"
-        @update="updateFormField"
-        @apply-accepted-change="applyAcceptedChange"
-      />
+          <!-- Success Criteria Section -->
+          <SuccessCriteriaSection
+            :data="{
+              successCriteria: formData.successCriteria,
+            }"
+            :feature-spec-id="props.initialData.id"
+            :is-owner="true"
+            :is-editing="props.isEditing"
+            @update="updateFormField"
+            @apply-accepted-change="applyAcceptedChange"
+          />
 
-      <!-- Reviewers Section -->
-      <ReviewersSection
-        :data="{
-          reviewers: formData.reviewers,
-        }"
-        @update="updateFormField"
-      />
+          <!-- Approval Section -->
+          <ApprovalSection
+            :data="{
+              approvals: formData.approvals,
+            }"
+            @update="updateFormField"
+          />
 
-      <!-- Approval Section -->
-      <ApprovalSection
-        :data="{
-          approvals: formData.approvals,
-        }"
-        @update="updateFormField"
-      />
-
-      <!-- Form Actions -->
-      <div class="form-actions">
-        <Button type="button" @click="handleCancel" variant="secondary">Cancel</Button>
-        <Button type="submit" :disabled="isSubmitting || isSubmittingSuggestions" variant="primary">
-          {{ isSubmitting || isSubmittingSuggestions ? 'Saving...' : 'Save Feature Spec' }}
-        </Button>
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <Button type="button" @click="handleCancel" variant="secondary">Cancel</Button>
+            <Button
+              type="submit"
+              :disabled="isSubmitting || isSubmittingSuggestions"
+              variant="primary"
+            >
+              {{ isSubmitting || isSubmittingSuggestions ? 'Saving...' : 'Save Feature Spec' }}
+            </Button>
+          </div>
+        </form>
       </div>
-    </form>
+
+      <!-- Review Sidepanel -->
+      <div class="form-sidepanel">
+        <FloatingReviewCard
+          :reviewers="formData.reviewers"
+          @update-reviewers="updateFormField('reviewers', $event)"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -90,8 +98,8 @@ import OverviewSection from './sections/OverviewSection.vue'
 import UserRequirementsSection from './sections/UserRequirementsSection.vue'
 import BehavioralRequirementsSection from './sections/BehavioralRequirementsSection.vue'
 import SuccessCriteriaSection from './sections/SuccessCriteriaSection.vue'
-import ReviewersSection from './sections/ReviewersSection.vue'
 import ApprovalSection from './sections/ApprovalSection.vue'
+import FloatingReviewCard from '../FloatingReviewCard.vue'
 
 interface Props {
   initialData?: Partial<FeatureSpecFormData>
@@ -281,6 +289,25 @@ const applyAcceptedChange = async (field: string, value: unknown) => {
 
 .space-y-8 > * + * {
   margin-top: var(--spacing-8);
+}
+
+.form-layout {
+  display: flex;
+  height: 100vh;
+  max-height: 100vh;
+}
+
+.form-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-6);
+}
+
+.form-sidepanel {
+  width: 400px;
+  flex-shrink: 0;
+  height: 100%;
+  background: var(--color-gray-50);
 }
 
 @media (max-width: 768px) {
