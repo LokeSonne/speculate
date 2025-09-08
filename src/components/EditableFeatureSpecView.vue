@@ -29,9 +29,6 @@
           <button @click="saveChanges" :disabled="!hasChanges || isSaving" class="btn-primary">
             {{ isSaving ? 'Saving...' : `Save Changes (${changeCount})` }}
           </button>
-          <button @click="addSuggestions" :disabled="!hasChanges || isSaving" class="btn-secondary">
-            Add Suggestions
-          </button>
           <button @click="cancelEditing" class="btn-secondary">Cancel</button>
         </div>
         <button @click="handleExport" class="btn-secondary">Export</button>
@@ -626,7 +623,21 @@ const saveChanges = async () => {
   isSaving.value = true
 
   try {
-    // Update the feature spec directly without creating field changes
+    // Create field changes for each pending change first
+    for (const change of pendingChanges.value) {
+      const fieldChangeData: CreateFieldChangeData = {
+        featureSpecId: props.spec.id,
+        fieldPath: change.field,
+        fieldType: typeof change.newValue === 'string' ? 'string' : 'object',
+        oldValue: change.oldValue,
+        newValue: change.newValue,
+        changeDescription: `Changed ${change.field} from "${change.oldValue}" to "${change.newValue}"`,
+      }
+
+      await createFieldChange(fieldChangeData)
+    }
+
+    // Update the feature spec directly
     await updateFeatureSpec(props.spec.id, editableSpec)
 
     // Update local spec and exit editing mode
@@ -642,47 +653,6 @@ const saveChanges = async () => {
     await fetchChangeRequests(props.spec.id)
   } catch (error) {
     console.error('Error saving changes:', error)
-  } finally {
-    isSaving.value = false
-  }
-}
-
-const addSuggestions = async () => {
-  if (!hasChanges.value) return
-
-  isSaving.value = true
-
-  try {
-    // Create field changes for each pending change
-    for (const change of pendingChanges.value) {
-      const fieldChangeData: CreateFieldChangeData = {
-        featureSpecId: props.spec.id,
-        fieldPath: change.field,
-        fieldType: typeof change.newValue === 'string' ? 'string' : 'object',
-        oldValue: change.oldValue,
-        newValue: change.newValue,
-        changeDescription: `Changed ${change.field} from "${change.oldValue}" to "${change.newValue}"`,
-      }
-
-      await createFieldChange(fieldChangeData)
-    }
-
-    // Update the feature spec
-    await updateFeatureSpec(props.spec.id, editableSpec)
-
-    // Update local spec and exit editing mode
-    localSpec.value = {
-      ...localSpec.value,
-      ...editableSpec,
-      status: editableSpec.status as 'Draft' | 'In Review' | 'Approved' | 'Locked',
-    }
-    isEditing.value = false
-    pendingChanges.value = []
-
-    // Refresh change requests
-    await fetchChangeRequests(props.spec.id)
-  } catch (error) {
-    console.error('Error adding suggestions:', error)
   } finally {
     isSaving.value = false
   }

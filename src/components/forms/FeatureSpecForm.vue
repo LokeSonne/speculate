@@ -16,8 +16,6 @@
         @update="updateFormField"
         @field-change="handleFieldChange"
         @apply-accepted-change="applyAcceptedChange"
-        @field-focus="handleFieldFocus"
-        @field-blur="handleFieldBlur"
       />
 
       <!-- User Requirements Section -->
@@ -32,8 +30,6 @@
         @update="updateFormField"
         @field-change="handleFieldChange"
         @apply-accepted-change="applyAcceptedChange"
-        @field-focus="handleFieldFocus"
-        @field-blur="handleFieldBlur"
       />
 
       <!-- Behavioral Requirements Section -->
@@ -75,25 +71,8 @@
       <!-- Form Actions -->
       <div class="form-actions">
         <Button type="button" @click="handleCancel" variant="secondary">Cancel</Button>
-        <Button type="submit" :disabled="isSubmitting" variant="primary">
-          {{ isSubmitting ? 'Saving...' : 'Save Feature Spec' }}
-        </Button>
-      </div>
-
-      <!-- Floating Add Suggestions Button -->
-      <div
-        v-if="props.isEditing && hasPendingChanges && focusedField"
-        class="floating-add-suggestions"
-        :style="buttonPosition"
-      >
-        <Button
-          type="button"
-          @click="addSuggestions"
-          variant="primary"
-          size="sm"
-          :disabled="isSubmitting"
-        >
-          Add Suggestions ({{ pendingChanges.length }})
+        <Button type="submit" :disabled="isSubmitting || isSubmittingSuggestions" variant="primary">
+          {{ isSubmitting || isSubmittingSuggestions ? 'Saving...' : 'Save Feature Spec' }}
         </Button>
       </div>
     </form>
@@ -172,9 +151,8 @@ interface PendingChange {
 const pendingChanges = ref<PendingChange[]>([])
 const originalData = reactive<Partial<FeatureSpecFormData>>({ ...props.initialData })
 
-// Track focused field for floating button
-const focusedField = ref<string | null>(null)
-const buttonPosition = ref({ top: '0px', left: '0px' })
+// Local submitting state for suggestions
+const isSubmittingSuggestions = ref(false)
 
 // Computed properties
 const hasPendingChanges = computed(() => pendingChanges.value.length > 0)
@@ -186,9 +164,22 @@ const handleSubmit = async () => {
     return
   }
 
-  // Only emit submit if the form is valid
-  if (isValid.value) {
-    emit('submit', formData.value)
+  isSubmittingSuggestions.value = true
+
+  try {
+    // If we have pending changes and are editing, create suggestions first
+    if (hasPendingChanges.value && props.isEditing && props.initialData.id) {
+      await addSuggestions()
+    }
+
+    // Only emit submit if the form is valid
+    if (isValid.value) {
+      emit('submit', formData.value)
+    }
+  } catch (error) {
+    console.error('Form submission error:', error)
+  } finally {
+    isSubmittingSuggestions.value = false
   }
 }
 
@@ -200,37 +191,6 @@ const handleCancel = () => {
 const updateFormField = (field: string, value: unknown) => {
   console.trace('Call stack for updateFormField')
   updateField(field, value)
-}
-
-// Handle focus events for floating button positioning
-const handleFieldFocus = (field: string, event: FocusEvent) => {
-  focusedField.value = field
-  updateButtonPosition(event.target as HTMLElement)
-}
-
-const handleFieldBlur = () => {
-  // Keep the button visible for a short time after blur
-  setTimeout(() => {
-    if (!hasPendingChanges.value) {
-      focusedField.value = null
-    }
-  }, 200)
-}
-
-const updateButtonPosition = (element: HTMLElement) => {
-  const rect = element.getBoundingClientRect()
-  const formContainer = element.closest('.form-container')
-  const formRect = formContainer?.getBoundingClientRect()
-
-  if (formRect) {
-    const relativeTop = rect.bottom - formRect.top + 8 // 8px below the field
-    const relativeLeft = rect.left - formRect.left
-
-    buttonPosition.value = {
-      top: `${relativeTop}px`,
-      left: `${relativeLeft}px`,
-    }
-  }
 }
 
 // Handle field changes for collaborative editing
@@ -327,29 +287,5 @@ const applyAcceptedChange = (field: string, value: unknown) => {
   .form-actions {
     flex-direction: column;
   }
-}
-
-/* Floating Add Suggestions Button */
-.floating-add-suggestions {
-  position: absolute;
-  z-index: 1000;
-  pointer-events: auto;
-  animation: slideInFromTop 0.2s ease-out;
-}
-
-@keyframes slideInFromTop {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.floating-add-suggestions button {
-  box-shadow: var(--shadow-lg);
-  border: 1px solid var(--color-primary);
 }
 </style>
