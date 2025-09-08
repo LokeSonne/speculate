@@ -1,9 +1,16 @@
 <template>
-  <div v-if="!editingSpec && isLoading" class="loading-container">
+  <div v-if="props.mode === 'edit' && isLoading" class="loading-container">
     <div class="loading-spinner">Loading...</div>
   </div>
   <FeatureSpecForm
-    v-else-if="editingSpec"
+    v-else-if="props.mode === 'create'"
+    :initial-data="defaultFormData"
+    :is-editing="false"
+    @submit="handleSubmit"
+    @cancel="handleCancel"
+  />
+  <FeatureSpecForm
+    v-else-if="props.mode === 'edit' && editingSpec"
     :initial-data="editingSpec"
     :is-editing="true"
     @submit="handleSubmit"
@@ -15,11 +22,14 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useFeatureSpecs, useFeatureSpec } from '../composables/useFeatureSpecsQuery'
 import { useFieldChanges } from '../composables/useFieldChangesQuery'
 import { useAuth } from '../composables/useAuth'
+import { useOrganizationContext } from '../composables/useOrganizationContext'
 import FeatureSpecForm from './forms/FeatureSpecForm.vue'
+import { createDefaultFormData } from '../utils/defaultFormData'
 import type { FeatureSpecFormData, FieldChange, CreateFieldChangeData } from '../types/feature'
 
 interface Props {
@@ -30,6 +40,7 @@ const props = defineProps<Props>()
 const route = useRoute()
 const router = useRouter()
 const { user } = useAuth()
+const { currentOrganizationId } = useOrganizationContext()
 
 // Use TanStack Query composables
 const { createSpecAsync, updateSpecAsync } = useFeatureSpecs()
@@ -42,7 +53,10 @@ const { createFieldChangeAsync } = useFieldChanges(
   props.mode === 'edit' ? (route.params.id as string) : '',
 )
 
-// TanStack Query will automatically fetch the spec data when needed
+// Default form data for create mode
+const defaultFormData = computed(() =>
+  createDefaultFormData(user.value?.email || '', currentOrganizationId.value || ''),
+)
 
 // Function to create field changes from form data
 const createFieldChangesFromFormData = async (
