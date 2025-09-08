@@ -258,6 +258,9 @@ describe('Edit Suggestions Integration Tests', () => {
         'Updated Feature Name',
       )
 
+      // Submit the form to create field changes
+      await wrapper.vm.handleSubmit()
+
       expect(mockCreateFieldChange).toHaveBeenCalledWith({
         featureSpecId: 'spec-1',
         fieldPath: 'featureName',
@@ -286,6 +289,9 @@ describe('Edit Suggestions Integration Tests', () => {
         [],
         [{ id: '1', description: 'New goal' }],
       )
+
+      // Submit the form to create field changes
+      await wrapper.vm.handleSubmit()
 
       expect(mockCreateFieldChange).toHaveBeenCalledWith({
         featureSpecId: 'spec-1',
@@ -360,6 +366,9 @@ describe('Edit Suggestions Integration Tests', () => {
         'Suggested Name',
       )
 
+      // Submit the form to create field changes
+      await wrapper.vm.handleSubmit()
+
       expect(mockCreateFieldChange).toHaveBeenCalledWith({
         featureSpecId: 'spec-1',
         fieldPath: 'featureName',
@@ -389,7 +398,10 @@ describe('Edit Suggestions Integration Tests', () => {
       // Simulate field change that fails
       await overviewSection.vm.$emit('field-change', 'featureName', 'Original', 'Updated')
 
-      expect(consoleError).toHaveBeenCalledWith('Failed to create field change:', expect.any(Error))
+      // Submit the form to trigger the error
+      await wrapper.vm.handleSubmit()
+
+      expect(consoleError).toHaveBeenCalledWith('Error adding suggestions:', expect.any(Error))
 
       consoleError.mockRestore()
     })

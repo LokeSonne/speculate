@@ -97,12 +97,6 @@ const fetchFieldChanges = async (featureSpecId: string): Promise<FieldChange[]> 
 
     const result = (data || []).map(transformFieldChange)
 
-    // Debug: Check for any field changes with undefined fieldPath
-    const invalidChanges = result.filter((change) => !change.fieldPath)
-    if (invalidChanges.length > 0) {
-      console.warn('⚠️ Found field changes with undefined fieldPath:', invalidChanges)
-    }
-
     return result
   } catch (err) {
     console.error('❌ fetchFieldChanges exception:', err)

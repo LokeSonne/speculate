@@ -188,7 +188,7 @@ describe('EditableFeatureSpecView - Edit Suggestions', () => {
   })
 
   describe('Edit Mode and Field Change Creation', () => {
-    it('does not create field changes when saving edits directly', async () => {
+    it('creates field changes when saving edits (integrated suggestions)', async () => {
       // Enter edit mode
       const editButton = wrapper.find('.btn-primary')
       await editButton.trigger('click')
@@ -198,35 +198,14 @@ describe('EditableFeatureSpecView - Edit Suggestions', () => {
       await titleInput.setValue('Updated Feature Name')
       await titleInput.trigger('blur')
 
-      // Save changes
+      // Save changes (now includes suggestions)
       const saveButton = wrapper.find('.btn-primary')
       await saveButton.trigger('click')
 
       // Wait for async operations
       await nextTick()
 
-      // Verify field change was NOT created
-      expect(mockCreateFieldChange).not.toHaveBeenCalled()
-    })
-
-    it('creates field changes when adding suggestions', async () => {
-      // Enter edit mode
-      const editButton = wrapper.find('.btn-primary')
-      await editButton.trigger('click')
-
-      // Edit a field
-      const titleInput = wrapper.find('.editable-title')
-      await titleInput.setValue('Updated Feature Name')
-      await titleInput.trigger('blur')
-
-      // Add suggestions
-      const addSuggestionsButton = wrapper.findAll('.btn-secondary')[0]
-      await addSuggestionsButton.trigger('click')
-
-      // Wait for async operations
-      await nextTick()
-
-      // Verify field change was created
+      // Verify field change WAS created (integrated suggestions)
       expect(mockCreateFieldChange).toHaveBeenCalledWith({
         featureSpecId: 'spec-1',
         fieldPath: 'featureName',
@@ -237,7 +216,7 @@ describe('EditableFeatureSpecView - Edit Suggestions', () => {
       })
     })
 
-    it('creates field changes for multiple field edits when adding suggestions', async () => {
+    it('creates field changes for multiple field edits when saving', async () => {
       // Enter edit mode
       const editButton = wrapper.find('.btn-primary')
       await editButton.trigger('click')
@@ -251,9 +230,9 @@ describe('EditableFeatureSpecView - Edit Suggestions', () => {
       await summaryTextarea.setValue('Updated summary')
       await summaryTextarea.trigger('blur')
 
-      // Add suggestions
-      const addSuggestionsButton = wrapper.findAll('.btn-secondary')[0]
-      await addSuggestionsButton.trigger('click')
+      // Save changes (now includes suggestions)
+      const saveButton = wrapper.find('.btn-primary')
+      await saveButton.trigger('click')
 
       // Wait for async operations
       await nextTick()
@@ -262,21 +241,21 @@ describe('EditableFeatureSpecView - Edit Suggestions', () => {
       expect(mockCreateFieldChange).toHaveBeenCalledTimes(2)
       expect(mockCreateFieldChange).toHaveBeenCalledWith(
         expect.objectContaining({
+          featureSpecId: 'spec-1',
           fieldPath: 'featureName',
-          oldValue: 'Test Feature',
           newValue: 'Updated Feature Name',
         }),
       )
       expect(mockCreateFieldChange).toHaveBeenCalledWith(
         expect.objectContaining({
+          featureSpecId: 'spec-1',
           fieldPath: 'featureSummary',
-          oldValue: 'A test feature',
           newValue: 'Updated summary',
         }),
       )
     })
 
-    it('updates feature spec after adding suggestions', async () => {
+    it('updates feature spec after saving changes', async () => {
       // Enter edit mode and make changes
       const editButton = wrapper.find('.btn-primary')
       await editButton.trigger('click')
@@ -285,9 +264,9 @@ describe('EditableFeatureSpecView - Edit Suggestions', () => {
       await titleInput.setValue('Updated Feature Name')
       await titleInput.trigger('blur')
 
-      // Add suggestions
-      const addSuggestionsButton = wrapper.findAll('.btn-secondary')[0]
-      await addSuggestionsButton.trigger('click')
+      // Save changes (now includes suggestions)
+      const saveButton = wrapper.find('.btn-primary')
+      await saveButton.trigger('click')
 
       // Wait for async operations
       await nextTick()
@@ -362,7 +341,7 @@ describe('EditableFeatureSpecView - Edit Suggestions', () => {
   })
 
   describe('Error Handling', () => {
-    it('handles errors when adding suggestions', async () => {
+    it('handles errors when saving changes', async () => {
       // Mock createFieldChange to throw an error
       mockCreateFieldChange.mockRejectedValueOnce(new Error('Failed to create field change'))
 
@@ -374,9 +353,9 @@ describe('EditableFeatureSpecView - Edit Suggestions', () => {
       await titleInput.setValue('Updated Feature Name')
       await titleInput.trigger('blur')
 
-      // Add suggestions
-      const addSuggestionsButton = wrapper.findAll('.btn-secondary')[0]
-      await addSuggestionsButton.trigger('click')
+      // Save changes (now includes suggestions)
+      const saveButton = wrapper.find('.btn-primary')
+      await saveButton.trigger('click')
 
       // Wait for async operations
       await nextTick()
@@ -430,6 +409,9 @@ describe('EditableFeatureSpecView - Edit Suggestions', () => {
       // Save changes
       const saveButton = wrapper.find('.btn-primary')
       await saveButton.trigger('click')
+
+      // Wait a bit for the async operation to start
+      await new Promise((resolve) => setTimeout(resolve, 10))
 
       // Verify loading state
       expect(saveButton.text()).toContain('Saving...')
@@ -510,7 +492,7 @@ describe('EditableFeatureSpecView - Edit Suggestions', () => {
       await titleInput.trigger('blur')
 
       // Cancel editing
-      const cancelButton = wrapper.findAll('.btn-secondary')[1] // Cancel is the second btn-secondary
+      const cancelButton = wrapper.findAll('.btn-secondary')[0] // Cancel is the first btn-secondary
       await cancelButton.trigger('click')
 
       // Wait for reactive updates

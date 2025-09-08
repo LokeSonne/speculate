@@ -208,13 +208,6 @@ const handleFieldChange = async (fieldPath: string, oldValue: unknown, newValue:
       newValue,
     })
   }
-
-  console.log('Field change tracked for suggestions:', {
-    fieldPath,
-    oldValue,
-    newValue,
-    pendingChangesCount: pendingChanges.value.length,
-  })
 }
 
 // Add suggestions function
@@ -238,8 +231,6 @@ const addSuggestions = async () => {
 
     // Clear pending changes after creating suggestions
     pendingChanges.value = []
-
-    console.log('Suggestions added successfully')
   } catch (error) {
     console.error('Error adding suggestions:', error)
   }
