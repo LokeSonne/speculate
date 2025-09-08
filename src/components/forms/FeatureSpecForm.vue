@@ -80,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, reactive } from 'vue'
+import { computed, ref, watch, reactive, nextTick } from 'vue'
 import { useAuth } from '../../composables/useAuth'
 import { useFieldChanges } from '../../composables/useFieldChangesQuery'
 import { useFeatureSpecForm } from '../../composables/useFeatureSpecForm'
@@ -189,15 +189,12 @@ const handleCancel = () => {
 
 // Generic form field update handler
 const updateFormField = (field: string, value: unknown) => {
-  console.trace('Call stack for updateFormField')
   updateField(field, value)
 }
 
 // Handle field changes for collaborative editing
 // Track changes instead of creating them immediately
 const handleFieldChange = async (fieldPath: string, oldValue: unknown, newValue: unknown) => {
-  console.trace('Call stack for handleFieldChange')
-
   if (!props.isEditing || !props.initialData.id) return
 
   // Track the change instead of creating it immediately
@@ -263,9 +260,21 @@ watch(
 )
 
 // Special handler for applying accepted changes without triggering form submission
-const applyAcceptedChange = (field: string, value: unknown) => {
+const applyAcceptedChange = async (field: string, value: unknown) => {
   isApplyingAcceptedChange.value = true
+
+  // Try both approaches to ensure the field is updated
   updateField(field, value)
+
+  // Also try to directly update the form data if it's a simple field
+  if (!field.includes('.')) {
+    if (field in formData.value) {
+      ;(formData.value as any)[field] = value
+    }
+  }
+
+  // Force a re-render by waiting for the next tick
+  await nextTick()
 }
 </script>
 

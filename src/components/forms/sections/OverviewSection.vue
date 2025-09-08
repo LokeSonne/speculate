@@ -13,7 +13,7 @@
       <label for="featureName">Feature Name *</label>
       <input
         id="featureName"
-        :value="data.featureName"
+        v-model="localFeatureName"
         @input="updateField('featureName', ($event.target as HTMLInputElement).value)"
         type="text"
         required
@@ -38,7 +38,7 @@
       <label for="status">Status *</label>
       <select
         id="status"
-        :value="data.status"
+        v-model="localStatus"
         @change="updateField('status', ($event.target as HTMLSelectElement).value)"
         required
         class="form-select"
@@ -66,7 +66,7 @@
       <label for="featureSummary">Feature Summary *</label>
       <textarea
         id="featureSummary"
-        :value="data.featureSummary"
+        v-model="localFeatureSummary"
         @input="updateField('featureSummary', ($event.target as HTMLTextAreaElement).value)"
         required
         placeholder="2-3 sentences describing what this feature does and its primary value"
@@ -90,6 +90,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref, watch } from 'vue'
 import { useFieldChanges } from '../../../composables/useFieldChangesQuery'
 import FieldChangeHistory from '../../FieldChangeHistory.vue'
 
@@ -115,6 +116,31 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
+// Local reactive references for form fields
+const localFeatureName = ref(props.data.featureName)
+const localFeatureSummary = ref(props.data.featureSummary)
+const localStatus = ref(props.data.status)
+
+// Watch for changes in props and update local references
+watch(
+  () => props.data.featureName,
+  (newValue) => {
+    localFeatureName.value = newValue
+  },
+)
+watch(
+  () => props.data.featureSummary,
+  (newValue) => {
+    localFeatureSummary.value = newValue
+  },
+)
+watch(
+  () => props.data.status,
+  (newValue) => {
+    localStatus.value = newValue
+  },
+)
+
 // Field changes functionality
 const {
   isLoading: loading,
@@ -138,7 +164,15 @@ const updateField = (field: string, value: string) => {
 
 // Apply accepted field change without triggering field-change event
 const applyAcceptedChange = (field: string, value: string) => {
-  console.trace('Call stack for applyAcceptedChange')
+  // Update local reactive references
+  if (field === 'featureName') {
+    localFeatureName.value = value
+  } else if (field === 'featureSummary') {
+    localFeatureSummary.value = value
+  } else if (field === 'status') {
+    localStatus.value = value
+  }
+
   emit('apply-accepted-change', field, value)
   // Note: Do not emit 'field-change' event for accepted changes to prevent form submission
 }
